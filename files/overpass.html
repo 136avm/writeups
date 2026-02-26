@@ -10,9 +10,9 @@
     --bg: #0a0c0f;
     --bg2: #0f1318;
     --bg3: #141920;
-    --accent: #00ff9d;
+    --accent: #3b82f6;
     --accent2: #ff6b35;
-    --accent3: #7b61ff;
+    --accent3: #60a5fa;
     --text: #c8d6e5;
     --text-dim: #5a7080;
     --border: #1e2d3d;
@@ -39,8 +39,8 @@
       0deg,
       transparent,
       transparent 2px,
-      rgba(0,255,157,0.015) 2px,
-      rgba(0,255,157,0.015) 4px
+      rgba(59,130,246,0.012) 2px,
+      rgba(59,130,246,0.012) 4px
     );
     pointer-events: none;
     z-index: 999;
@@ -59,8 +59,8 @@
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(ellipse 60% 80% at 50% 0%, rgba(123,97,255,0.1) 0%, transparent 70%),
-      radial-gradient(ellipse 40% 40% at 80% 80%, rgba(0,255,157,0.06) 0%, transparent 60%);
+      radial-gradient(ellipse 60% 80% at 50% 0%, rgba(37,99,235,0.12) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 80% 80%, rgba(59,130,246,0.06) 0%, transparent 60%);
   }
 
   .header-tag {
@@ -85,7 +85,7 @@
 
   h1 .glow {
     color: var(--accent3);
-    text-shadow: 0 0 40px rgba(123,97,255,0.6), 0 0 80px rgba(123,97,255,0.2);
+    text-shadow: 0 0 40px rgba(96,165,250,0.6), 0 0 80px rgba(96,165,250,0.2);
   }
 
   .header-meta {
@@ -172,7 +172,7 @@
     margin: 20px 0;
     font-family: 'Share Tech Mono', monospace;
     font-size: 13px;
-    color: #a8d8b0;
+    color: #93c5fd;
     overflow-x: auto;
     position: relative;
     line-height: 1.8;
@@ -216,7 +216,7 @@
   }
 
   .finding.info::before    { content: 'INFO';  background: var(--accent3); color: #fff; }
-  .finding.success::before { content: 'PWN';   background: var(--accent);  color: #000; }
+  .finding.success::before { content: 'PWN';   background: var(--accent);  color: #fff; }
   .finding.vuln::before    { content: 'VULN';  background: var(--red); }
   .finding.explain::before { content: 'CÓMO FUNCIONA'; background: var(--yellow); color: #000; }
 
@@ -254,7 +254,7 @@
     color: var(--text);
   }
 
-  .ports-table tr:hover td { background: rgba(0,255,157,0.03); }
+  .ports-table tr:hover td { background: rgba(59,130,246,0.03); }
   .port-open { color: var(--accent); }
   .port-num  { color: var(--accent2); font-weight: bold; }
 
@@ -323,7 +323,7 @@
     font-family: 'Share Tech Mono', monospace;
     font-size: 13px;
     color: var(--accent);
-    background: rgba(0,255,157,0.07);
+    background: rgba(59,130,246,0.08);
     padding: 1px 6px;
   }
 
@@ -331,8 +331,8 @@
   code.bad { color: var(--red);    background: rgba(255,71,87,0.07); }
 
   .flag-box {
-    background: rgba(0,255,157,0.04);
-    border: 1px solid rgba(0,255,157,0.2);
+    background: rgba(59,130,246,0.04);
+    border: 1px solid rgba(59,130,246,0.25);
     padding: 16px 24px;
     margin: 20px 0;
     display: flex;
@@ -419,9 +419,8 @@
 
   .highlight { color: var(--accent2); }
 </style>
-<style>.back-nav{position:fixed;top:20px;left:20px;z-index:1000;font-family:"Share Tech Mono",monospace;font-size:11px;letter-spacing:2px;color:var(--text-dim);text-decoration:none;padding:8px 16px;border:1px solid var(--border);background:rgba(10,12,15,0.85);backdrop-filter:blur(8px);transition:all .2s;text-transform:uppercase;}.back-nav:hover{color:var(--accent3);border-color:var(--accent3);}</style></head>
+</head>
 <body>
-<a href="../index.html" class="back-nav">← Volver</a>
 
 <header>
   <div class="container">
