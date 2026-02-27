@@ -404,17 +404,17 @@
     <p class="site-desc">// writeups de máquinas &amp; retos de seguridad</p>
     <div class="stats-bar">
       <div class="stat">
-        <div class="stat-num" id="total-count">3</div>
+        <div class="stat-num" id="total-count">0</div>
         <div class="stat-label">Writeups</div>
       </div>
       <div class="stat-sep"></div>
       <div class="stat">
-        <div class="stat-num">2</div>
+        <div class="stat-num" id="platform-count">0</div>
         <div class="stat-label">Plataformas</div>
       </div>
       <div class="stat-sep"></div>
       <div class="stat">
-        <div class="stat-num">3</div>
+        <div class="stat-num" id="machine-count">0</div>
         <div class="stat-label">Máquinas</div>
       </div>
     </div>
@@ -527,30 +527,30 @@
   let activeDifficulty = 'all';
   let searchQuery = '';
 
-  function applyFilters() {
-    let visible = 0;
-    cards.forEach(card => {
-      const platform = card.dataset.platform;
-      const difficulty = card.dataset.difficulty;
-      const title = card.dataset.title;
+  function updateStats() {
+    const visibleCards = cards.filter(c => !c.classList.contains('hidden'));
+    const platforms = new Set(visibleCards.map(c => c.dataset.platform));
 
-      const matchPlatform  = activePlatform === 'all'   || platform === activePlatform;
-      const matchDifficulty = activeDifficulty === 'all' || difficulty === activeDifficulty;
-      const matchSearch    = !searchQuery || title.includes(searchQuery) ||
-                             card.textContent.toLowerCase().includes(searchQuery);
-
-      if (matchPlatform && matchDifficulty && matchSearch) {
-        card.classList.remove('hidden');
-        visible++;
-      } else {
-        card.classList.add('hidden');
-      }
-    });
-    noResults.style.display = visible === 0 ? 'block' : 'none';
-    document.getElementById('total-count').textContent = visible;
+    document.getElementById('total-count').textContent    = visibleCards.length;
+    document.getElementById('platform-count').textContent = platforms.size;
+    document.getElementById('machine-count').textContent  = visibleCards.length;
   }
 
-  // Platform buttons
+  function applyFilters() {
+    cards.forEach(card => {
+      const matchPlatform   = activePlatform === 'all'   || card.dataset.platform === activePlatform;
+      const matchDifficulty = activeDifficulty === 'all' || card.dataset.difficulty === activeDifficulty;
+      const matchSearch     = !searchQuery || card.dataset.title.includes(searchQuery) ||
+                              card.textContent.toLowerCase().includes(searchQuery);
+
+      card.classList.toggle('hidden', !(matchPlatform && matchDifficulty && matchSearch));
+    });
+
+    const visible = cards.filter(c => !c.classList.contains('hidden')).length;
+    noResults.style.display = visible === 0 ? 'block' : 'none';
+    updateStats();
+  }
+
   document.querySelectorAll('[data-filter="platform"]').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('[data-filter="platform"]').forEach(b => b.classList.remove('active'));
@@ -560,7 +560,6 @@
     });
   });
 
-  // Difficulty buttons
   document.querySelectorAll('[data-filter="difficulty"]').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('[data-filter="difficulty"]').forEach(b => b.classList.remove('active'));
@@ -570,11 +569,13 @@
     });
   });
 
-  // Search
   document.getElementById('search').addEventListener('input', e => {
     searchQuery = e.target.value.toLowerCase().trim();
     applyFilters();
   });
+
+  // Inicializar contadores al cargar
+  applyFilters();
 </script>
 
 </body>
