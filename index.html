@@ -18,6 +18,12 @@
     --border: #1e2a3a;
     --red: #ef4444;
     --yellow: #f59e0b;
+
+    /* Platform colors */
+    --thm: #ef4444;
+    --htb: #22c55e;
+    --vh:  #a855f7;
+    --dl:  #3b82f6;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -32,7 +38,6 @@
     min-height: 100vh;
   }
 
-  /* Scanlines overlay */
   body::before {
     content: '';
     position: fixed;
@@ -77,10 +82,7 @@
     position: relative;
   }
 
-  .site-label::before {
-    content: '> ';
-    opacity: 0.5;
-  }
+  .site-label::before { content: '> '; opacity: 0.5; }
 
   h1 {
     font-family: 'Rajdhani', sans-serif;
@@ -111,9 +113,7 @@
     position: relative;
   }
 
-  .stat {
-    text-align: center;
-  }
+  .stat { text-align: center; }
 
   .stat-num {
     font-family: 'Share Tech Mono', monospace;
@@ -131,11 +131,7 @@
     margin-top: 4px;
   }
 
-  .stat-sep {
-    width: 1px;
-    background: var(--border);
-    align-self: stretch;
-  }
+  .stat-sep { width: 1px; background: var(--border); align-self: stretch; }
 
   /* ─── CONTROLS ─── */
   .container {
@@ -144,82 +140,76 @@
     padding: 0 32px;
   }
 
+  /* Two-row controls layout */
   .controls {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    flex-wrap: nowrap;
-    padding: 40px 0 32px;
+    padding: 32px 0 0;
     border-bottom: 1px solid var(--border);
-    overflow-x: auto;
+  }
+
+  .controls-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding-bottom: 16px;
+  }
+
+  /* Second row has a top separator and search aligned right */
+  .controls-row + .controls-row {
+    border-top: 1px solid rgba(30, 42, 58, 0.6);
+    padding-top: 16px;
   }
 
   .filter-label {
     font-family: 'Share Tech Mono', monospace;
-    font-size: 11px;
+    font-size: 10px;
     letter-spacing: 3px;
     color: var(--text-dim);
     text-transform: uppercase;
     margin-right: 4px;
+    white-space: nowrap;
+    min-width: 80px;
   }
 
   .filter-btn {
     font-family: 'Share Tech Mono', monospace;
     font-size: 11px;
     letter-spacing: 2px;
-    padding: 6px 16px;
+    padding: 5px 14px;
     border: 1px solid var(--border);
     background: transparent;
     color: var(--text-dim);
     cursor: pointer;
     text-transform: uppercase;
     transition: all 0.2s;
+    white-space: nowrap;
   }
 
-  .filter-btn:hover,
-  .filter-btn.active {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: rgba(59,130,246,0.08);
-  }
+  .filter-btn:hover { opacity: 0.85; }
 
-  /* TryHackMe - Rojo */
-  .filter-btn.platform-thm.active { 
-    border-color: #ef4444; 
-    color: #ef4444; 
-    background: rgba(239, 68, 68, 0.1); 
-  }
-  
-  /* HackTheBox - Verde */
-  .filter-btn.platform-htb.active { 
-    border-color: #22c55e; 
-    color: #22c55e; 
-    background: rgba(34, 197, 94, 0.1); 
-  }
-  
-  /* VulnHub - Lila */
-  .filter-btn.platform-vh.active { 
-    border-color: #a855f7; 
-    color: #a855f7; 
-    background: rgba(168, 85, 247, 0.1); 
-  }
-  
-  /* DockerLabs - Azul */
-  .filter-btn.platform-dl.active { 
-    border-color: #3b82f6; 
-    color: #3b82f6; 
-    background: rgba(59, 130, 246, 0.1); 
-  }
+  /* Platform buttons — always show their accent color subtly */
+  .filter-btn.platform-all  { border-color: #4a5568; }
+  .filter-btn.platform-thm  { border-color: rgba(239,68,68,0.35); color: rgba(239,68,68,0.55); }
+  .filter-btn.platform-htb  { border-color: rgba(34,197,94,0.35); color: rgba(34,197,94,0.55); }
+  .filter-btn.platform-vh   { border-color: rgba(168,85,247,0.35); color: rgba(168,85,247,0.55); }
+  .filter-btn.platform-dl   { border-color: rgba(59,130,246,0.35); color: rgba(59,130,246,0.55); }
 
+  .filter-btn.platform-all.active  { border-color: #94a3b8; color: #94a3b8; background: rgba(148,163,184,0.08); }
+  .filter-btn.platform-thm.active  { border-color: var(--thm); color: var(--thm); background: rgba(239,68,68,0.10); }
+  .filter-btn.platform-htb.active  { border-color: var(--htb); color: var(--htb); background: rgba(34,197,94,0.10); }
+  .filter-btn.platform-vh.active   { border-color: var(--vh);  color: var(--vh);  background: rgba(168,85,247,0.10); }
+  .filter-btn.platform-dl.active   { border-color: var(--dl);  color: var(--dl);  background: rgba(59,130,246,0.10); }
+
+  /* Difficulty buttons */
+  .filter-btn.diff-all.active    { border-color: #94a3b8; color: #94a3b8; background: rgba(148,163,184,0.08); }
   .filter-btn.diff-easy.active   { border-color: #00c896; color: #00c896; background: rgba(0,200,150,0.05); }
   .filter-btn.diff-medium.active { border-color: var(--yellow); color: var(--yellow); background: rgba(255,211,42,0.05); }
   .filter-btn.diff-hard.active   { border-color: var(--red); color: var(--red); background: rgba(255,71,87,0.05); }
 
-  .sep-dot {
-    color: var(--border);
-    font-size: 20px;
-    margin: 0 4px;
-  }
+  .filter-btn.diff-easy   { color: rgba(0,200,150,0.45); border-color: rgba(0,200,150,0.2); }
+  .filter-btn.diff-medium { color: rgba(245,158,11,0.45); border-color: rgba(245,158,11,0.2); }
+  .filter-btn.diff-hard   { color: rgba(239,68,68,0.45); border-color: rgba(239,68,68,0.2); }
+  .filter-btn.diff-all    { color: var(--text-dim); }
 
   .search-wrap {
     margin-left: auto;
@@ -243,8 +233,8 @@
     background: var(--bg2);
     border: 1px solid var(--border);
     color: var(--text);
-    padding: 8px 16px 8px 36px;
-    width: 180px;
+    padding: 7px 16px 7px 36px;
+    width: 200px;
     outline: none;
     letter-spacing: 1px;
     transition: border-color 0.2s;
@@ -377,7 +367,6 @@
 
   .card:hover .card-arrow { opacity: 1; transform: translateX(4px); }
 
-  /* No results */
   .no-results {
     grid-column: 1/-1;
     text-align: center;
@@ -417,6 +406,12 @@
   .card:nth-child(6) { animation-delay: 0.30s; }
 
   .card.hidden { display: none; }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .filter-label { display: none; }
+    #search { width: 140px; }
+  }
 </style>
 </head>
 <body>
@@ -448,52 +443,60 @@
 <div class="container">
 
   <div class="controls">
-    <button class="filter-btn platform-thm active" data-filter="platform" data-value="all">Todas</button>
-    <button class="filter-btn platform-thm" data-filter="platform" data-value="TryHackMe">TryHackMe</button>
-    <button class="filter-btn platform-htb" data-filter="platform" data-value="HackTheBox">HackTheBox</button>
-    <button class="filter-btn platform-vh" data-filter="platform" data-value="VulnHub">VulnHub</button>
-    <button class="filter-btn platform-dl" data-filter="platform" data-value="Dockerlabs">Dockerlabs</button>
 
-    <span class="sep-dot">·</span>
-
-    <button class="filter-btn active" data-filter="difficulty" data-value="all">Todas</button>
-    <button class="filter-btn diff-easy" data-filter="difficulty" data-value="Easy">Easy</button>
-    <button class="filter-btn diff-medium" data-filter="difficulty" data-value="Medium">Medium</button>
-    <button class="filter-btn diff-hard" data-filter="difficulty" data-value="Hard">Hard</button>
-
-    <div class="search-wrap">
-      <input type="text" id="search" placeholder="Buscar writeup...">
+    <!-- Row 1: Plataformas -->
+    <div class="controls-row">
+      <span class="filter-label">Platform</span>
+      <button class="filter-btn platform-all active" data-filter="platform" data-value="all">Todas</button>
+      <button class="filter-btn platform-thm" data-filter="platform" data-value="TryHackMe">TryHackMe</button>
+      <button class="filter-btn platform-htb" data-filter="platform" data-value="HackTheBox">HackTheBox</button>
+      <button class="filter-btn platform-vh"  data-filter="platform" data-value="VulnHub">VulnHub</button>
+      <button class="filter-btn platform-dl"  data-filter="platform" data-value="Dockerlabs">Dockerlabs</button>
     </div>
+
+    <!-- Row 2: Dificultad + búsqueda -->
+    <div class="controls-row">
+      <span class="filter-label">Difficulty</span>
+      <button class="filter-btn diff-all active" data-filter="difficulty" data-value="all">Todas</button>
+      <button class="filter-btn diff-easy"   data-filter="difficulty" data-value="Easy">Easy</button>
+      <button class="filter-btn diff-medium" data-filter="difficulty" data-value="Medium">Medium</button>
+      <button class="filter-btn diff-hard"   data-filter="difficulty" data-value="Hard">Hard</button>
+
+      <div class="search-wrap">
+        <input type="text" id="search" placeholder="Buscar writeup...">
+      </div>
+    </div>
+
   </div>
 
   <div class="grid" id="grid">
 
-  <!-- MR ROBOT -->
-  <a class="card"
-     href="files/mrrobot.html"
-     style="--card-accent: #3b82f6;"
-     data-platform="VulnHub"
-     data-difficulty="Easy"
-     data-title="mrrobot">
-    <div class="card-platform">VulnHub</div>
-    <div class="card-title">Mr. Robot</div>
-    <div class="card-desc">Diccionario y key filtrados en robots.txt de un WordPress vulnerable. Enumeración de usuarios por mensajes de error diferenciados, fuerza bruta de contraseña, RCE via editor de temas y escalada a root explotando un binario nmap con SUID.</div>
-    <div class="card-footer">
-      <div class="card-tags">
-        <span class="badge">#linux</span>
-        <span class="badge">#wordpress</span>
-        <span class="badge">#bruteforce</span>
-        <span class="badge">#suid</span>
+    <!-- MR ROBOT -->
+    <a class="card"
+       href="files/mrrobot.html"
+       style="--card-accent: #a855f7;"
+       data-platform="VulnHub"
+       data-difficulty="Easy"
+       data-title="mrrobot">
+      <div class="card-platform">VulnHub</div>
+      <div class="card-title">Mr. Robot</div>
+      <div class="card-desc">Diccionario y key filtrados en robots.txt de un WordPress vulnerable. Enumeración de usuarios por mensajes de error diferenciados, fuerza bruta de contraseña, RCE via editor de temas y escalada a root explotando un binario nmap con SUID.</div>
+      <div class="card-footer">
+        <div class="card-tags">
+          <span class="badge">#linux</span>
+          <span class="badge">#wordpress</span>
+          <span class="badge">#bruteforce</span>
+          <span class="badge">#suid</span>
+        </div>
+        <span class="difficulty diff-easy">Easy</span>
+        <span class="card-arrow">→</span>
       </div>
-      <span class="difficulty diff-easy">Easy</span>
-      <span class="card-arrow">→</span>
-    </div>
-  </a>
-    
-  <!-- OOPSIE -->
+    </a>
+
+    <!-- OOPSIE -->
     <a class="card"
        href="files/oopsie.html"
-       style="--card-accent: #60a5fa;"
+       style="--card-accent: #22c55e;"
        data-platform="HackTheBox"
        data-difficulty="Easy"
        data-title="oopsie">
@@ -511,11 +514,11 @@
         <span class="card-arrow">→</span>
       </div>
     </a>
-    
+
     <!-- ARCHETYPE -->
     <a class="card"
        href="files/archetype.html"
-       style="--card-accent: #3b82f6;"
+       style="--card-accent: #22c55e;"
        data-platform="HackTheBox"
        data-difficulty="Easy"
        data-title="archetype">
@@ -533,11 +536,11 @@
         <span class="card-arrow">→</span>
       </div>
     </a>
-    
+
     <!-- OVERPASS -->
     <a class="card"
        href="files/overpass.html"
-       style="--card-accent: #60a5fa;"
+       style="--card-accent: #ef4444;"
        data-platform="TryHackMe"
        data-difficulty="Easy"
        data-title="overpass">
@@ -559,7 +562,7 @@
     <!-- MUSTACCHIO -->
     <a class="card"
        href="files/mustacchio.html"
-       style="--card-accent: #3b82f6;"
+       style="--card-accent: #ef4444;"
        data-platform="TryHackMe"
        data-difficulty="Easy"
        data-title="mustacchio">
@@ -599,7 +602,6 @@
   function updateStats() {
     const visibleCards = cards.filter(c => !c.classList.contains('hidden'));
     const platforms = new Set(visibleCards.map(c => c.dataset.platform));
-
     document.getElementById('total-count').textContent    = visibleCards.length;
     document.getElementById('platform-count').textContent = platforms.size;
     document.getElementById('machine-count').textContent  = visibleCards.length;
@@ -611,10 +613,8 @@
       const matchDifficulty = activeDifficulty === 'all' || card.dataset.difficulty === activeDifficulty;
       const matchSearch     = !searchQuery || card.dataset.title.includes(searchQuery) ||
                               card.textContent.toLowerCase().includes(searchQuery);
-
       card.classList.toggle('hidden', !(matchPlatform && matchDifficulty && matchSearch));
     });
-
     const visible = cards.filter(c => !c.classList.contains('hidden')).length;
     noResults.style.display = visible === 0 ? 'block' : 'none';
     updateStats();
@@ -643,7 +643,6 @@
     applyFilters();
   });
 
-  // Inicializar contadores al cargar
   applyFilters();
 </script>
 
