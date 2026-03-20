@@ -392,7 +392,7 @@
   <div class="grid" id="grid">
 
     <!-- FACTS -->
-    <a class="card" href="files/facts.html" style="--card-accent: #22c55e;" data-platform="HackTheBox" data-difficulty="Easy" data-title="facts">
+    <a class="card" href="facts/" style="--card-accent: #22c55e;" data-platform="HackTheBox" data-difficulty="Easy" data-title="facts">
       <div class="card-platform">HackTheBox</div>
       <div class="card-title">Facts</div>
       <div class="card-desc">Bucket MinIO público con escritura anónima. CVE-2025-2304 escala a admin en Camaleon CMS y filtra credenciales S3. Bucket privado expone clave SSH. CVE-2024-46987 (LFI) revela el usuario. Escalada a root abusando de sudo facter con custom facts Ruby.</div>
@@ -409,7 +409,7 @@
     </a>
 
         <!-- WHITEROSE -->
-    <a class="card" href="files/whiterose.html" style="--card-accent: #ef4444;" data-platform="TryHackMe" data-difficulty="Easy" data-title="whiterose">
+    <a class="card" href="whiterose/" style="--card-accent: #ef4444;" data-platform="TryHackMe" data-difficulty="Easy" data-title="whiterose">
       <div class="card-platform">TryHackMe</div>
       <div class="card-title">Whiterose</div>
       <div class="card-desc">IDOR en el chat expone credenciales de admin. SSTI en EJS via CVE-2022-29078 permite RCE. Escalada a root abusando de sudoedit con CVE-2023-22809.</div>
@@ -426,7 +426,7 @@
     </a>
 
     <!-- UNIFIED -->
-    <a class="card" href="files/unified.html" style="--card-accent: #22c55e;" data-platform="HackTheBox" data-difficulty="Easy" data-title="unified">
+    <a class="card" href="unified/" style="--card-accent: #22c55e;" data-platform="HackTheBox" data-difficulty="Easy" data-title="unified">
       <div class="card-platform">HackTheBox</div>
       <div class="card-title">Unified</div>
       <div class="card-desc">Log4Shell en UniFi expone RCE sin autenticación. Manipulación de MongoDB para acceder al panel y obtener la contraseña SSH de root en texto claro.</div>
@@ -443,7 +443,7 @@
     </a>
 
     <!-- VACCINE -->
-    <a class="card" href="files/vaccine.html" style="--card-accent: #22c55e;" data-platform="HackTheBox" data-difficulty="Easy" data-title="vaccine">
+    <a class="card" href="vaccine/" style="--card-accent: #22c55e;" data-platform="HackTheBox" data-difficulty="Easy" data-title="vaccine">
       <div class="card-platform">HackTheBox</div>
       <div class="card-title">Vaccine</div>
       <div class="card-desc">FTP anónimo expone un backup con credenciales hasheadas. SQLi en el panel web permite RCE; escalada final abusando de vi con sudo.</div>
@@ -460,7 +460,7 @@
     </a>
 
     <!-- INTERNAL -->
-    <a class="card" href="files/internal.html" style="--card-accent: #3b82f6;" data-platform="Dockerlabs" data-difficulty="Easy" data-title="internal">
+    <a class="card" href="internal/" style="--card-accent: #3b82f6;" data-platform="Dockerlabs" data-difficulty="Easy" data-title="internal">
       <div class="card-platform">Dockerlabs</div>
       <div class="card-title">Internal</div>
       <div class="card-desc">Virtual host fuzzing para descubrir un panel con RCE protegido por WAF, bypasseado con quote splitting. Escalada a root via binario SUID personalizado.</div>
@@ -477,7 +477,7 @@
     </a>
 
     <!-- MR ROBOT -->
-    <a class="card" href="files/mrrobot.html" style="--card-accent: #a855f7;" data-platform="VulnHub" data-difficulty="Easy" data-title="mrrobot">
+    <a class="card" href="mrrobot/" style="--card-accent: #a855f7;" data-platform="VulnHub" data-difficulty="Easy" data-title="mrrobot">
       <div class="card-platform">VulnHub</div>
       <div class="card-title">Mr. Robot</div>
       <div class="card-desc">Diccionario y key filtrados en robots.txt de un WordPress vulnerable. Enumeración de usuarios por mensajes de error diferenciados, fuerza bruta de contraseña, RCE via editor de temas y escalada a root explotando un binario nmap con SUID.</div>
@@ -494,7 +494,7 @@
     </a>
 
     <!-- OOPSIE -->
-    <a class="card" href="files/oopsie.html" style="--card-accent: #22c55e;" data-platform="HackTheBox" data-difficulty="Easy" data-title="oopsie">
+    <a class="card" href="oopsie/" style="--card-accent: #22c55e;" data-platform="HackTheBox" data-difficulty="Easy" data-title="oopsie">
       <div class="card-platform">HackTheBox</div>
       <div class="card-title">Oopsie</div>
       <div class="card-desc">Enumeración con Burp Suite, acceso admin vía IDOR y cookie hijacking, reverse shell por upload sin restricciones y escalada a root con path hijacking sobre un binario SUID.</div>
@@ -511,7 +511,7 @@
     </a>
 
     <!-- ARCHETYPE -->
-    <a class="card" href="files/archetype.html" style="--card-accent: #22c55e;" data-platform="HackTheBox" data-difficulty="Easy" data-title="archetype">
+    <a class="card" href="archetype/" style="--card-accent: #22c55e;" data-platform="HackTheBox" data-difficulty="Easy" data-title="archetype">
       <div class="card-platform">HackTheBox</div>
       <div class="card-title">Archetype</div>
       <div class="card-desc">Credenciales expuestas en un share SMB anónimo que dan acceso a un servidor MSSQL. Ejecución de comandos vía xp_cmdshell y escalada a administrador a través del historial de PowerShell.</div>
@@ -528,7 +528,7 @@
     </a>
 
     <!-- OVERPASS -->
-    <a class="card" href="files/overpass.html" style="--card-accent: #ef4444;" data-platform="TryHackMe" data-difficulty="Easy" data-title="overpass">
+    <a class="card" href="overpass/" style="--card-accent: #ef4444;" data-platform="TryHackMe" data-difficulty="Easy" data-title="overpass">
       <div class="card-platform">TryHackMe</div>
       <div class="card-title">Overpass</div>
       <div class="card-desc">Explotación de autenticación rota en una app web, seguida de privilege escalation vía hosts hijacking y cron jobs.</div>
@@ -545,7 +545,7 @@
     </a>
 
     <!-- MUSTACCHIO -->
-    <a class="card" href="files/mustacchio.html" style="--card-accent: #ef4444;" data-platform="TryHackMe" data-difficulty="Easy" data-title="mustacchio">
+    <a class="card" href="mustacchio/" style="--card-accent: #ef4444;" data-platform="TryHackMe" data-difficulty="Easy" data-title="mustacchio">
       <div class="card-platform">TryHackMe</div>
       <div class="card-title">Mustacchio</div>
       <div class="card-desc">Explotación de XXE en un panel de administración y privilege escalation mediante path hijacking de binarios SUID.</div>
