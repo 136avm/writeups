@@ -1,418 +1,345 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CTF Writeups</title>
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;500;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg: #0d0d0d;
-    --bg2: #111318;
-    --bg3: #161a22;
-    --accent: #3b82f6;
-    --accent2: #60a5fa;
-    --accent3: #2563eb;
-    --text: #e2e8f0;
-    --text-dim: #4a5568;
-    --border: #1e2a3a;
-    --red: #ef4444;
-    --yellow: #f59e0b;
-
-    /* Platform colors */
-    --thm: #ef4444;
-    --htb: #22c55e;
-    --vh:  #a855f7;
-    --dl:  #3b82f6;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 17px;
-    line-height: 1.7;
-    overflow-x: hidden;
-    min-height: 100vh;
-  }
-
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(59,130,246,0.010) 2px,
-      rgba(59,130,246,0.010) 4px
-    );
-    pointer-events: none;
-    z-index: 999;
-  }
-
-  /* ─── HEADER ─── */
-  header {
-    position: relative;
-    padding: 80px 0 60px;
-    text-align: center;
-    border-bottom: 1px solid var(--border);
-    overflow: hidden;
-  }
-
-  header::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background:
-      radial-gradient(ellipse 70% 90% at 50% -10%, rgba(37,99,235,0.15) 0%, transparent 70%),
-      radial-gradient(ellipse 40% 40% at 90% 90%, rgba(59,130,246,0.06) 0%, transparent 60%);
-  }
-
-  .site-label {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 5px;
-    color: var(--accent);
-    text-transform: uppercase;
-    margin-bottom: 20px;
-    opacity: 0.8;
-    position: relative;
-  }
-
-  .site-label::before { content: '> '; opacity: 0.5; }
-
-  h1 {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: clamp(48px, 8vw, 90px);
-    font-weight: 700;
-    letter-spacing: -2px;
-    color: #fff;
-    line-height: 1;
-    position: relative;
-  }
-
-  h1 .accent { color: var(--accent3); text-shadow: 0 0 40px rgba(123,97,255,0.5); }
-
-  .site-desc {
-    margin-top: 18px;
-    font-family: 'Space Mono', monospace;
-    font-size: 13px;
-    color: var(--text-dim);
-    letter-spacing: 1px;
-    position: relative;
-  }
-
-  .stats-bar {
-    display: flex;
-    justify-content: center;
-    gap: 32px;
-    margin-top: 36px;
-    position: relative;
-  }
-
-  .stat { text-align: center; }
-
-  .stat-num {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 28px;
-    color: var(--accent);
-    line-height: 1;
-  }
-
-  .stat-label {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 2px;
-    color: var(--text-dim);
-    text-transform: uppercase;
-    margin-top: 4px;
-  }
-
-  .stat-sep { width: 1px; background: var(--border); align-self: stretch; }
-
-  /* ─── CONTROLS ─── */
-  .container {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 0 32px;
-  }
-
-  /* Two-row controls layout */
-  .controls {
-    padding: 32px 0 0;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .controls-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-    padding-bottom: 16px;
-  }
-
-  /* Second row has a top separator and search aligned right */
-  .controls-row + .controls-row {
-    border-top: 1px solid rgba(30, 42, 58, 0.6);
-    padding-top: 16px;
-  }
-
-  .filter-label {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 3px;
-    color: var(--text-dim);
-    text-transform: uppercase;
-    margin-right: 4px;
-    white-space: nowrap;
-    min-width: 80px;
-  }
-
-  .filter-btn {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 2px;
-    padding: 5px 14px;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--text-dim);
-    cursor: pointer;
-    text-transform: uppercase;
-    transition: all 0.2s;
-    white-space: nowrap;
-  }
-
-  .filter-btn:hover { opacity: 0.85; }
-
-  /* Platform buttons — always show their accent color subtly */
-  .filter-btn.platform-all  { border-color: #4a5568; }
-  .filter-btn.platform-thm  { border-color: rgba(239,68,68,0.35); color: rgba(239,68,68,0.55); }
-  .filter-btn.platform-htb  { border-color: rgba(34,197,94,0.35); color: rgba(34,197,94,0.55); }
-  .filter-btn.platform-vh   { border-color: rgba(168,85,247,0.35); color: rgba(168,85,247,0.55); }
-  .filter-btn.platform-dl   { border-color: rgba(59,130,246,0.35); color: rgba(59,130,246,0.55); }
-
-  .filter-btn.platform-all.active  { border-color: #94a3b8; color: #94a3b8; background: rgba(148,163,184,0.08); }
-  .filter-btn.platform-thm.active  { border-color: var(--thm); color: var(--thm); background: rgba(239,68,68,0.10); }
-  .filter-btn.platform-htb.active  { border-color: var(--htb); color: var(--htb); background: rgba(34,197,94,0.10); }
-  .filter-btn.platform-vh.active   { border-color: var(--vh);  color: var(--vh);  background: rgba(168,85,247,0.10); }
-  .filter-btn.platform-dl.active   { border-color: var(--dl);  color: var(--dl);  background: rgba(59,130,246,0.10); }
-
-  /* Difficulty buttons */
-  .filter-btn.diff-all.active    { border-color: #94a3b8; color: #94a3b8; background: rgba(148,163,184,0.08); }
-  .filter-btn.diff-easy.active   { border-color: #00c896; color: #00c896; background: rgba(0,200,150,0.05); }
-  .filter-btn.diff-medium.active { border-color: var(--yellow); color: var(--yellow); background: rgba(255,211,42,0.05); }
-  .filter-btn.diff-hard.active   { border-color: var(--red); color: var(--red); background: rgba(255,71,87,0.05); }
-
-  .filter-btn.diff-easy   { color: rgba(0,200,150,0.45); border-color: rgba(0,200,150,0.2); }
-  .filter-btn.diff-medium { color: rgba(245,158,11,0.45); border-color: rgba(245,158,11,0.2); }
-  .filter-btn.diff-hard   { color: rgba(239,68,68,0.45); border-color: rgba(239,68,68,0.2); }
-  .filter-btn.diff-all    { color: var(--text-dim); }
-
-  .search-wrap {
-    margin-left: auto;
-    position: relative;
-  }
-
-  .search-wrap::before {
-    content: '⌕';
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--text-dim);
-    font-size: 16px;
-    pointer-events: none;
-  }
-
-  #search {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 12px;
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 7px 16px 7px 36px;
-    width: 200px;
-    outline: none;
-    letter-spacing: 1px;
-    transition: border-color 0.2s;
-  }
-
-  #search:focus { border-color: var(--accent3); }
-  #search::placeholder { color: var(--text-dim); }
-
-  /* ─── GRID ─── */
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 24px;
-    padding: 48px 0 80px;
-  }
-
-  .card {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    padding: 32px;
-    text-decoration: none;
-    color: inherit;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    position: relative;
-    overflow: hidden;
-    transition: border-color 0.25s, transform 0.2s;
-    cursor: pointer;
-  }
-
-  .card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, var(--card-accent, var(--accent3)), transparent);
-    opacity: 0;
-    transition: opacity 0.25s;
-  }
-
-  .card:hover {
-    border-color: var(--card-accent, var(--accent3));
-    transform: translateY(-3px);
-  }
-
-  .card:hover::before { opacity: 1; }
-
-  .card-platform {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: var(--card-accent, var(--accent3));
-    opacity: 0.9;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .card-platform::before {
-    content: '';
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--card-accent, var(--accent3));
-    display: inline-block;
-  }
-
-  .card-title {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 28px;
-    font-weight: 700;
-    color: #fff;
-    letter-spacing: 0.5px;
-    line-height: 1.1;
-  }
-
-  .card-desc {
-    font-family: 'Space Mono', monospace;
-    font-size: 12px;
-    color: var(--text-dim);
-    line-height: 1.6;
-    flex: 1;
-  }
-
-  .card-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 4px;
-  }
-
-  .card-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-
-  .badge {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 10px;
-    padding: 3px 8px;
-    border: 1px solid var(--border);
-    color: var(--text-dim);
-    letter-spacing: 1px;
-  }
-
-  .difficulty {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 11px;
-    padding: 4px 12px;
-    border: 1px solid;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-  }
-
-  .diff-easy   { border-color: #00c896; color: #00c896; }
-  .diff-medium { border-color: var(--yellow); color: var(--yellow); }
-  .diff-hard   { border-color: var(--red); color: var(--red); }
-
-  .card-arrow {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 18px;
-    color: var(--card-accent, var(--accent3));
-    opacity: 0;
-    transition: opacity 0.2s, transform 0.2s;
-    margin-left: auto;
-    padding-left: 12px;
-  }
-
-  .card:hover .card-arrow { opacity: 1; transform: translateX(4px); }
-
-  .no-results {
-    grid-column: 1/-1;
-    text-align: center;
-    padding: 80px 0;
-    font-family: 'Share Tech Mono', monospace;
-    color: var(--text-dim);
-    letter-spacing: 2px;
-    font-size: 13px;
-    display: none;
-  }
-
-  /* ─── FOOTER ─── */
-  footer {
-    border-top: 1px solid var(--border);
-    padding: 32px 0;
-    text-align: center;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 11px;
-    color: var(--text-dim);
-    letter-spacing: 2px;
-  }
-
-  footer span { color: var(--accent3); }
-
-  /* ─── ANIMATIONS ─── */
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(24px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  .card { animation: fadeUp 0.5s ease both; }
-  .card:nth-child(1) { animation-delay: 0.05s; }
-  .card:nth-child(2) { animation-delay: 0.10s; }
-  .card:nth-child(3) { animation-delay: 0.15s; }
-  .card:nth-child(4) { animation-delay: 0.20s; }
-  .card:nth-child(5) { animation-delay: 0.25s; }
-  .card:nth-child(6) { animation-delay: 0.30s; }
-
-  .card.hidden { display: none; }
-
-  /* Responsive */
-  @media (max-width: 600px) {
-    .filter-label { display: none; }
-    #search { width: 140px; }
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CTF Writeups</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;500;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0d0d0d;
+      --bg2: #111318;
+      --bg3: #161a22;
+      --accent: #3b82f6;
+      --accent2: #60a5fa;
+      --accent3: #2563eb;
+      --text: #e2e8f0;
+      --text-dim: #4a5568;
+      --border: #1e2a3a;
+      --red: #ef4444;
+      --yellow: #f59e0b;
+      /* Platform colors */
+      --thm: #ef4444;
+      --htb: #22c55e;
+      --vh: #a855f7;
+      --dl: #3b82f6;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 17px;
+      line-height: 1.7;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(59,130,246,0.010) 2px,
+        rgba(59,130,246,0.010) 4px
+      );
+      pointer-events: none;
+      z-index: 999;
+    }
+    /* ─── HEADER ─── */
+    header {
+      position: relative;
+      padding: 80px 0 60px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      overflow: hidden;
+    }
+    header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 70% 90% at 50% -10%, rgba(37,99,235,0.15) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 40% at 90% 90%, rgba(59,130,246,0.06) 0%, transparent 60%);
+    }
+    .site-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 5px;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      opacity: 0.8;
+      position: relative;
+    }
+    .site-label::before { content: '> '; opacity: 0.5; }
+    h1 {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: clamp(48px, 8vw, 90px);
+      font-weight: 700;
+      letter-spacing: -2px;
+      color: #fff;
+      line-height: 1;
+      position: relative;
+    }
+    h1 .accent { color: var(--accent3); text-shadow: 0 0 40px rgba(123,97,255,0.5); }
+    .site-desc {
+      margin-top: 18px;
+      font-family: 'Space Mono', monospace;
+      font-size: 13px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+      position: relative;
+    }
+    .stats-bar {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      margin-top: 36px;
+      position: relative;
+    }
+    .stat { text-align: center; }
+    .stat-num {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 28px;
+      color: var(--accent);
+      line-height: 1;
+    }
+    .stat-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+    .stat-sep { width: 1px; background: var(--border); align-self: stretch; }
+    /* ─── CONTROLS ─── */
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 32px; }
+    .controls { padding: 32px 0 0; border-bottom: 1px solid var(--border); }
+    .controls-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      padding-bottom: 16px;
+    }
+    .controls-row + .controls-row {
+      border-top: 1px solid rgba(30, 42, 58, 0.6);
+      padding-top: 16px;
+    }
+    .filter-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 3px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      margin-right: 4px;
+      white-space: nowrap;
+      min-width: 80px;
+    }
+    .filter-btn {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 2px;
+      padding: 5px 14px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-dim);
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .filter-btn:hover { opacity: 0.85; }
+    .filter-btn.platform-all { border-color: #4a5568; }
+    .filter-btn.platform-thm { border-color: rgba(239,68,68,0.35); color: rgba(239,68,68,0.55); }
+    .filter-btn.platform-htb { border-color: rgba(34,197,94,0.35); color: rgba(34,197,94,0.55); }
+    .filter-btn.platform-vh { border-color: rgba(168,85,247,0.35); color: rgba(168,85,247,0.55); }
+    .filter-btn.platform-dl { border-color: rgba(59,130,246,0.35); color: rgba(59,130,246,0.55); }
+    .filter-btn.platform-all.active { border-color: #94a3b8; color: #94a3b8; background: rgba(148,163,184,0.08); }
+    .filter-btn.platform-thm.active { border-color: var(--thm); color: var(--thm); background: rgba(239,68,68,0.10); }
+    .filter-btn.platform-htb.active { border-color: var(--htb); color: var(--htb); background: rgba(34,197,94,0.10); }
+    .filter-btn.platform-vh.active { border-color: var(--vh); color: var(--vh); background: rgba(168,85,247,0.10); }
+    .filter-btn.platform-dl.active { border-color: var(--dl); color: var(--dl); background: rgba(59,130,246,0.10); }
+    .filter-btn.diff-all.active { border-color: #94a3b8; color: #94a3b8; background: rgba(148,163,184,0.08); }
+    .filter-btn.diff-easy.active { border-color: #00c896; color: #00c896; background: rgba(0,200,150,0.05); }
+    .filter-btn.diff-medium.active { border-color: var(--yellow); color: var(--yellow); background: rgba(255,211,42,0.05); }
+    .filter-btn.diff-hard.active { border-color: var(--red); color: var(--red); background: rgba(255,71,87,0.05); }
+    .filter-btn.diff-easy { color: rgba(0,200,150,0.45); border-color: rgba(0,200,150,0.2); }
+    .filter-btn.diff-medium { color: rgba(245,158,11,0.45); border-color: rgba(245,158,11,0.2); }
+    .filter-btn.diff-hard { color: rgba(239,68,68,0.45); border-color: rgba(239,68,68,0.2); }
+    .filter-btn.diff-all { color: var(--text-dim); }
+    .search-wrap { margin-left: auto; position: relative; }
+    .search-wrap::before {
+      content: '⌕';
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-dim);
+      font-size: 16px;
+      pointer-events: none;
+    }
+    #search {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 7px 16px 7px 36px;
+      width: 200px;
+      outline: none;
+      letter-spacing: 1px;
+      transition: border-color 0.2s;
+    }
+    #search:focus { border-color: var(--accent3); }
+    #search::placeholder { color: var(--text-dim); }
+    /* ─── GRID ─── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 24px;
+      padding: 48px 0 80px;
+    }
+    .card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      padding: 32px;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.25s, transform 0.2s;
+      cursor: pointer;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--card-accent, var(--accent3)), transparent);
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+    .card:hover { border-color: var(--card-accent, var(--accent3)); transform: translateY(-3px); }
+    .card:hover::before { opacity: 1; }
+    .card-platform {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--card-accent, var(--accent3));
+      opacity: 0.9;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-platform::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--card-accent, var(--accent3));
+      display: inline-block;
+    }
+    .card-title {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.5px;
+      line-height: 1.1;
+    }
+    .card-desc {
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      color: var(--text-dim);
+      line-height: 1.6;
+      flex: 1;
+    }
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 4px;
+    }
+    .card-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .badge {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      padding: 3px 8px;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      letter-spacing: 1px;
+    }
+    .difficulty {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      padding: 4px 12px;
+      border: 1px solid;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .diff-easy { border-color: #00c896; color: #00c896; }
+    .diff-medium { border-color: var(--yellow); color: var(--yellow); }
+    .diff-hard { border-color: var(--red); color: var(--red); }
+    .card-arrow {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 18px;
+      color: var(--card-accent, var(--accent3));
+      opacity: 0;
+      transition: opacity 0.2s, transform 0.2s;
+      margin-left: auto;
+      padding-left: 12px;
+    }
+    .card:hover .card-arrow { opacity: 1; transform: translateX(4px); }
+    .no-results {
+      grid-column: 1/-1;
+      text-align: center;
+      padding: 80px 0;
+      font-family: 'Share Tech Mono', monospace;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+      font-size: 13px;
+      display: none;
+    }
+    /* ─── FOOTER ─── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 0;
+      text-align: center;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+    }
+    footer span { color: var(--accent3); }
+    /* ─── ANIMATIONS ─── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .card { animation: fadeUp 0.5s ease both; }
+    .card:nth-child(1) { animation-delay: 0.05s; }
+    .card:nth-child(2) { animation-delay: 0.10s; }
+    .card:nth-child(3) { animation-delay: 0.15s; }
+    .card:nth-child(4) { animation-delay: 0.20s; }
+    .card:nth-child(5) { animation-delay: 0.25s; }
+    .card:nth-child(6) { animation-delay: 0.30s; }
+    .card:nth-child(7) { animation-delay: 0.35s; }
+    .card:nth-child(8) { animation-delay: 0.40s; }
+    .card:nth-child(9) { animation-delay: 0.45s; }
+    .card.hidden { display: none; }
+    @media (max-width: 600px) {
+      .filter-label { display: none; }
+      #search { width: 140px; }
+    }
+  </style>
 </head>
 <body>
 
@@ -441,43 +368,48 @@
 </header>
 
 <div class="container">
-
   <div class="controls">
-
-    <!-- Row 1: Plataformas -->
     <div class="controls-row">
       <span class="filter-label">Platform</span>
       <button class="filter-btn platform-all active" data-filter="platform" data-value="all">Todas</button>
       <button class="filter-btn platform-thm" data-filter="platform" data-value="TryHackMe">TryHackMe</button>
       <button class="filter-btn platform-htb" data-filter="platform" data-value="HackTheBox">HackTheBox</button>
-      <button class="filter-btn platform-vh"  data-filter="platform" data-value="VulnHub">VulnHub</button>
-      <button class="filter-btn platform-dl"  data-filter="platform" data-value="Dockerlabs">Dockerlabs</button>
+      <button class="filter-btn platform-vh" data-filter="platform" data-value="VulnHub">VulnHub</button>
+      <button class="filter-btn platform-dl" data-filter="platform" data-value="Dockerlabs">Dockerlabs</button>
     </div>
-
-    <!-- Row 2: Dificultad + búsqueda -->
     <div class="controls-row">
       <span class="filter-label">Difficulty</span>
       <button class="filter-btn diff-all active" data-filter="difficulty" data-value="all">Todas</button>
-      <button class="filter-btn diff-easy"   data-filter="difficulty" data-value="Easy">Easy</button>
+      <button class="filter-btn diff-easy" data-filter="difficulty" data-value="Easy">Easy</button>
       <button class="filter-btn diff-medium" data-filter="difficulty" data-value="Medium">Medium</button>
-      <button class="filter-btn diff-hard"   data-filter="difficulty" data-value="Hard">Hard</button>
-
+      <button class="filter-btn diff-hard" data-filter="difficulty" data-value="Hard">Hard</button>
       <div class="search-wrap">
         <input type="text" id="search" placeholder="Buscar writeup...">
       </div>
     </div>
-
   </div>
 
   <div class="grid" id="grid">
 
+        <!-- WHITEROSE -->
+    <a class="card" href="files/whiterose.html" style="--card-accent: #ef4444;" data-platform="TryHackMe" data-difficulty="Easy" data-title="whiterose">
+      <div class="card-platform">TryHackMe</div>
+      <div class="card-title">Whiterose</div>
+      <div class="card-desc">IDOR en el chat expone credenciales de admin. SSTI en EJS via CVE-2022-29078 permite RCE. Escalada a root abusando de sudoedit con CVE-2023-22809.</div>
+      <div class="card-footer">
+        <div class="card-tags">
+          <span class="badge">#linux</span>
+          <span class="badge">#idor</span>
+          <span class="badge">#ejs-ssti</span>
+          <span class="badge">#sudoedit</span>
+        </div>
+        <span class="difficulty diff-easy">Easy</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
     <!-- UNIFIED -->
-    <a class="card"
-       href="files/unified.html"
-       style="--card-accent: #22c55e;"
-       data-platform="HackTheBox"
-       data-difficulty="Easy"
-       data-title="unified">
+    <a class="card" href="files/unified.html" style="--card-accent: #22c55e;" data-platform="HackTheBox" data-difficulty="Easy" data-title="unified">
       <div class="card-platform">HackTheBox</div>
       <div class="card-title">Unified</div>
       <div class="card-desc">Log4Shell en UniFi expone RCE sin autenticación. Manipulación de MongoDB para acceder al panel y obtener la contraseña SSH de root en texto claro.</div>
@@ -492,21 +424,16 @@
         <span class="card-arrow">→</span>
       </div>
     </a>
-    
+
     <!-- VACCINE -->
-    <a class="card"
-       href="files/vaccine.html"
-       style="--card-accent: #22c55e;"
-       data-platform="HackTheBox"
-       data-difficulty="Easy"
-       data-title="vaccine">
+    <a class="card" href="files/vaccine.html" style="--card-accent: #22c55e;" data-platform="HackTheBox" data-difficulty="Easy" data-title="vaccine">
       <div class="card-platform">HackTheBox</div>
       <div class="card-title">Vaccine</div>
       <div class="card-desc">FTP anónimo expone un backup con credenciales hasheadas. SQLi en el panel web permite RCE; escalada final abusando de vi con sudo.</div>
       <div class="card-footer">
         <div class="card-tags">
           <span class="badge">#linux</span>
-          <span class="badge">#sqlmai</span>
+          <span class="badge">#sqli</span>
           <span class="badge">#anon-ftp</span>
           <span class="badge">#vi</span>
         </div>
@@ -514,14 +441,9 @@
         <span class="card-arrow">→</span>
       </div>
     </a>
-    
+
     <!-- INTERNAL -->
-    <a class="card"
-       href="files/internal.html"
-       style="--card-accent: #3b82f6;"
-       data-platform="Dockerlabs"
-       data-difficulty="Easy"
-       data-title="internal">
+    <a class="card" href="files/internal.html" style="--card-accent: #3b82f6;" data-platform="Dockerlabs" data-difficulty="Easy" data-title="internal">
       <div class="card-platform">Dockerlabs</div>
       <div class="card-title">Internal</div>
       <div class="card-desc">Virtual host fuzzing para descubrir un panel con RCE protegido por WAF, bypasseado con quote splitting. Escalada a root via binario SUID personalizado.</div>
@@ -536,14 +458,9 @@
         <span class="card-arrow">→</span>
       </div>
     </a>
-    
+
     <!-- MR ROBOT -->
-    <a class="card"
-       href="files/mrrobot.html"
-       style="--card-accent: #a855f7;"
-       data-platform="VulnHub"
-       data-difficulty="Easy"
-       data-title="mrrobot">
+    <a class="card" href="files/mrrobot.html" style="--card-accent: #a855f7;" data-platform="VulnHub" data-difficulty="Easy" data-title="mrrobot">
       <div class="card-platform">VulnHub</div>
       <div class="card-title">Mr. Robot</div>
       <div class="card-desc">Diccionario y key filtrados en robots.txt de un WordPress vulnerable. Enumeración de usuarios por mensajes de error diferenciados, fuerza bruta de contraseña, RCE via editor de temas y escalada a root explotando un binario nmap con SUID.</div>
@@ -560,12 +477,7 @@
     </a>
 
     <!-- OOPSIE -->
-    <a class="card"
-       href="files/oopsie.html"
-       style="--card-accent: #22c55e;"
-       data-platform="HackTheBox"
-       data-difficulty="Easy"
-       data-title="oopsie">
+    <a class="card" href="files/oopsie.html" style="--card-accent: #22c55e;" data-platform="HackTheBox" data-difficulty="Easy" data-title="oopsie">
       <div class="card-platform">HackTheBox</div>
       <div class="card-title">Oopsie</div>
       <div class="card-desc">Enumeración con Burp Suite, acceso admin vía IDOR y cookie hijacking, reverse shell por upload sin restricciones y escalada a root con path hijacking sobre un binario SUID.</div>
@@ -582,12 +494,7 @@
     </a>
 
     <!-- ARCHETYPE -->
-    <a class="card"
-       href="files/archetype.html"
-       style="--card-accent: #22c55e;"
-       data-platform="HackTheBox"
-       data-difficulty="Easy"
-       data-title="archetype">
+    <a class="card" href="files/archetype.html" style="--card-accent: #22c55e;" data-platform="HackTheBox" data-difficulty="Easy" data-title="archetype">
       <div class="card-platform">HackTheBox</div>
       <div class="card-title">Archetype</div>
       <div class="card-desc">Credenciales expuestas en un share SMB anónimo que dan acceso a un servidor MSSQL. Ejecución de comandos vía xp_cmdshell y escalada a administrador a través del historial de PowerShell.</div>
@@ -604,12 +511,7 @@
     </a>
 
     <!-- OVERPASS -->
-    <a class="card"
-       href="files/overpass.html"
-       style="--card-accent: #ef4444;"
-       data-platform="TryHackMe"
-       data-difficulty="Easy"
-       data-title="overpass">
+    <a class="card" href="files/overpass.html" style="--card-accent: #ef4444;" data-platform="TryHackMe" data-difficulty="Easy" data-title="overpass">
       <div class="card-platform">TryHackMe</div>
       <div class="card-title">Overpass</div>
       <div class="card-desc">Explotación de autenticación rota en una app web, seguida de privilege escalation vía hosts hijacking y cron jobs.</div>
@@ -626,12 +528,7 @@
     </a>
 
     <!-- MUSTACCHIO -->
-    <a class="card"
-       href="files/mustacchio.html"
-       style="--card-accent: #ef4444;"
-       data-platform="TryHackMe"
-       data-difficulty="Easy"
-       data-title="mustacchio">
+    <a class="card" href="files/mustacchio.html" style="--card-accent: #ef4444;" data-platform="TryHackMe" data-difficulty="Easy" data-title="mustacchio">
       <div class="card-platform">TryHackMe</div>
       <div class="card-title">Mustacchio</div>
       <div class="card-desc">Explotación de XXE en un panel de administración y privilege escalation mediante path hijacking de binarios SUID.</div>
@@ -648,7 +545,6 @@
     </a>
 
     <div class="no-results" id="no-results">// no se encontraron resultados</div>
-
   </div>
 </div>
 
@@ -668,17 +564,16 @@
   function updateStats() {
     const visibleCards = cards.filter(c => !c.classList.contains('hidden'));
     const platforms = new Set(visibleCards.map(c => c.dataset.platform));
-    document.getElementById('total-count').textContent    = visibleCards.length;
+    document.getElementById('total-count').textContent = visibleCards.length;
     document.getElementById('platform-count').textContent = platforms.size;
-    document.getElementById('machine-count').textContent  = visibleCards.length;
+    document.getElementById('machine-count').textContent = visibleCards.length;
   }
 
   function applyFilters() {
     cards.forEach(card => {
-      const matchPlatform   = activePlatform === 'all'   || card.dataset.platform === activePlatform;
+      const matchPlatform = activePlatform === 'all' || card.dataset.platform === activePlatform;
       const matchDifficulty = activeDifficulty === 'all' || card.dataset.difficulty === activeDifficulty;
-      const matchSearch     = !searchQuery || card.dataset.title.includes(searchQuery) ||
-                              card.textContent.toLowerCase().includes(searchQuery);
+      const matchSearch = !searchQuery || card.dataset.title.includes(searchQuery) || card.textContent.toLowerCase().includes(searchQuery);
       card.classList.toggle('hidden', !(matchPlatform && matchDifficulty && matchSearch));
     });
     const visible = cards.filter(c => !c.classList.contains('hidden')).length;
