@@ -335,6 +335,7 @@
     .card:nth-child(8) { animation-delay: 0.40s; }
     .card:nth-child(9) { animation-delay: 0.45s; }
     .card.hidden { display: none; }
+    .card[data-status="private"] { display: none; }
     @media (max-width: 600px) {
       .filter-label { display: none; }
       #search { width: 140px; }
@@ -445,7 +446,7 @@
     </a>
 
     <!-- FACTS -->
-    <a class="card" href="facts/" style="--card-accent: #22c55e;" data-platform="HackTheBox" data-difficulty="Easy" data-title="facts">
+    <a class="card" href="facts/" style="--card-accent: #22c55e;" data-platform="HackTheBox" data-difficulty="Easy" data-title="facts" data-status="private">
       <div class="card-platform">HackTheBox</div>
       <div class="card-title">Facts</div>
       <div class="card-desc">Bucket MinIO público con escritura anónima. CVE-2025-2304 escala a admin en Camaleon CMS y filtra credenciales S3. Bucket privado expone clave SSH. CVE-2024-46987 (LFI) revela el usuario. Escalada a root abusando de sudo facter con custom facts Ruby.</div>
@@ -625,7 +626,7 @@
 </footer>
 
 <script>
-  const cards = Array.from(document.querySelectorAll('.card[data-platform]'));
+  const cards = Array.from(document.querySelectorAll('.card[data-platform]')).filter(c => c.dataset.status !== 'private');
   const noResults = document.getElementById('no-results');
   let activePlatform = 'all';
   let activeDifficulty = 'all';

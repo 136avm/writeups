@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__filesystem__directory_tree",
+      "mcp__filesystem__list_directory_with_sizes",
+      "mcp__filesystem__read_text_file",
+      "Bash(npm install:*)",
+      "Bash(npm run:*)",
+      "mcp__filesystem__list_directory",
+      "Bash(find 'c:\\\\Users\\\\Usuario\\\\Desktop\\\\pruebas claude\\\\writeups' -type f \\\\\\(-name *.md -o -name *.yaml -o -name *.yml -o -name *.json -o -name *.toml -o -name *.config* -o -name Makefile -o -name *.js -o -name *.ts \\\\\\) ! -path */.git/* ! -path */node_modules/*)"
+    ]
+  }
+}
