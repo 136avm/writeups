@@ -23,6 +23,7 @@
       --htb: #22c55e;
       --vh: #a855f7;
       --dl: #3b82f6;
+      --hmv: #ec4899;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -159,11 +160,13 @@
     .filter-btn.platform-htb { border-color: rgba(34,197,94,0.35); color: rgba(34,197,94,0.55); }
     .filter-btn.platform-vh { border-color: rgba(168,85,247,0.35); color: rgba(168,85,247,0.55); }
     .filter-btn.platform-dl { border-color: rgba(59,130,246,0.35); color: rgba(59,130,246,0.55); }
+    .filter-btn.platform-hmv { border-color: rgba(236,72,153,0.35); color: rgba(236,72,153,0.55); }
     .filter-btn.platform-all.active { border-color: #94a3b8; color: #94a3b8; background: rgba(148,163,184,0.08); }
     .filter-btn.platform-thm.active { border-color: var(--thm); color: var(--thm); background: rgba(239,68,68,0.10); }
     .filter-btn.platform-htb.active { border-color: var(--htb); color: var(--htb); background: rgba(34,197,94,0.10); }
     .filter-btn.platform-vh.active { border-color: var(--vh); color: var(--vh); background: rgba(168,85,247,0.10); }
     .filter-btn.platform-dl.active { border-color: var(--dl); color: var(--dl); background: rgba(59,130,246,0.10); }
+    .filter-btn.platform-hmv.active { border-color: var(--hmv); color: var(--hmv); background: rgba(236,72,153,0.10); }
     .filter-btn.diff-all.active { border-color: #94a3b8; color: #94a3b8; background: rgba(148,163,184,0.08); }
     .filter-btn.diff-easy.active { border-color: #00c896; color: #00c896; background: rgba(0,200,150,0.05); }
     .filter-btn.diff-medium.active { border-color: var(--yellow); color: var(--yellow); background: rgba(255,211,42,0.05); }
@@ -229,6 +232,11 @@
     }
     .card:hover { border-color: var(--card-accent, var(--accent3)); transform: translateY(-3px); }
     .card:hover::before { opacity: 1; }
+    .card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
     .card-platform {
       font-family: 'Share Tech Mono', monospace;
       font-size: 10px;
@@ -266,9 +274,9 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-top: 4px;
+      margin-top: 8px;
     }
-    .card-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .card-tags { display: flex; flex-wrap: wrap; gap: 6px; flex: 1; }
     .badge {
       font-family: 'Share Tech Mono', monospace;
       font-size: 10px;
@@ -377,6 +385,7 @@
       <button class="filter-btn platform-htb" data-filter="platform" data-value="HackTheBox">HackTheBox</button>
       <button class="filter-btn platform-vh" data-filter="platform" data-value="VulnHub">VulnHub</button>
       <button class="filter-btn platform-dl" data-filter="platform" data-value="Dockerlabs">Dockerlabs</button>
+      <button class="filter-btn platform-hmv" data-filter="platform" data-value="HackMyVM">HackMyVM</button>
     </div>
     <div class="controls-row">
       <span class="filter-label">Difficulty</span>
@@ -392,9 +401,31 @@
 
   <div class="grid" id="grid">
 
+    <!-- TALK -->
+    <a class="card" href="talk/" style="--card-accent: #ec4899;" data-platform="HackMyVM" data-difficulty="Easy" data-title="talk">
+      <div class="card-top">
+        <div class="card-platform">HackMyVM</div>
+        <span class="difficulty diff-easy">Easy</span>
+      </div>
+      <div class="card-title">Talk</div>
+      <div class="card-desc">SQLi en formulario de login bypassea autenticación y vuelca credenciales en texto claro via sqlmap. Acceso SSH con credenciales extraídas. Escalada a root abusando de sudo lynx sin contraseña.</div>
+      <div class="card-footer">
+        <div class="card-tags">
+          <span class="badge">#linux</span>
+          <span class="badge">#sqli</span>
+          <span class="badge">#sqlmap</span>
+          <span class="badge">#sudo-lynx</span>
+        </div>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
     <!-- WONDERLAND -->
     <a class="card" href="wonderland/" style="--card-accent: #ef4444;" data-platform="TryHackMe" data-difficulty="Medium" data-title="wonderland">
-      <div class="card-platform">TryHackMe</div>
+      <div class="card-top">
+        <div class="card-platform">TryHackMe</div>
+        <span class="difficulty diff-medium">Medium</span>
+      </div>
       <div class="card-title">Wonderland</div>
       <div class="card-desc">Credenciales SSH ocultas en el código fuente de una ruta temática. Escalada encadenada: Python library hijacking para pasar a rabbit, PATH hijacking en binario SUID para llegar a hatter y capability cap_setuid en Perl para obtener root.</div>
       <div class="card-footer">
@@ -404,14 +435,16 @@
           <span class="badge">#path-hijacking</span>
           <span class="badge">#capabilities</span>
         </div>
-        <span class="difficulty diff-medium">Medium</span>
         <span class="card-arrow">→</span>
       </div>
     </a>
 
     <!-- OLYMPUS -->
     <a class="card" href="olympus/" style="--card-accent: #ef4444;" data-platform="TryHackMe" data-difficulty="Medium" data-title="olympus">
-      <div class="card-platform">TryHackMe</div>
+      <div class="card-top">
+        <div class="card-platform">TryHackMe</div>
+        <span class="difficulty diff-medium">Medium</span>
+      </div>
       <div class="card-title">Olympus</div>
       <div class="card-desc">SQLi en Victor CMS vuelca credenciales y flag de DB. Upload de reverse shell con renombrado aleatorio bypasseado via la propia SQLi. Escalada a zeus con SUID cputils para robar clave RSA. Root mediante backdoor SUID oculto en el webroot.</div>
       <div class="card-footer">
@@ -422,14 +455,16 @@
           <span class="badge">#php</span>
           <span class="badge">#regex</span>
         </div>
-        <span class="difficulty diff-medium">Medium</span>
         <span class="card-arrow">→</span>
       </div>
     </a>
 
     <!-- ANONYMOUS -->
     <a class="card" href="anonymous/" style="--card-accent: #ef4444;" data-platform="TryHackMe" data-difficulty="Medium" data-title="anonymous">
-      <div class="card-platform">TryHackMe</div>
+      <div class="card-top">
+        <div class="card-platform">TryHackMe</div>
+        <span class="difficulty diff-medium">Medium</span>
+      </div>
       <div class="card-title">Anonymous</div>
       <div class="card-desc">FTP anónimo expone script ejecutado por cron job con directorio escribible. Reverse shell inyectada en clean.sh sin necesidad de bit de ejecución. Escalada a root abusando de /usr/bin/env con SUID via GTFOBins.</div>
       <div class="card-footer">
@@ -440,14 +475,16 @@
           <span class="badge">#smb</span>
           <span class="badge">#suid-env</span>
         </div>
-        <span class="difficulty diff-medium">Medium</span>
         <span class="card-arrow">→</span>
       </div>
     </a>
 
     <!-- CHOCOLATE FACTORY -->
     <a class="card" href="chocolate-factory/" style="--card-accent: #ef4444;" data-platform="TryHackMe" data-difficulty="Easy" data-title="chocolate factory">
-      <div class="card-platform">TryHackMe</div>
+      <div class="card-top">
+        <div class="card-platform">TryHackMe</div>
+        <span class="difficulty diff-easy">Easy</span>
+      </div>
       <div class="card-title">Chocolate Factory</div>
       <div class="card-desc">FTP anónimo expone imagen con /etc/shadow embebido en Base64. RCE directa en panel web filtra clave Fernet y clave SSH privada. Escalada a root abusando de sudo vi via GTFOBins. Flag root descifrada con Fernet.</div>
       <div class="card-footer">
@@ -458,14 +495,16 @@
           <span class="badge">#sudo-vi</span>
           <span class="badge">#fernet</span>
         </div>
-        <span class="difficulty diff-easy">Easy</span>
         <span class="card-arrow">→</span>
       </div>
     </a>
 
     <!-- SIMPLE CTF -->
     <a class="card" href="simple-ctf/" style="--card-accent: #ef4444;" data-platform="TryHackMe" data-difficulty="Easy" data-title="simple ctf">
-      <div class="card-platform">TryHackMe</div>
+      <div class="card-top">
+        <div class="card-platform">TryHackMe</div>
+        <span class="difficulty diff-easy">Easy</span>
+      </div>
       <div class="card-title">Simple CTF</div>
       <div class="card-desc">FTP anónimo filtra usuario y pista de contraseña débil. CVE-2019-9053 (Time-Based Blind SQLi) en CMS Made Simple extrae credenciales. Escalada a root abusando de sudo vim via GTFOBins.</div>
       <div class="card-footer">
@@ -475,14 +514,16 @@
           <span class="badge">#anon-ftp</span>
           <span class="badge">#sudo-vim</span>
         </div>
-        <span class="difficulty diff-easy">Easy</span>
         <span class="card-arrow">→</span>
       </div>
     </a>
 
     <!-- FACTS -->
     <a class="card" href="facts/" style="--card-accent: #22c55e;" data-platform="HackTheBox" data-difficulty="Easy" data-title="facts" data-status="private">
-      <div class="card-platform">HackTheBox</div>
+      <div class="card-top">
+        <div class="card-platform">HackTheBox</div>
+        <span class="difficulty diff-easy">Easy</span>
+      </div>
       <div class="card-title">Facts</div>
       <div class="card-desc">Bucket MinIO público con escritura anónima. CVE-2025-2304 escala a admin en Camaleon CMS y filtra credenciales S3. Bucket privado expone clave SSH. CVE-2024-46987 (LFI) revela el usuario. Escalada a root abusando de sudo facter con custom facts Ruby.</div>
       <div class="card-footer">
@@ -492,14 +533,16 @@
           <span class="badge">#privesc</span>
           <span class="badge">#lfi</span>
         </div>
-        <span class="difficulty diff-easy">Easy</span>
         <span class="card-arrow">→</span>
       </div>
     </a>
 
-        <!-- WHITEROSE -->
+    <!-- WHITEROSE -->
     <a class="card" href="whiterose/" style="--card-accent: #ef4444;" data-platform="TryHackMe" data-difficulty="Easy" data-title="whiterose">
-      <div class="card-platform">TryHackMe</div>
+      <div class="card-top">
+        <div class="card-platform">TryHackMe</div>
+        <span class="difficulty diff-easy">Easy</span>
+      </div>
       <div class="card-title">Whiterose</div>
       <div class="card-desc">IDOR en el chat expone credenciales de admin. SSTI en EJS via CVE-2022-29078 permite RCE. Escalada a root abusando de sudoedit con CVE-2023-22809.</div>
       <div class="card-footer">
@@ -509,14 +552,16 @@
           <span class="badge">#ejs-ssti</span>
           <span class="badge">#sudoedit</span>
         </div>
-        <span class="difficulty diff-easy">Easy</span>
         <span class="card-arrow">→</span>
       </div>
     </a>
 
     <!-- UNIFIED -->
     <a class="card" href="unified/" style="--card-accent: #22c55e;" data-platform="HackTheBox" data-difficulty="Easy" data-title="unified">
-      <div class="card-platform">HackTheBox</div>
+      <div class="card-top">
+        <div class="card-platform">HackTheBox</div>
+        <span class="difficulty diff-easy">Easy</span>
+      </div>
       <div class="card-title">Unified</div>
       <div class="card-desc">Log4Shell en UniFi expone RCE sin autenticación. Manipulación de MongoDB para acceder al panel y obtener la contraseña SSH de root en texto claro.</div>
       <div class="card-footer">
@@ -526,14 +571,16 @@
           <span class="badge">#jndi</span>
           <span class="badge">#mongodb</span>
         </div>
-        <span class="difficulty diff-easy">Easy</span>
         <span class="card-arrow">→</span>
       </div>
     </a>
 
     <!-- VACCINE -->
     <a class="card" href="vaccine/" style="--card-accent: #22c55e;" data-platform="HackTheBox" data-difficulty="Easy" data-title="vaccine">
-      <div class="card-platform">HackTheBox</div>
+      <div class="card-top">
+        <div class="card-platform">HackTheBox</div>
+        <span class="difficulty diff-easy">Easy</span>
+      </div>
       <div class="card-title">Vaccine</div>
       <div class="card-desc">FTP anónimo expone un backup con credenciales hasheadas. SQLi en el panel web permite RCE; escalada final abusando de vi con sudo.</div>
       <div class="card-footer">
@@ -543,14 +590,16 @@
           <span class="badge">#anon-ftp</span>
           <span class="badge">#vi</span>
         </div>
-        <span class="difficulty diff-easy">Easy</span>
         <span class="card-arrow">→</span>
       </div>
     </a>
 
     <!-- INTERNAL -->
     <a class="card" href="internal/" style="--card-accent: #3b82f6;" data-platform="Dockerlabs" data-difficulty="Easy" data-title="internal">
-      <div class="card-platform">Dockerlabs</div>
+      <div class="card-top">
+        <div class="card-platform">Dockerlabs</div>
+        <span class="difficulty diff-easy">Easy</span>
+      </div>
       <div class="card-title">Internal</div>
       <div class="card-desc">Virtual host fuzzing para descubrir un panel con RCE protegido por WAF, bypasseado con quote splitting. Escalada a root via binario SUID personalizado.</div>
       <div class="card-footer">
@@ -560,14 +609,16 @@
           <span class="badge">#rce</span>
           <span class="badge">#suid</span>
         </div>
-        <span class="difficulty diff-easy">Easy</span>
         <span class="card-arrow">→</span>
       </div>
     </a>
 
     <!-- MR ROBOT -->
     <a class="card" href="mrrobot/" style="--card-accent: #a855f7;" data-platform="VulnHub" data-difficulty="Easy" data-title="mrrobot">
-      <div class="card-platform">VulnHub</div>
+      <div class="card-top">
+        <div class="card-platform">VulnHub</div>
+        <span class="difficulty diff-easy">Easy</span>
+      </div>
       <div class="card-title">Mr. Robot</div>
       <div class="card-desc">Diccionario y key filtrados en robots.txt de un WordPress vulnerable. Enumeración de usuarios por mensajes de error diferenciados, fuerza bruta de contraseña, RCE via editor de temas y escalada a root explotando un binario nmap con SUID.</div>
       <div class="card-footer">
@@ -577,14 +628,16 @@
           <span class="badge">#bruteforce</span>
           <span class="badge">#suid</span>
         </div>
-        <span class="difficulty diff-easy">Easy</span>
         <span class="card-arrow">→</span>
       </div>
     </a>
 
     <!-- OOPSIE -->
     <a class="card" href="oopsie/" style="--card-accent: #22c55e;" data-platform="HackTheBox" data-difficulty="Easy" data-title="oopsie">
-      <div class="card-platform">HackTheBox</div>
+      <div class="card-top">
+        <div class="card-platform">HackTheBox</div>
+        <span class="difficulty diff-easy">Easy</span>
+      </div>
       <div class="card-title">Oopsie</div>
       <div class="card-desc">Enumeración con Burp Suite, acceso admin vía IDOR y cookie hijacking, reverse shell por upload sin restricciones y escalada a root con path hijacking sobre un binario SUID.</div>
       <div class="card-footer">
@@ -594,14 +647,16 @@
           <span class="badge">#idor</span>
           <span class="badge">#path-hijacking</span>
         </div>
-        <span class="difficulty diff-easy">Easy</span>
         <span class="card-arrow">→</span>
       </div>
     </a>
 
     <!-- ARCHETYPE -->
     <a class="card" href="archetype/" style="--card-accent: #22c55e;" data-platform="HackTheBox" data-difficulty="Easy" data-title="archetype">
-      <div class="card-platform">HackTheBox</div>
+      <div class="card-top">
+        <div class="card-platform">HackTheBox</div>
+        <span class="difficulty diff-easy">Easy</span>
+      </div>
       <div class="card-title">Archetype</div>
       <div class="card-desc">Credenciales expuestas en un share SMB anónimo que dan acceso a un servidor MSSQL. Ejecución de comandos vía xp_cmdshell y escalada a administrador a través del historial de PowerShell.</div>
       <div class="card-footer">
@@ -611,14 +666,16 @@
           <span class="badge">#impacket</span>
           <span class="badge">#smb</span>
         </div>
-        <span class="difficulty diff-easy">Easy</span>
         <span class="card-arrow">→</span>
       </div>
     </a>
 
     <!-- OVERPASS -->
     <a class="card" href="overpass/" style="--card-accent: #ef4444;" data-platform="TryHackMe" data-difficulty="Easy" data-title="overpass">
-      <div class="card-platform">TryHackMe</div>
+      <div class="card-top">
+        <div class="card-platform">TryHackMe</div>
+        <span class="difficulty diff-easy">Easy</span>
+      </div>
       <div class="card-title">Overpass</div>
       <div class="card-desc">Explotación de autenticación rota en una app web, seguida de privilege escalation vía hosts hijacking y cron jobs.</div>
       <div class="card-footer">
@@ -628,14 +685,16 @@
           <span class="badge">#broken-auth</span>
           <span class="badge">#cron</span>
         </div>
-        <span class="difficulty diff-easy">Easy</span>
         <span class="card-arrow">→</span>
       </div>
     </a>
 
     <!-- MUSTACCHIO -->
     <a class="card" href="mustacchio/" style="--card-accent: #ef4444;" data-platform="TryHackMe" data-difficulty="Easy" data-title="mustacchio">
-      <div class="card-platform">TryHackMe</div>
+      <div class="card-top">
+        <div class="card-platform">TryHackMe</div>
+        <span class="difficulty diff-easy">Easy</span>
+      </div>
       <div class="card-title">Mustacchio</div>
       <div class="card-desc">Explotación de XXE en un panel de administración y privilege escalation mediante path hijacking de binarios SUID.</div>
       <div class="card-footer">
@@ -645,7 +704,6 @@
           <span class="badge">#XXE</span>
           <span class="badge">#path-hijacking</span>
         </div>
-        <span class="difficulty diff-easy">Easy</span>
         <span class="card-arrow">→</span>
       </div>
     </a>
