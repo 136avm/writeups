@@ -24,6 +24,7 @@
       --vh: #a855f7;
       --dl: #3b82f6;
       --hmv: #ec4899;
+      --thl: #f97316;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -161,12 +162,14 @@
     .filter-btn.platform-vh { border-color: rgba(168,85,247,0.35); color: rgba(168,85,247,0.55); }
     .filter-btn.platform-dl { border-color: rgba(59,130,246,0.35); color: rgba(59,130,246,0.55); }
     .filter-btn.platform-hmv { border-color: rgba(236,72,153,0.35); color: rgba(236,72,153,0.55); }
+    .filter-btn.platform-thl { border-color: rgba(249,115,22,0.35); color: rgba(249,115,22,0.55); }
     .filter-btn.platform-all.active { border-color: #94a3b8; color: #94a3b8; background: rgba(148,163,184,0.08); }
     .filter-btn.platform-thm.active { border-color: var(--thm); color: var(--thm); background: rgba(239,68,68,0.10); }
     .filter-btn.platform-htb.active { border-color: var(--htb); color: var(--htb); background: rgba(34,197,94,0.10); }
     .filter-btn.platform-vh.active { border-color: var(--vh); color: var(--vh); background: rgba(168,85,247,0.10); }
     .filter-btn.platform-dl.active { border-color: var(--dl); color: var(--dl); background: rgba(59,130,246,0.10); }
     .filter-btn.platform-hmv.active { border-color: var(--hmv); color: var(--hmv); background: rgba(236,72,153,0.10); }
+    .filter-btn.platform-thl.active { border-color: var(--thl); color: var(--thl); background: rgba(249,115,22,0.10); }
     .filter-btn.diff-all.active { border-color: #94a3b8; color: #94a3b8; background: rgba(148,163,184,0.08); }
     .filter-btn.diff-easy.active { border-color: #00c896; color: #00c896; background: rgba(0,200,150,0.05); }
     .filter-btn.diff-medium.active { border-color: var(--yellow); color: var(--yellow); background: rgba(255,211,42,0.05); }
@@ -386,6 +389,7 @@
       <button class="filter-btn platform-vh" data-filter="platform" data-value="VulnHub">VulnHub</button>
       <button class="filter-btn platform-dl" data-filter="platform" data-value="Dockerlabs">Dockerlabs</button>
       <button class="filter-btn platform-hmv" data-filter="platform" data-value="HackMyVM">HackMyVM</button>
+      <button class="filter-btn platform-thl" data-filter="platform" data-value="TheHackerLabs">TheHackerLabs</button>
     </div>
     <div class="controls-row">
       <span class="filter-label">Difficulty</span>
@@ -400,6 +404,25 @@
   </div>
 
   <div class="grid" id="grid">
+
+    <!-- BUDA -->
+    <a class="card" href="buda/" style="--card-accent: #f97316;" data-platform="TheHackerLabs" data-difficulty="Medium" data-title="buda">
+      <div class="card-top">
+        <div class="card-platform">TheHackerLabs</div>
+        <span class="difficulty diff-medium">Medium</span>
+      </div>
+      <div class="card-title">Buda</div>
+      <div class="card-desc">Virtual host fuzzing descubre panel de login vulnerable a SQLi. sqlmap vuelca credenciales FTP. Zip cifrado con john revela credenciales SSH y secuencia de port knocking. Escalada a root abusando de SUID en /usr/bin/bash.</div>
+      <div class="card-footer">
+        <div class="card-tags">
+          <span class="badge">#linux</span>
+          <span class="badge">#sqli</span>
+          <span class="badge">#port-knocking</span>
+          <span class="badge">#suid-bash</span>
+        </div>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
 
     <!-- TALK -->
     <a class="card" href="talk/" style="--card-accent: #ec4899;" data-platform="HackMyVM" data-difficulty="Easy" data-title="talk">
