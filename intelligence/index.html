@@ -387,6 +387,20 @@
     background: linear-gradient(90deg, transparent, var(--border), transparent);
     margin: 8px 0;
   }
+
+  .bh-graph {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent3);
+    padding: 12px;
+    margin: 20px 0;
+  }
+  .bh-graph img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 2px;
+  }
 </style>
 </head>
 <body>
@@ -627,6 +641,13 @@ foreach($record in Get-ChildItem "AD:DC=intelligence.htb,CN=MicrosoftDNS,DC=Doma
 
     <div class="code-label">recolección de datos con bloodhound</div>
     <div class="code-block cmd">bloodhound-python -u 'Ted.Graves' -p 'Mr.Teddy' -d 'intelligence.htb' -ns 10.129.95.154 -c all --zip</div>
+
+    <p>Subiendo los datos a BloodHound, el camino desde <code>Ted.Graves</code> hasta el dominio queda así de claro:</p>
+
+    <div class="code-label">grafo de ataque — bloodhound</div>
+    <div class="bh-graph">
+      <img src="img/bloodhound-path.png" alt="Camino de ataque en BloodHound: Ted.Graves -> ITSUPPORT (MemberOf) -> SVC_INT$ (ReadGMSAPassword) -> DC.INTELLIGENCE.HTB (AllowedToDelegate) -> INTELLIGENCE.HTB (CoerceToTGT)">
+    </div>
 
     <div class="finding vuln">
       <div class="finding-title">Cadena de abuso hacia Domain Admin</div>
